@@ -22,17 +22,17 @@ export default function SubscriptionRequired() {
   const statusLabel = STATUS_LABELS[entreprise?.statut_abonnement] || 'Abonnement inactif';
 
   return (
-    <div className="subscription-required">
-      <div className="subscription-required__icon">
+    <div className="blocked-screen">
+      <div className="blocked-screen__icon">
         <LuLock />
       </div>
       <h1>Accès bloqué</h1>
       <p>{statusLabel}</p>
-      <p className="subscription-required__hint">
+      <p className="blocked-screen__hint">
         L'abonnement QuincaPro est de 5000 FCFA / mois. Le paiement en ligne (Wave, Orange Money, Free
         Money) sera bientôt disponible directement ici.
       </p>
-      <button className="subscription-required__signout" onClick={handleSignOut}>
+      <button className="blocked-screen__signout" onClick={handleSignOut}>
         <LuLogOut /> Se déconnecter
       </button>
     </div>

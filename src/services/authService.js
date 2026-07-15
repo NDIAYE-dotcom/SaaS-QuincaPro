@@ -29,6 +29,18 @@ export async function registerEntreprise({ nom, nomComplet, telephone }) {
   return data;
 }
 
+export async function getInvitation(token) {
+  const { data, error } = await supabase.rpc('get_invitation', { p_token: token });
+  if (error) throw error;
+  return data?.[0] || null;
+}
+
+export async function acceptInvitation(token) {
+  const { data, error } = await supabase.rpc('accept_invitation', { p_token: token });
+  if (error) throw error;
+  return data;
+}
+
 export async function signOut() {
   const { error } = await supabase.auth.signOut();
   if (error) throw error;

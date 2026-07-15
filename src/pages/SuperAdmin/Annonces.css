@@ -1,0 +1,43 @@
+@import '../../shared/ui.css';
+
+.announcement-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.announcement-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.announcement-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.announcement-card__header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.announcement-card__message {
+  margin: 0 0 12px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+}
+
+.announcement-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

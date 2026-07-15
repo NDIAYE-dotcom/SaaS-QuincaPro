@@ -277,3 +277,36 @@ export async function generateDocument(document, entreprise, kind, format) {
   if (format === 'thermal58') return generateThermalDocument(document, entreprise, kind, 58);
   return generateA4Document(document, entreprise, kind);
 }
+
+export async function generateReportPdf({ title, subtitle, entreprise, columns, rows, filename }) {
+  const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: columns.length > 5 ? 'landscape' : 'portrait' });
+  const margin = 15;
+
+  let y = await drawLetterhead(doc, entreprise, margin, margin);
+  y += 8;
+
+  doc.setFont(undefined, 'bold');
+  doc.setFontSize(15);
+  doc.text(title, margin, y);
+  y += 6;
+
+  if (subtitle) {
+    doc.setFont(undefined, 'normal');
+    doc.setFontSize(9.5);
+    doc.setTextColor(100);
+    doc.text(subtitle, margin, y);
+    doc.setTextColor(0);
+    y += 6;
+  }
+
+  autoTable(doc, {
+    startY: y,
+    margin: { left: margin, right: margin },
+    head: [columns.map((c) => c.label)],
+    body: rows.map((row) => columns.map((c) => (c.format ? c.format(row[c.key]) : (row[c.key] ?? '—')))),
+    styles: { fontSize: 8.5 },
+    headStyles: { fillColor: [5, 150, 105] },
+  });
+
+  doc.save(filename);
+}

@@ -100,9 +100,17 @@ export default function Settings() {
           <h1>Paramètres</h1>
           <p>Informations de votre entreprise</p>
         </div>
-        <span className={`badge ${STATUT_BADGE[entreprise?.statut_abonnement]}`}>
-          Abonnement {STATUT_LABELS[entreprise?.statut_abonnement]}
-        </span>
+        <div className="settings__subscription">
+          <span className={`badge ${STATUT_BADGE[entreprise?.statut_abonnement]}`}>
+            Abonnement {STATUT_LABELS[entreprise?.statut_abonnement]}
+          </span>
+          {entreprise?.date_expiration_abonnement && (
+            <span className="field__hint">
+              Valide jusqu'au{' '}
+              {new Date(entreprise.date_expiration_abonnement).toLocaleDateString('fr-FR')}
+            </span>
+          )}
+        </div>
       </div>
 
       {!isAdmin && (

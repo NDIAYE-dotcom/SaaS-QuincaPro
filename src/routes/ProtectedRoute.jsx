@@ -9,6 +9,7 @@ export default function ProtectedRoute() {
   if (loading) return <LoadingScreen />;
   if (!session) return <Navigate to="/connexion" state={{ from: location }} replace />;
   if (!profile) return <Navigate to="/finalisation" replace />;
+  if (!profile.actif) return <Navigate to="/compte-desactive" replace />;
   if (!isSubscriptionActive) return <Navigate to="/abonnement-requis" replace />;
 
   return <Outlet />;

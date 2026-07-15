@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
-import { registerEntreprise } from '../../../services/authService';
+import { registerEntreprise, acceptInvitation } from '../../../services/authService';
 import './FinalizeRegistration.css';
 
 export default function FinalizeRegistration() {
@@ -12,14 +12,20 @@ export default function FinalizeRegistration() {
   useEffect(() => {
     if (!user) return;
 
-    const { nom_entreprise: nomEntreprise, nom_complet: nomComplet, telephone } = user.user_metadata || {};
+    const {
+      nom_entreprise: nomEntreprise,
+      nom_complet: nomComplet,
+      telephone,
+      invitation_token: invitationToken,
+    } = user.user_metadata || {};
 
-    if (!nomEntreprise || !nomComplet) {
-      setError('Informations d’inscription introuvables. Merci de contacter le support.');
-      return;
-    }
+    const finalize = invitationToken
+      ? acceptInvitation(invitationToken)
+      : nomEntreprise && nomComplet
+        ? registerEntreprise({ nom: nomEntreprise, nomComplet, telephone })
+        : Promise.reject(new Error('Informations d’inscription introuvables. Merci de contacter le support.'));
 
-    registerEntreprise({ nom: nomEntreprise, nomComplet, telephone })
+    finalize
       .then(async () => {
         await refreshProfile();
         navigate('/', { replace: true });

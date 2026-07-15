@@ -1,0 +1,62 @@
+@import '../../shared/ui.css';
+
+.reports__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.reports__toolbar .field {
+  min-width: 160px;
+}
+
+.reports__export-buttons {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.reports__note {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin: -8px 0 16px;
+  font-style: italic;
+}
+
+.reports__summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.reports__summary-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.reports__summary-label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.reports__summary-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+@media (max-width: 720px) {
+  .reports__export-buttons {
+    margin-left: 0;
+    width: 100%;
+  }
+}

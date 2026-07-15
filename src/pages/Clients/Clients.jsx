@@ -98,6 +98,7 @@ export default function Clients() {
                 <th>Client</th>
                 <th>Contact</th>
                 <th>Limite crédit</th>
+                <th>Dette</th>
                 <th></th>
               </tr>
             </thead>
@@ -134,6 +135,15 @@ export default function Clients() {
                     </div>
                   </td>
                   <td>{Number(client.limite_credit).toLocaleString('fr-FR')} FCFA</td>
+                  <td>
+                    {client.solde_dette > 0 ? (
+                      <span className="badge badge--danger">
+                        {Number(client.solde_dette).toLocaleString('fr-FR')} FCFA
+                      </span>
+                    ) : (
+                      '—'
+                    )}
+                  </td>
                   <td className="data-table__actions">
                     <button className="icon-btn" onClick={() => openEditForm(client)} aria-label="Modifier">
                       <LuPencil />

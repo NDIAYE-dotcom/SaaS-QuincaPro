@@ -41,5 +41,12 @@ export async function updateProduct(id, payload) {
 
 export async function deleteProduct(id) {
   const { error } = await supabase.from('produits').delete().eq('id', id);
-  if (error) throw error;
+  if (error) {
+    if (error.code === '23503') {
+      throw new Error(
+        'Impossible de supprimer ce produit : il a des ventes ou mouvements associés. Désactivez-le plutôt.',
+      );
+    }
+    throw error;
+  }
 }

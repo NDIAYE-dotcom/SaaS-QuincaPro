@@ -9,6 +9,9 @@ import Products from '../pages/Products/Products';
 import Stock from '../pages/Stock/Stock';
 import Clients from '../pages/Clients/Clients';
 import Suppliers from '../pages/Suppliers/Suppliers';
+import Sales from '../pages/Sales/Sales';
+import NewSale from '../pages/Sales/NewSale';
+import SaleDetail from '../pages/Sales/SaleDetail';
 import Login from '../pages/auth/Login/Login';
 import Register from '../pages/auth/Register/Register';
 import ForgotPassword from '../pages/auth/ForgotPassword/ForgotPassword';
@@ -46,6 +49,9 @@ export default function AppRoutes() {
           <Route path="/stock" element={<Stock />} />
           <Route path="/clients" element={<Clients />} />
           <Route path="/fournisseurs" element={<Suppliers />} />
+          <Route path="/ventes" element={<Sales />} />
+          <Route path="/ventes/nouvelle" element={<NewSale />} />
+          <Route path="/ventes/:id" element={<SaleDetail />} />
         </Route>
       </Route>
 

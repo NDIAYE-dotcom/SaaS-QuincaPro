@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { LuPlus, LuSearch, LuPencil, LuTrash2, LuTags, LuImageOff } from 'react-icons/lu';
-import { fetchProducts, deleteProduct } from '../../services/productService';
+import { LuPlus, LuSearch, LuPencil, LuTrash2, LuTags, LuImageOff, LuEyeOff, LuEye } from 'react-icons/lu';
+import { fetchProducts, deleteProduct, updateProduct } from '../../services/productService';
 import { fetchCategories } from '../../services/categoryService';
 import { getStockStatus } from '../../utils/stock';
 import ProductFormModal from './ProductFormModal';
@@ -77,6 +77,15 @@ export default function Products() {
   function handleSaved() {
     setFormOpen(false);
     loadProducts();
+  }
+
+  async function handleToggleActive(produit) {
+    try {
+      const updated = await updateProduct(produit.id, { actif: !produit.actif });
+      setProducts((prev) => prev.map((p) => (p.id === produit.id ? updated : p)));
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
   return (
@@ -157,7 +166,9 @@ export default function Products() {
                       )}
                     </td>
                     <td>
-                      <div className="data-table__title">{produit.nom}</div>
+                      <div className="data-table__title">
+                        {produit.nom} {!produit.actif && <span className="badge badge--danger">Inactif</span>}
+                      </div>
                       {produit.marque && <div className="data-table__subtitle">{produit.marque}</div>}
                     </td>
                     <td>{categoryLabel(produit.categorie_id)}</td>
@@ -171,6 +182,13 @@ export default function Products() {
                     <td className="data-table__actions">
                       <button className="icon-btn" onClick={() => openEditForm(produit)} aria-label="Modifier">
                         <LuPencil />
+                      </button>
+                      <button
+                        className="icon-btn"
+                        onClick={() => handleToggleActive(produit)}
+                        aria-label={produit.actif ? 'Désactiver' : 'Activer'}
+                      >
+                        {produit.actif ? <LuEyeOff /> : <LuEye />}
                       </button>
                       <button
                         className="icon-btn icon-btn--danger"

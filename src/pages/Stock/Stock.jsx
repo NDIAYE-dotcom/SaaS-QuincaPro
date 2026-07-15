@@ -105,7 +105,7 @@ export default function Stock() {
         </div>
       )}
 
-      <h2 className="stock__section-title">Journal des mouvements</h2>
+      <h2 className="section-title">Journal des mouvements</h2>
 
       {loading ? (
         <p className="page-loading">Chargement...</p>

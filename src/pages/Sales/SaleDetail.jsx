@@ -2,7 +2,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { LuArrowLeft, LuBan, LuPlus } from 'react-icons/lu';
 import { fetchSale, cancelSale } from '../../services/salesService';
+import { useAuth } from '../../contexts/AuthContext';
 import AddPaymentModal from './AddPaymentModal';
+import PrintButton from '../../shared/PrintButton';
 import './SaleDetail.css';
 
 const STATUT_LABELS = { devis: 'Devis', commande: 'Commande', facture: 'Facture', annulee: 'Annulée' };
@@ -19,6 +21,7 @@ const MOYEN_LABELS = {
 
 export default function SaleDetail() {
   const { id } = useParams();
+  const { entreprise } = useAuth();
   const [sale, setSale] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -55,6 +58,15 @@ export default function SaleDetail() {
     }
   }
 
+  async function handlePrint(format) {
+    try {
+      const { generateDocument } = await import('../../services/pdfService');
+      await generateDocument(sale, entreprise, 'vente', format);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   if (loading) return <p className="page-loading">Chargement...</p>;
   if (!sale) return error ? <div className="page-error">{error}</div> : null;
 
@@ -75,6 +87,7 @@ export default function SaleDetail() {
           </p>
         </div>
         <div className="page-header__actions">
+          <PrintButton onPrint={handlePrint} />
           {sale.statut === 'facture' && reste > 0 && (
             <button className="btn btn--primary" onClick={() => setPaymentOpen(true)}>
               <LuPlus /> Ajouter un paiement

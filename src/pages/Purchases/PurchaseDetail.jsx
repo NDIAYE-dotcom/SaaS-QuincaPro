@@ -2,7 +2,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { LuArrowLeft, LuBan, LuPlus } from 'react-icons/lu';
 import { fetchPurchase, cancelPurchase } from '../../services/purchasesService';
+import { useAuth } from '../../contexts/AuthContext';
 import AddPurchasePaymentModal from './AddPurchasePaymentModal';
+import PrintButton from '../../shared/PrintButton';
 import './PurchaseDetail.css';
 
 const STATUT_LABELS = { commande: 'Commande', recu: 'Reçu', annule: 'Annulé' };
@@ -19,6 +21,7 @@ const MOYEN_LABELS = {
 
 export default function PurchaseDetail() {
   const { id } = useParams();
+  const { entreprise } = useAuth();
   const [achat, setAchat] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -55,6 +58,15 @@ export default function PurchaseDetail() {
     }
   }
 
+  async function handlePrint(format) {
+    try {
+      const { generateDocument } = await import('../../services/pdfService');
+      await generateDocument(achat, entreprise, 'achat', format);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   if (loading) return <p className="page-loading">Chargement...</p>;
   if (!achat) return error ? <div className="page-error">{error}</div> : null;
 
@@ -75,6 +87,7 @@ export default function PurchaseDetail() {
           </p>
         </div>
         <div className="page-header__actions">
+          <PrintButton onPrint={handlePrint} />
           {achat.statut === 'recu' && reste > 0 && (
             <button className="btn btn--primary" onClick={() => setPaymentOpen(true)}>
               <LuPlus /> Ajouter un paiement

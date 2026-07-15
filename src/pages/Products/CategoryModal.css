@@ -1,0 +1,54 @@
+@import '../../shared/ui.css';
+
+.category-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.category-form input,
+.category-form select {
+  flex: 1;
+  min-width: 140px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  font-size: 0.88rem;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+.category-list__empty {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  text-align: center;
+  padding: 16px 0;
+}
+
+.category-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.category-list__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+}
+
+.category-list__row:hover {
+  background-color: var(--bg-surface-alt);
+}
+
+.category-list__children {
+  list-style: none;
+  margin: 0;
+  padding-left: 16px;
+}

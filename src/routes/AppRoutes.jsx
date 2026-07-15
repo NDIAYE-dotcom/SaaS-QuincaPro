@@ -5,6 +5,7 @@ import ProtectedRoute from './ProtectedRoute';
 import PublicOnlyRoute from './PublicOnlyRoute';
 import RequireSession from './RequireSession';
 import Dashboard from '../pages/Dashboard/Dashboard';
+import Products from '../pages/Products/Products';
 import Login from '../pages/auth/Login/Login';
 import Register from '../pages/auth/Register/Register';
 import ForgotPassword from '../pages/auth/ForgotPassword/ForgotPassword';
@@ -38,6 +39,7 @@ export default function AppRoutes() {
       <Route element={<ProtectedRoute />}>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Dashboard />} />
+          <Route path="/produits" element={<Products />} />
         </Route>
       </Route>
 

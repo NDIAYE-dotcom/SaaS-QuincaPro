@@ -1,0 +1,215 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { LuPlus, LuSearch, LuPencil, LuTrash2, LuTags, LuImageOff } from 'react-icons/lu';
+import { fetchProducts, deleteProduct } from '../../services/productService';
+import { fetchCategories } from '../../services/categoryService';
+import ProductFormModal from './ProductFormModal';
+import CategoryModal from './CategoryModal';
+import './Products.css';
+
+function stockStatus(produit) {
+  if (produit.quantite_stock <= 0) return { label: 'Rupture', className: 'badge--danger' };
+  if (produit.quantite_stock <= produit.stock_critique) return { label: 'Critique', className: 'badge--danger' };
+  if (produit.quantite_stock <= produit.stock_minimum) return { label: 'Stock faible', className: 'badge--warning' };
+  return { label: 'En stock', className: 'badge--success' };
+}
+
+export default function Products() {
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+
+  async function loadCategories() {
+    try {
+      const data = await fetchCategories();
+      setCategories(data);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  const loadProducts = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const data = await fetchProducts({ search, categorieId: categoryFilter || null });
+      setProducts(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [search, categoryFilter]);
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  useEffect(() => {
+    const timeout = setTimeout(loadProducts, 300);
+    return () => clearTimeout(timeout);
+  }, [loadProducts]);
+
+  const categoryLabel = useMemo(() => {
+    const map = new Map(categories.map((c) => [c.id, c.nom]));
+    return (id) => map.get(id) || '—';
+  }, [categories]);
+
+  function openCreateForm() {
+    setEditingProduct(null);
+    setFormOpen(true);
+  }
+
+  function openEditForm(produit) {
+    setEditingProduct(produit);
+    setFormOpen(true);
+  }
+
+  async function handleDelete(produit) {
+    if (!window.confirm(`Supprimer « ${produit.nom} » ? Cette action est irréversible.`)) return;
+    try {
+      await deleteProduct(produit.id);
+      setProducts((prev) => prev.filter((p) => p.id !== produit.id));
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  function handleSaved() {
+    setFormOpen(false);
+    loadProducts();
+  }
+
+  return (
+    <div className="products">
+      <div className="products__header">
+        <div>
+          <h1>Produits</h1>
+          <p>Gérez le catalogue de votre quincaillerie</p>
+        </div>
+        <div className="products__header-actions">
+          <button className="btn btn--ghost" onClick={() => setCategoryModalOpen(true)}>
+            <LuTags /> Catégories
+          </button>
+          <button className="btn btn--primary" onClick={openCreateForm}>
+            <LuPlus /> Nouveau produit
+          </button>
+        </div>
+      </div>
+
+      <div className="products__toolbar">
+        <div className="products__search">
+          <LuSearch />
+          <input
+            type="text"
+            placeholder="Rechercher par nom, SKU, code-barre..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+
+        <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+          <option value="">Toutes les catégories</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.parent_id ? `— ${c.nom}` : c.nom}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {error && <div className="products__error">{error}</div>}
+
+      {loading ? (
+        <p className="products__loading">Chargement...</p>
+      ) : products.length === 0 ? (
+        <div className="products__empty">
+          <p>Aucun produit pour l'instant.</p>
+          <button className="btn btn--primary" onClick={openCreateForm}>
+            <LuPlus /> Ajouter votre premier produit
+          </button>
+        </div>
+      ) : (
+        <div className="products__table-wrap">
+          <table className="products__table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Produit</th>
+                <th>Catégorie</th>
+                <th>SKU</th>
+                <th>Prix vente</th>
+                <th>Stock</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((produit) => {
+                const status = stockStatus(produit);
+                return (
+                  <tr key={produit.id}>
+                    <td className="products__photo-cell">
+                      {produit.photo_url ? (
+                        <img src={produit.photo_url} alt={produit.nom} />
+                      ) : (
+                        <div className="products__photo-placeholder">
+                          <LuImageOff />
+                        </div>
+                      )}
+                    </td>
+                    <td>
+                      <div className="products__name">{produit.nom}</div>
+                      {produit.marque && <div className="products__brand">{produit.marque}</div>}
+                    </td>
+                    <td>{categoryLabel(produit.categorie_id)}</td>
+                    <td>{produit.sku || '—'}</td>
+                    <td>{Number(produit.prix_vente).toLocaleString('fr-FR')} FCFA</td>
+                    <td>
+                      <span className={`badge ${status.className}`}>
+                        {produit.quantite_stock} {produit.unite} · {status.label}
+                      </span>
+                    </td>
+                    <td className="products__actions">
+                      <button className="icon-btn" onClick={() => openEditForm(produit)} aria-label="Modifier">
+                        <LuPencil />
+                      </button>
+                      <button
+                        className="icon-btn icon-btn--danger"
+                        onClick={() => handleDelete(produit)}
+                        aria-label="Supprimer"
+                      >
+                        <LuTrash2 />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {formOpen && (
+        <ProductFormModal
+          product={editingProduct}
+          categories={categories}
+          onClose={() => setFormOpen(false)}
+          onSaved={handleSaved}
+        />
+      )}
+
+      {categoryModalOpen && (
+        <CategoryModal
+          categories={categories}
+          onClose={() => setCategoryModalOpen(false)}
+          onChanged={loadCategories}
+        />
+      )}
+    </div>
+  );
+}

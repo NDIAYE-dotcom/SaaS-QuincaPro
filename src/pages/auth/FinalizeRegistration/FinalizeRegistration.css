@@ -1,0 +1,12 @@
+.finalize {
+  min-height: 40vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.finalize__error {
+  color: var(--color-danger);
+}

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { LuX, LuUpload, LuLoaderCircle } from 'react-icons/lu';
 import { createProduct, updateProduct } from '../../services/productService';
 import { uploadProductPhoto, deleteProductPhoto } from '../../services/storageService';
+import { registerStockMovement } from '../../services/stockService';
 import { useAuth } from '../../contexts/AuthContext';
 import './ProductFormModal.css';
 
@@ -20,7 +21,7 @@ const EMPTY_FORM = {
   stock_minimum: '0',
   stock_maximum: '',
   stock_critique: '0',
-  quantite_stock: '0',
+  stock_initial: '0',
 };
 
 function toFormState(product) {
@@ -40,7 +41,7 @@ function toFormState(product) {
     stock_minimum: String(product.stock_minimum ?? '0'),
     stock_maximum: product.stock_maximum != null ? String(product.stock_maximum) : '',
     stock_critique: String(product.stock_critique ?? '0'),
-    quantite_stock: String(product.quantite_stock ?? '0'),
+    stock_initial: '0',
   };
 }
 
@@ -98,14 +99,22 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
         stock_minimum: Number(form.stock_minimum) || 0,
         stock_maximum: form.stock_maximum === '' ? null : Number(form.stock_maximum),
         stock_critique: Number(form.stock_critique) || 0,
-        quantite_stock: Number(form.quantite_stock) || 0,
         photo_url: photoUrl,
       };
 
       if (isEditing) {
         await updateProduct(product.id, payload);
       } else {
-        await createProduct(payload);
+        const created = await createProduct(payload);
+        const stockInitial = Number(form.stock_initial) || 0;
+        if (stockInitial > 0) {
+          await registerStockMovement({
+            produitId: created.id,
+            type: 'inventaire',
+            nouvelleQuantite: stockInitial,
+            motif: 'Stock initial',
+          });
+        }
       }
       onSaved();
     } catch (err) {
@@ -207,8 +216,19 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
             </label>
 
             <label className="field">
-              <span>Quantité en stock</span>
-              <input type="number" min="0" step="1" value={form.quantite_stock} onChange={update('quantite_stock')} />
+              <span>{isEditing ? 'Quantité en stock' : 'Stock initial'}</span>
+              {isEditing ? (
+                <input type="text" value={`${product.quantite_stock} ${product.unite}`} disabled />
+              ) : (
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={form.stock_initial}
+                  onChange={update('stock_initial')}
+                />
+              )}
+              {isEditing && <small className="field__hint">Ajustez la quantité depuis le module Stock</small>}
             </label>
 
             <label className="field">

@@ -2,16 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { LuPlus, LuSearch, LuPencil, LuTrash2, LuTags, LuImageOff } from 'react-icons/lu';
 import { fetchProducts, deleteProduct } from '../../services/productService';
 import { fetchCategories } from '../../services/categoryService';
+import { getStockStatus } from '../../utils/stock';
 import ProductFormModal from './ProductFormModal';
 import CategoryModal from './CategoryModal';
 import './Products.css';
-
-function stockStatus(produit) {
-  if (produit.quantite_stock <= 0) return { label: 'Rupture', className: 'badge--danger' };
-  if (produit.quantite_stock <= produit.stock_critique) return { label: 'Critique', className: 'badge--danger' };
-  if (produit.quantite_stock <= produit.stock_minimum) return { label: 'Stock faible', className: 'badge--warning' };
-  return { label: 'En stock', className: 'badge--success' };
-}
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -150,7 +144,7 @@ export default function Products() {
             </thead>
             <tbody>
               {products.map((produit) => {
-                const status = stockStatus(produit);
+                const status = getStockStatus(produit);
                 return (
                   <tr key={produit.id}>
                     <td className="products__photo-cell">

@@ -12,6 +12,9 @@ import Suppliers from '../pages/Suppliers/Suppliers';
 import Sales from '../pages/Sales/Sales';
 import NewSale from '../pages/Sales/NewSale';
 import SaleDetail from '../pages/Sales/SaleDetail';
+import Purchases from '../pages/Purchases/Purchases';
+import NewPurchase from '../pages/Purchases/NewPurchase';
+import PurchaseDetail from '../pages/Purchases/PurchaseDetail';
 import Login from '../pages/auth/Login/Login';
 import Register from '../pages/auth/Register/Register';
 import ForgotPassword from '../pages/auth/ForgotPassword/ForgotPassword';
@@ -52,6 +55,9 @@ export default function AppRoutes() {
           <Route path="/ventes" element={<Sales />} />
           <Route path="/ventes/nouvelle" element={<NewSale />} />
           <Route path="/ventes/:id" element={<SaleDetail />} />
+          <Route path="/achats" element={<Purchases />} />
+          <Route path="/achats/nouveau" element={<NewPurchase />} />
+          <Route path="/achats/:id" element={<PurchaseDetail />} />
         </Route>
       </Route>
 

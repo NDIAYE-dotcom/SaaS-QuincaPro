@@ -97,6 +97,7 @@ export default function Suppliers() {
               <tr>
                 <th>Fournisseur</th>
                 <th>Contact</th>
+                <th>Dette</th>
                 <th></th>
               </tr>
             </thead>
@@ -133,6 +134,15 @@ export default function Suppliers() {
                       )}
                       {!supplier.telephone && !supplier.whatsapp && !supplier.email && '—'}
                     </div>
+                  </td>
+                  <td>
+                    {supplier.solde_dette > 0 ? (
+                      <span className="badge badge--danger">
+                        {Number(supplier.solde_dette).toLocaleString('fr-FR')} FCFA
+                      </span>
+                    ) : (
+                      '—'
+                    )}
                   </td>
                   <td className="data-table__actions">
                     <button className="icon-btn" onClick={() => openEditForm(supplier)} aria-label="Modifier">

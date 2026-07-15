@@ -1,0 +1,162 @@
+@import '../../shared/ui.css';
+
+.accounting__tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+
+.accounting__tab {
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition:
+    color var(--transition-base),
+    border-color var(--transition-base);
+}
+
+.accounting__tab:hover {
+  color: var(--text-primary);
+}
+
+.accounting__tab--active {
+  color: var(--color-emerald-600);
+  border-bottom-color: var(--color-emerald-600);
+}
+
+/* Journal */
+.accounting__entries {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.accounting__entry-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.accounting__entry-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.accounting__entry-libelle {
+  margin-left: 10px;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
+.accounting__entry-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+/* Grand livre */
+.accounting__ledger-select {
+  max-width: 340px;
+  margin-bottom: 16px;
+}
+
+/* Rapports */
+.accounting__reports {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.accounting__report-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.accounting__report-card .section-title {
+  margin-top: 0;
+}
+
+.accounting__report-section {
+  margin-bottom: 16px;
+}
+
+.accounting__report-section h3 {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-secondary);
+}
+
+.accounting__report-empty {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.accounting__report-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.accounting__report-row--total {
+  font-weight: 700;
+  border-bottom: none;
+  border-top: 1px solid var(--border-color);
+  margin-top: 4px;
+  padding-top: 8px;
+}
+
+.accounting__report-row--result {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--color-emerald-600);
+  padding-top: 12px;
+}
+
+/* Plan comptable */
+.accounting__chart-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.accounting__chart-form input,
+.accounting__chart-form select {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  font-size: 0.88rem;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+.accounting__chart-form input {
+  flex: 1;
+  min-width: 140px;
+}

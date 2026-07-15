@@ -1,0 +1,22 @@
+@import '../../shared/ui.css';
+
+.new-entry__select {
+  width: 100%;
+  min-width: 200px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  font-size: 0.85rem;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+.new-entry__cell-input {
+  width: 100px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  font-size: 0.85rem;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+}

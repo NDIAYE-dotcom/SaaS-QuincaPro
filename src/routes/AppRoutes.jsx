@@ -15,6 +15,7 @@ import SaleDetail from '../pages/Sales/SaleDetail';
 import Purchases from '../pages/Purchases/Purchases';
 import NewPurchase from '../pages/Purchases/NewPurchase';
 import PurchaseDetail from '../pages/Purchases/PurchaseDetail';
+import Accounting from '../pages/Accounting/Accounting';
 import Login from '../pages/auth/Login/Login';
 import Register from '../pages/auth/Register/Register';
 import ForgotPassword from '../pages/auth/ForgotPassword/ForgotPassword';
@@ -58,6 +59,7 @@ export default function AppRoutes() {
           <Route path="/achats" element={<Purchases />} />
           <Route path="/achats/nouveau" element={<NewPurchase />} />
           <Route path="/achats/:id" element={<PurchaseDetail />} />
+          <Route path="/comptabilite" element={<Accounting />} />
         </Route>
       </Route>
 

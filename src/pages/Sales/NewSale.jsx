@@ -88,6 +88,11 @@ export default function NewSale() {
       }
     }
 
+    if (statut === 'facture' && (Number(montantPayeInitial) || 0) > totals.totalTtc) {
+      setError('Le montant payé ne peut pas dépasser le total de la vente');
+      return;
+    }
+
     setSaving(true);
     try {
       const sale = await createSale({

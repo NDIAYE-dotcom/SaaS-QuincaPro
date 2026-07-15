@@ -77,6 +77,11 @@ export default function NewPurchase() {
       return;
     }
 
+    if (statut === 'recu' && (Number(montantPayeInitial) || 0) > totals.totalTtc) {
+      setError("Le montant payé ne peut pas dépasser le total de l'achat");
+      return;
+    }
+
     setSaving(true);
     try {
       const achat = await createPurchase({

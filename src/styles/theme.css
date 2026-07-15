@@ -1,0 +1,90 @@
+/*
+  Design tokens QuincaPro — palette premium (émeraude / bleu foncé / neutres)
+  Light mode par défaut, dark mode via [data-theme="dark"] sur <html>.
+*/
+
+:root {
+  /* Marque */
+  --color-emerald-50: #ecfdf5;
+  --color-emerald-100: #d1fae5;
+  --color-emerald-400: #34d399;
+  --color-emerald-500: #10b981;
+  --color-emerald-600: #059669;
+  --color-emerald-700: #047857;
+
+  --color-navy-500: #1e3a5f;
+  --color-navy-600: #16304f;
+  --color-navy-900: #0b1c2c;
+
+  /* Neutres */
+  --color-white: #ffffff;
+  --color-gray-50: #f8fafc;
+  --color-gray-100: #f1f5f9;
+  --color-gray-200: #e2e8f0;
+  --color-gray-300: #cbd5e1;
+  --color-gray-400: #94a3b8;
+  --color-gray-500: #64748b;
+  --color-gray-600: #475569;
+  --color-gray-700: #334155;
+  --color-gray-800: #1e293b;
+  --color-gray-900: #0f172a;
+  --color-black: #000000;
+
+  /* Sémantique */
+  --color-success: var(--color-emerald-500);
+  --color-danger: #dc2626;
+  --color-warning: #d97706;
+  --color-info: var(--color-navy-500);
+
+  /* Surface — light mode */
+  --bg-app: var(--color-gray-50);
+  --bg-surface: var(--color-white);
+  --bg-surface-alt: var(--color-gray-100);
+  --bg-sidebar: var(--color-navy-900);
+  --text-primary: var(--color-gray-900);
+  --text-secondary: var(--color-gray-500);
+  --text-inverse: var(--color-white);
+  --border-color: var(--color-gray-200);
+
+  /* Effets */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 16px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.12);
+  --transition-base: 180ms ease;
+
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --bg-app: var(--color-gray-900);
+  --bg-surface: #111c2e;
+  --bg-surface-alt: #16233a;
+  --bg-sidebar: var(--color-navy-900);
+  --text-primary: var(--color-gray-100);
+  --text-secondary: var(--color-gray-400);
+  --text-inverse: var(--color-white);
+  --border-color: #1f2c42;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.45);
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']):not([data-theme='dark']) {
+    --bg-app: var(--color-gray-900);
+    --bg-surface: #111c2e;
+    --bg-surface-alt: #16233a;
+    --bg-sidebar: var(--color-navy-900);
+    --text-primary: var(--color-gray-100);
+    --text-secondary: var(--color-gray-400);
+    --text-inverse: var(--color-white);
+    --border-color: #1f2c42;
+    color-scheme: dark;
+  }
+}

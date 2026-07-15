@@ -1,6 +1,7 @@
 import { supabase } from '../supabase/client';
 
 const PRODUCT_PHOTOS_BUCKET = 'produits-photos';
+const ENTREPRISE_LOGOS_BUCKET = 'entreprise-logos';
 
 export async function uploadProductPhoto(entrepriseId, file) {
   const ext = file.name.split('.').pop();
@@ -24,4 +25,18 @@ export async function deleteProductPhoto(publicUrl) {
 
   const path = publicUrl.slice(markerIndex + marker.length);
   await supabase.storage.from(PRODUCT_PHOTOS_BUCKET).remove([path]);
+}
+
+export async function uploadEntrepriseLogo(entrepriseId, file) {
+  const ext = file.name.split('.').pop();
+  const path = `${entrepriseId}/logo.${ext}`;
+
+  const { error } = await supabase.storage.from(ENTREPRISE_LOGOS_BUCKET).upload(path, file, {
+    cacheControl: '3600',
+    upsert: true,
+  });
+  if (error) throw error;
+
+  const { data } = supabase.storage.from(ENTREPRISE_LOGOS_BUCKET).getPublicUrl(path);
+  return `${data.publicUrl}?t=${Date.now()}`;
 }

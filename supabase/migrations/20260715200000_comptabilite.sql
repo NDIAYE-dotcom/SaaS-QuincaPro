@@ -23,6 +23,22 @@
 alter table public.entreprises
   add column dernier_numero_ecriture integer not null default 0;
 
+-- Combler un manque des migrations Ventes/Achats : remise_pourcentage et
+-- taux_tva n'y étaient pas bornés à [0,100] (contrairement à produits). Sans
+-- ça, une remise > 100% peut rendre une ligne négative, faire disparaître la
+-- ligne de TVA correspondante dans les écritures automatiques ci-dessous
+-- (filtrées par `> 0`) et déséquilibrer l'écriture générée, faisant échouer
+-- (rollback) toute la vente/l'achat.
+
+alter table public.lignes_vente
+  add constraint lignes_vente_remise_range check (remise_pourcentage >= 0 and remise_pourcentage <= 100);
+
+alter table public.lignes_vente
+  add constraint lignes_vente_tva_range check (taux_tva >= 0 and taux_tva <= 100);
+
+alter table public.lignes_achat
+  add constraint lignes_achat_tva_range check (taux_tva >= 0 and taux_tva <= 100);
+
 create type public.nature_compte as enum ('actif', 'passif', 'charge', 'produit');
 
 -- =========================================================
@@ -409,6 +425,29 @@ create index idx_lignes_ecriture_entreprise_id on public.lignes_ecriture (entrep
 create index idx_lignes_ecriture_ecriture_id on public.lignes_ecriture (ecriture_id);
 create index idx_lignes_ecriture_compte_id on public.lignes_ecriture (compte_id);
 
+-- creer_ecriture est accessible directement en RPC (saisie manuelle), pas
+-- seulement via les triggers automatiques : sans ce contrôle, rien n'empêche
+-- de référencer un compte_id appartenant à une autre entreprise.
+
+create function public.validate_ligne_ecriture_compte()
+returns trigger
+language plpgsql
+as $$
+begin
+  if not exists (
+    select 1 from public.comptes_comptables
+    where id = new.compte_id and entreprise_id = new.entreprise_id
+  ) then
+    raise exception 'Le compte doit appartenir à la même entreprise';
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_lignes_ecriture_validate_compte
+before insert on public.lignes_ecriture
+for each row execute function public.validate_ligne_ecriture_compte();
+
 -- =========================================================
 -- CRÉATION ATOMIQUE D'UNE ÉCRITURE (doit être équilibrée)
 -- =========================================================
@@ -535,34 +574,45 @@ create trigger trg_ventes_generer_ecriture
 after insert on public.ventes
 for each row execute function public.generer_ecriture_vente();
 
+-- Contre-passe la fois l'écriture de création ET chaque écriture de paiement
+-- reçue depuis (celles-ci référencent l'id du paiement, pas celui de la
+-- vente, d'où le sous-select) : sans ça, un paiement encaissé après la vente
+-- resterait comptabilisé alors que la vente est annulée, laissant la Caisse
+-- durablement faussée.
+
 create function public.generer_ecriture_annulation_vente()
 returns trigger
 language plpgsql
 as $$
 declare
-  v_ecriture_orig public.ecritures_comptables;
+  v_ecriture record;
   v_ligne record;
-  v_lignes jsonb := '[]'::jsonb;
+  v_lignes jsonb;
 begin
   if new.statut <> 'annulee' or old.statut <> 'facture' then
     return new;
   end if;
 
-  select * into v_ecriture_orig
-  from public.ecritures_comptables
-  where reference_id = new.id and origine = 'vente'
-  limit 1;
-
-  if not found then
-    return new;
-  end if;
-
-  for v_ligne in select * from public.lignes_ecriture where ecriture_id = v_ecriture_orig.id
+  for v_ecriture in
+    select ec.* from public.ecritures_comptables ec
+    where (ec.reference_id = new.id and ec.origine = 'vente')
+       or (
+         ec.origine = 'paiement_vente'
+         and ec.reference_id in (select id from public.paiements_vente where vente_id = new.id)
+       )
   loop
-    v_lignes := v_lignes || jsonb_build_object('compte_id', v_ligne.compte_id, 'debit', v_ligne.credit, 'credit', v_ligne.debit);
-  end loop;
+    v_lignes := '[]'::jsonb;
 
-  perform public.creer_ecriture('Annulation vente ' || new.numero, v_lignes, current_date, 'annulation_vente', new.id);
+    for v_ligne in select * from public.lignes_ecriture where ecriture_id = v_ecriture.id
+    loop
+      v_lignes := v_lignes || jsonb_build_object('compte_id', v_ligne.compte_id, 'debit', v_ligne.credit, 'credit', v_ligne.debit);
+    end loop;
+
+    perform public.creer_ecriture(
+      'Annulation vente ' || new.numero || ' (' || v_ecriture.numero || ')',
+      v_lignes, current_date, 'annulation_vente', new.id
+    );
+  end loop;
 
   return new;
 end;
@@ -667,29 +717,34 @@ returns trigger
 language plpgsql
 as $$
 declare
-  v_ecriture_orig public.ecritures_comptables;
+  v_ecriture record;
   v_ligne record;
-  v_lignes jsonb := '[]'::jsonb;
+  v_lignes jsonb;
 begin
   if new.statut <> 'annule' or old.statut <> 'recu' then
     return new;
   end if;
 
-  select * into v_ecriture_orig
-  from public.ecritures_comptables
-  where reference_id = new.id and origine = 'achat'
-  limit 1;
-
-  if not found then
-    return new;
-  end if;
-
-  for v_ligne in select * from public.lignes_ecriture where ecriture_id = v_ecriture_orig.id
+  for v_ecriture in
+    select ec.* from public.ecritures_comptables ec
+    where (ec.reference_id = new.id and ec.origine = 'achat')
+       or (
+         ec.origine = 'paiement_achat'
+         and ec.reference_id in (select id from public.paiements_achat where achat_id = new.id)
+       )
   loop
-    v_lignes := v_lignes || jsonb_build_object('compte_id', v_ligne.compte_id, 'debit', v_ligne.credit, 'credit', v_ligne.debit);
-  end loop;
+    v_lignes := '[]'::jsonb;
 
-  perform public.creer_ecriture('Annulation achat ' || new.numero, v_lignes, current_date, 'annulation_achat', new.id);
+    for v_ligne in select * from public.lignes_ecriture where ecriture_id = v_ecriture.id
+    loop
+      v_lignes := v_lignes || jsonb_build_object('compte_id', v_ligne.compte_id, 'debit', v_ligne.credit, 'credit', v_ligne.debit);
+    end loop;
+
+    perform public.creer_ecriture(
+      'Annulation achat ' || new.numero || ' (' || v_ecriture.numero || ')',
+      v_lignes, current_date, 'annulation_achat', new.id
+    );
+  end loop;
 
   return new;
 end;

@@ -87,12 +87,12 @@ export default function Products() {
 
   return (
     <div className="products">
-      <div className="products__header">
+      <div className="page-header">
         <div>
           <h1>Produits</h1>
           <p>Gérez le catalogue de votre quincaillerie</p>
         </div>
-        <div className="products__header-actions">
+        <div className="page-header__actions">
           <button className="btn btn--ghost" onClick={() => setCategoryModalOpen(true)}>
             <LuTags /> Catégories
           </button>
@@ -102,8 +102,8 @@ export default function Products() {
         </div>
       </div>
 
-      <div className="products__toolbar">
-        <div className="products__search">
+      <div className="toolbar">
+        <div className="search-box">
           <LuSearch />
           <input
             type="text"
@@ -123,20 +123,20 @@ export default function Products() {
         </select>
       </div>
 
-      {error && <div className="products__error">{error}</div>}
+      {error && <div className="page-error">{error}</div>}
 
       {loading ? (
-        <p className="products__loading">Chargement...</p>
+        <p className="page-loading">Chargement...</p>
       ) : products.length === 0 ? (
-        <div className="products__empty">
+        <div className="page-empty">
           <p>Aucun produit pour l'instant.</p>
           <button className="btn btn--primary" onClick={openCreateForm}>
             <LuPlus /> Ajouter votre premier produit
           </button>
         </div>
       ) : (
-        <div className="products__table-wrap">
-          <table className="products__table">
+        <div className="data-table-wrap">
+          <table className="data-table">
             <thead>
               <tr>
                 <th></th>
@@ -163,8 +163,8 @@ export default function Products() {
                       )}
                     </td>
                     <td>
-                      <div className="products__name">{produit.nom}</div>
-                      {produit.marque && <div className="products__brand">{produit.marque}</div>}
+                      <div className="data-table__title">{produit.nom}</div>
+                      {produit.marque && <div className="data-table__subtitle">{produit.marque}</div>}
                     </td>
                     <td>{categoryLabel(produit.categorie_id)}</td>
                     <td>{produit.sku || '—'}</td>
@@ -174,7 +174,7 @@ export default function Products() {
                         {produit.quantite_stock} {produit.unite} · {status.label}
                       </span>
                     </td>
-                    <td className="products__actions">
+                    <td className="data-table__actions">
                       <button className="icon-btn" onClick={() => openEditForm(produit)} aria-label="Modifier">
                         <LuPencil />
                       </button>

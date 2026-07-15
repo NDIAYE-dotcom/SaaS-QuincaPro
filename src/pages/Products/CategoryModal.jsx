@@ -55,7 +55,7 @@ export default function CategoryModal({ categories, onClose, onChanged }) {
         </div>
 
         <div className="modal__body">
-          {error && <div className="products__error">{error}</div>}
+          {error && <div className="page-error">{error}</div>}
 
           <form className="category-form" onSubmit={handleAdd}>
             <input

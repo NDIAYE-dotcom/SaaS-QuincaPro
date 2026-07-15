@@ -16,6 +16,7 @@ import {
   LuMoon,
   LuBell,
   LuLogOut,
+  LuHandshake,
 } from 'react-icons/lu';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -29,6 +30,7 @@ const NAV_ITEMS = [
   { to: '/ventes', label: 'Ventes', icon: LuShoppingCart },
   { to: '/achats', label: 'Achats', icon: LuTruck },
   { to: '/clients', label: 'Clients', icon: LuUsers },
+  { to: '/fournisseurs', label: 'Fournisseurs', icon: LuHandshake },
   { to: '/factures', label: 'Factures', icon: LuFileText },
   { to: '/comptabilite', label: 'Comptabilité', icon: LuCalculator },
   { to: '/parametres', label: 'Paramètres', icon: LuSettings },

@@ -125,8 +125,8 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
           </button>
         </div>
 
-        <form className="modal__body product-form" onSubmit={handleSubmit}>
-          {error && <div className="products__error">{error}</div>}
+        <form className="modal__body stacked-form" onSubmit={handleSubmit}>
+          {error && <div className="page-error">{error}</div>}
 
           <div className="product-form__photo">
             <label htmlFor="photo-input" className="product-form__photo-drop">
@@ -141,7 +141,7 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
             <input id="photo-input" type="file" accept="image/*" onChange={handlePhotoChange} hidden />
           </div>
 
-          <div className="product-form__grid">
+          <div className="form-grid">
             <label className="field">
               <span>Nom du produit *</span>
               <input type="text" value={form.nom} onChange={update('nom')} required />

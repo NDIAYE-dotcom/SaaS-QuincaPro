@@ -6,6 +6,8 @@ import PublicOnlyRoute from './PublicOnlyRoute';
 import RequireSession from './RequireSession';
 import Dashboard from '../pages/Dashboard/Dashboard';
 import Products from '../pages/Products/Products';
+import Clients from '../pages/Clients/Clients';
+import Suppliers from '../pages/Suppliers/Suppliers';
 import Login from '../pages/auth/Login/Login';
 import Register from '../pages/auth/Register/Register';
 import ForgotPassword from '../pages/auth/ForgotPassword/ForgotPassword';
@@ -40,6 +42,8 @@ export default function AppRoutes() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/produits" element={<Products />} />
+          <Route path="/clients" element={<Clients />} />
+          <Route path="/fournisseurs" element={<Suppliers />} />
         </Route>
       </Route>
 

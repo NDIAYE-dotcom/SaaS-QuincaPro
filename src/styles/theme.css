@@ -1,20 +1,26 @@
 /*
-  Design tokens QuincaPro — palette premium (émeraude / bleu foncé / neutres)
+  Design tokens QuincaPro — palette Bleu Sarcelle / Bleu Nuit / Sable
   Light mode par défaut, dark mode via [data-theme="dark"] sur <html>.
 */
 
 :root {
-  /* Marque */
-  --color-emerald-50: #ecfdf5;
-  --color-emerald-100: #d1fae5;
-  --color-emerald-400: #34d399;
-  --color-emerald-500: #10b981;
-  --color-emerald-600: #059669;
-  --color-emerald-700: #047857;
+  /* Marque — Bleu Sarcelle */
+  --color-primary-50: #e7f6ff;
+  --color-primary-100: #c9ecf8;
+  --color-primary-400: #9ad9ea;
+  --color-primary-500: #5fb4c9;
+  --color-primary-600: #2f9bb3;
+  --color-primary-700: #22808f;
 
-  --color-navy-500: #1e3a5f;
-  --color-navy-600: #16304f;
-  --color-navy-900: #0b1c2c;
+  /* Marque — Bleu Nuit (secondaire) */
+  --color-secondary-500: #345273;
+  --color-secondary-600: #1f3a5f;
+  --color-secondary-900: #14263f;
+
+  /* Marque — Sable (accent) */
+  --color-accent-100: #f4e6cc;
+  --color-accent-500: #d9b876;
+  --color-accent-600: #c29f52;
 
   /* Neutres */
   --color-white: #ffffff;
@@ -31,16 +37,16 @@
   --color-black: #000000;
 
   /* Sémantique */
-  --color-success: var(--color-emerald-500);
-  --color-danger: #dc2626;
-  --color-warning: #d97706;
-  --color-info: var(--color-navy-500);
+  --color-success: #22c55e;
+  --color-danger: #ef4444;
+  --color-warning: #f59e0b;
+  --color-info: var(--color-primary-600);
 
   /* Surface — light mode */
   --bg-app: var(--color-gray-50);
   --bg-surface: var(--color-white);
   --bg-surface-alt: var(--color-gray-100);
-  --bg-sidebar: var(--color-navy-900);
+  --bg-sidebar: var(--color-secondary-900);
   --text-primary: var(--color-gray-900);
   --text-secondary: var(--color-gray-500);
   --text-inverse: var(--color-white);
@@ -62,7 +68,7 @@
   --bg-app: var(--color-gray-900);
   --bg-surface: #111c2e;
   --bg-surface-alt: #16233a;
-  --bg-sidebar: var(--color-navy-900);
+  --bg-sidebar: var(--color-secondary-900);
   --text-primary: var(--color-gray-100);
   --text-secondary: var(--color-gray-400);
   --text-inverse: var(--color-white);
@@ -80,7 +86,7 @@
     --bg-app: var(--color-gray-900);
     --bg-surface: #111c2e;
     --bg-surface-alt: #16233a;
-    --bg-sidebar: var(--color-navy-900);
+    --bg-sidebar: var(--color-secondary-900);
     --text-primary: var(--color-gray-100);
     --text-secondary: var(--color-gray-400);
     --text-inverse: var(--color-white);

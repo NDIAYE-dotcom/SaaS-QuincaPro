@@ -21,8 +21,8 @@
 }
 
 .auth-form__error {
-  background-color: rgba(220, 38, 38, 0.1);
-  border: 1px solid rgba(220, 38, 38, 0.25);
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
   color: var(--color-danger);
   padding: 10px 14px;
   border-radius: var(--radius-sm);
@@ -50,7 +50,7 @@
 }
 
 .auth-field__input:focus-within {
-  border-color: var(--color-emerald-500);
+  border-color: var(--color-primary-500);
 }
 
 .auth-field__input svg {
@@ -84,7 +84,7 @@
 .auth-form__link-inline {
   align-self: flex-end;
   font-size: 0.85rem;
-  color: var(--color-emerald-600);
+  color: var(--color-primary-600);
   font-weight: 600;
   margin-top: -8px;
 }
@@ -94,7 +94,7 @@
   padding: 12px;
   border: none;
   border-radius: var(--radius-sm);
-  background-color: var(--color-emerald-600);
+  background-color: var(--color-primary-600);
   color: var(--color-white);
   font-weight: 600;
   font-size: 0.95rem;
@@ -103,7 +103,7 @@
 }
 
 .auth-form__submit:hover:not(:disabled) {
-  background-color: var(--color-emerald-700);
+  background-color: var(--color-primary-700);
 }
 
 .auth-form__submit:disabled {
@@ -118,6 +118,6 @@
 }
 
 .auth-form__footer a {
-  color: var(--color-emerald-600);
+  color: var(--color-primary-600);
   font-weight: 600;
 }

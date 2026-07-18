@@ -6,7 +6,7 @@ export default function PublicOnlyRoute() {
   const { session, loading } = useAuth();
 
   if (loading) return <LoadingScreen />;
-  if (session) return <Navigate to="/" replace />;
+  if (session) return <Navigate to="/tableau-de-bord" replace />;
 
   return <Outlet />;
 }

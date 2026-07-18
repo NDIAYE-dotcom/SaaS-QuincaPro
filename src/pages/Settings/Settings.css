@@ -17,9 +17,9 @@
 }
 
 .settings__success {
-  background-color: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.25);
-  color: var(--color-emerald-600);
+  background-color: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  color: var(--color-success);
   padding: 10px 14px;
   border-radius: var(--radius-sm);
   font-size: 0.88rem;
@@ -48,7 +48,7 @@
 }
 
 .settings__logo-drop:hover {
-  border-color: var(--color-emerald-500);
+  border-color: var(--color-primary-500);
 }
 
 .settings__logo-drop--disabled {

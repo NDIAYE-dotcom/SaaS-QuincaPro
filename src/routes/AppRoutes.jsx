@@ -7,6 +7,7 @@ import PublicOnlyRoute from './PublicOnlyRoute';
 import RequireSession from './RequireSession';
 import SuperAdminRoute from './SuperAdminRoute';
 import TenantRoute from './TenantRoute';
+import HomeRoute from './HomeRoute';
 import Dashboard from '../pages/Dashboard/Dashboard';
 import Products from '../pages/Products/Products';
 import Stock from '../pages/Stock/Stock';
@@ -38,6 +39,8 @@ import NotFound from '../pages/NotFound/NotFound';
 export default function AppRoutes() {
   return (
     <Routes>
+      <Route path="/" element={<HomeRoute />} />
+
       <Route element={<PublicOnlyRoute />}>
         <Route element={<AuthLayout />}>
           <Route path="/connexion" element={<Login />} />
@@ -70,7 +73,7 @@ export default function AppRoutes() {
 
         <Route element={<TenantRoute />}>
           <Route element={<MainLayout />}>
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/tableau-de-bord" element={<Dashboard />} />
             <Route path="/produits" element={<Products />} />
             <Route path="/stock" element={<Stock />} />
             <Route path="/clients" element={<Clients />} />

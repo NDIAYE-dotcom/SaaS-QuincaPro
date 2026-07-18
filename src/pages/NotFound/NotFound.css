@@ -11,7 +11,7 @@
 .not-found h1 {
   font-size: 4rem;
   margin: 0;
-  color: var(--color-emerald-600);
+  color: var(--color-primary-600);
 }
 
 .not-found p {
@@ -22,12 +22,12 @@
 .not-found__link {
   padding: 10px 20px;
   border-radius: var(--radius-sm);
-  background-color: var(--color-emerald-600);
+  background-color: var(--color-primary-600);
   color: var(--color-white);
   font-weight: 600;
   transition: background-color var(--transition-base);
 }
 
 .not-found__link:hover {
-  background-color: var(--color-emerald-700);
+  background-color: var(--color-primary-700);
 }

@@ -26,7 +26,7 @@ import AnnouncementBanner from '../shared/AnnouncementBanner';
 import './MainLayout.css';
 
 const NAV_ITEMS = [
-  { to: '/', label: 'Tableau de bord', icon: LuLayoutDashboard, end: true },
+  { to: '/tableau-de-bord', label: 'Tableau de bord', icon: LuLayoutDashboard, end: true },
   { to: '/produits', label: 'Produits', icon: LuPackage },
   { to: '/stock', label: 'Stock', icon: LuWarehouse },
   { to: '/ventes', label: 'Ventes', icon: LuShoppingCart },
@@ -55,8 +55,10 @@ export default function MainLayout() {
     <div className="layout">
       <aside className={`sidebar ${sidebarOpen ? 'sidebar--open' : ''}`}>
         <div className="sidebar__brand">
-          <span className="sidebar__brand-mark">Q</span>
-          <span className="sidebar__brand-name">QuincaPro</span>
+          {entreprise?.logo_url && (
+            <img src={entreprise.logo_url} alt={entreprise.nom} className="sidebar__brand-mark" />
+          )}
+          <span className="sidebar__brand-name">{entreprise?.nom}</span>
         </div>
 
         <nav className="sidebar__nav">
@@ -108,9 +110,13 @@ export default function MainLayout() {
               className="user-menu__trigger"
               onClick={() => setUserMenuOpen((prev) => !prev)}
             >
-              <span className="user-menu__avatar">
-                {(profile?.nom_complet || '?').charAt(0).toUpperCase()}
-              </span>
+              {entreprise?.logo_url ? (
+                <img src={entreprise.logo_url} alt={entreprise.nom} className="user-menu__avatar user-menu__avatar--logo" />
+              ) : (
+                <span className="user-menu__avatar">
+                  {(profile?.nom_complet || '?').charAt(0).toUpperCase()}
+                </span>
+              )}
               <span className="user-menu__info">
                 <span className="user-menu__name">{profile?.nom_complet}</span>
                 <span className="user-menu__entreprise">{entreprise?.nom}</span>

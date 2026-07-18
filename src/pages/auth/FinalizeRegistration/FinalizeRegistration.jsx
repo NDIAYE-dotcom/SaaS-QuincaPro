@@ -28,7 +28,7 @@ export default function FinalizeRegistration() {
     finalize
       .then(async () => {
         await refreshProfile();
-        navigate('/', { replace: true });
+        navigate('/tableau-de-bord', { replace: true });
       })
       .catch((err) => setError(err.message));
   }, [user, navigate, refreshProfile]);

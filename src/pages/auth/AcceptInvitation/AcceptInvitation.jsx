@@ -47,7 +47,7 @@ export default function AcceptInvitation() {
 
       if (session) {
         await acceptInvitation(token);
-        navigate('/', { replace: true });
+        navigate('/tableau-de-bord', { replace: true });
       } else {
         setEmailSent(true);
       }

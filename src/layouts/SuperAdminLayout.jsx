@@ -9,7 +9,6 @@ import {
   LuSun,
   LuMoon,
   LuLogOut,
-  LuShieldCheck,
 } from 'react-icons/lu';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -38,9 +37,7 @@ export default function SuperAdminLayout() {
     <div className="layout">
       <aside className={`sidebar ${sidebarOpen ? 'sidebar--open' : ''}`}>
         <div className="sidebar__brand">
-          <span className="sidebar__brand-mark">
-            <LuShieldCheck />
-          </span>
+          <img src="/logo-icon-dark.png" alt="QuincaPro" className="sidebar__brand-mark" />
           <span className="sidebar__brand-name">QuincaPro Admin</span>
         </div>
 

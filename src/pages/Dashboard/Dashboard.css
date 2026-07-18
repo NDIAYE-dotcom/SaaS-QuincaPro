@@ -1,7 +1,20 @@
 @import '../../shared/ui.css';
 
 .dashboard__header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
   margin-bottom: 24px;
+}
+
+.dashboard__logo {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  flex-shrink: 0;
 }
 
 .dashboard__header h1 {
@@ -73,7 +86,7 @@
 
 .dashboard__top-value {
   font-weight: 700;
-  color: var(--color-emerald-600);
+  color: var(--color-accent-600);
 }
 
 @media (max-width: 900px) {

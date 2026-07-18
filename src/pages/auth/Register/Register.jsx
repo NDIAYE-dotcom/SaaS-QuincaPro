@@ -54,7 +54,7 @@ export default function Register() {
           nomComplet: form.nomComplet,
           telephone: form.telephone,
         });
-        navigate('/', { replace: true });
+        navigate('/tableau-de-bord', { replace: true });
       } else {
         setEmailSent(true);
       }

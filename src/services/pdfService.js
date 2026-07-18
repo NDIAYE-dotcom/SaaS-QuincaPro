@@ -159,7 +159,7 @@ export async function generateA4Document(document, entreprise, kind) {
       formatMoney(l.total, data.devise),
     ]),
     styles: { fontSize: 9 },
-    headStyles: { fillColor: [5, 150, 105] },
+    headStyles: { fillColor: [47, 155, 179] },
   });
 
   y = doc.lastAutoTable.finalY + 10;
@@ -305,7 +305,7 @@ export async function generateReportPdf({ title, subtitle, entreprise, columns, 
     head: [columns.map((c) => c.label)],
     body: rows.map((row) => columns.map((c) => (c.format ? c.format(row[c.key]) : (row[c.key] ?? '—')))),
     styles: { fontSize: 8.5 },
-    headStyles: { fillColor: [5, 150, 105] },
+    headStyles: { fillColor: [47, 155, 179] },
   });
 
   doc.save(filename);

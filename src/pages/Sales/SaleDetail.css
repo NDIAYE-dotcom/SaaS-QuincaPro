@@ -10,7 +10,7 @@
 }
 
 .sale-detail__back:hover {
-  color: var(--color-emerald-600);
+  color: var(--color-primary-600);
 }
 
 .sale-detail__summary {

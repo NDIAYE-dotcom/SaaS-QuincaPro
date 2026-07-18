@@ -20,6 +20,7 @@ import {
   LuFileWarning,
   LuTruck,
 } from 'react-icons/lu';
+import { useAuth } from '../../contexts/AuthContext';
 import { fetchDashboardData } from '../../services/dashboardService';
 import './Dashboard.css';
 
@@ -32,6 +33,7 @@ function formatMoney(amount) {
 }
 
 export default function Dashboard() {
+  const { entreprise } = useAuth();
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -64,8 +66,8 @@ export default function Dashboard() {
       {
         label: 'Ventes (FCFA)',
         data: data.chart.data,
-        borderColor: '#059669',
-        backgroundColor: 'rgba(5, 150, 105, 0.12)',
+        borderColor: '#2f9bb3',
+        backgroundColor: 'rgba(47, 155, 179, 0.12)',
         fill: true,
         tension: 0.35,
         pointRadius: 2,
@@ -85,8 +87,13 @@ export default function Dashboard() {
   return (
     <div className="dashboard">
       <div className="dashboard__header">
-        <h1>Tableau de bord</h1>
-        <p>Vue d'ensemble de votre quincaillerie</p>
+        {entreprise?.logo_url && (
+          <img src={entreprise.logo_url} alt={entreprise.nom} className="dashboard__logo" />
+        )}
+        <div>
+          <h1>{entreprise?.nom || 'Tableau de bord'}</h1>
+          <p>Vue d'ensemble de votre quincaillerie</p>
+        </div>
       </div>
 
       {error && <div className="page-error">{error}</div>}

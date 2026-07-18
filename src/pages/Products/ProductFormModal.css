@@ -22,7 +22,7 @@
 }
 
 .product-form__photo-drop:hover {
-  border-color: var(--color-emerald-500);
+  border-color: var(--color-primary-500);
 }
 
 .product-form__photo-drop img {

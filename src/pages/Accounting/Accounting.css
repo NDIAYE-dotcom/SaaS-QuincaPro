@@ -28,8 +28,8 @@
 }
 
 .accounting__tab--active {
-  color: var(--color-emerald-600);
-  border-bottom-color: var(--color-emerald-600);
+  color: var(--color-primary-600);
+  border-bottom-color: var(--color-primary-600);
 }
 
 /* Journal */
@@ -134,7 +134,7 @@
 .accounting__report-row--result {
   font-weight: 700;
   font-size: 1.05rem;
-  color: var(--color-emerald-600);
+  color: var(--color-primary-600);
   padding-top: 12px;
 }
 

@@ -336,12 +336,31 @@ export async function generateThermalDocument(document, entreprise, kind, widthM
   const data = buildDocumentData(document, entreprise, kind);
   const isNarrow = widthMm <= 58;
   const margin = isNarrow ? 3 : 4;
-  const estimatedHeight = 65 + data.lignes.length * 9 + (data.showPayment ? 16 : 0);
+  const hasLogo = Boolean(entreprise.logo_url);
+  const hasStamp = Boolean(entreprise.cachet_url || entreprise.signature_url);
+  const logoSize = isNarrow ? 14 : 18;
+  const logoBlockHeight = hasLogo ? logoSize + 3 : 0;
+  const stampBlockHeight = hasStamp ? (isNarrow ? 34 : 40) : 0;
+  const estimatedHeight =
+    65 + data.lignes.length * 9 + (data.showPayment ? 16 : 0) + logoBlockHeight + stampBlockHeight;
 
   const doc = new jsPDF({ unit: 'mm', format: [widthMm, estimatedHeight] });
   const pageWidth = widthMm;
   const center = pageWidth / 2;
   let y = margin + 4;
+
+  if (hasLogo) {
+    const logoData = await loadImageAsDataUrl(entreprise.logo_url);
+    const format = detectImageFormat(logoData);
+    if (format) {
+      try {
+        doc.addImage(logoData, format, center - logoSize / 2, y, logoSize, logoSize);
+        y += logoSize + 3;
+      } catch {
+        // image illisible par jsPDF : on continue sans logo
+      }
+    }
+  }
 
   doc.setFont(undefined, 'bold');
   doc.setFontSize(isNarrow ? 9 : 10.5);
@@ -404,6 +423,46 @@ export async function generateThermalDocument(document, entreprise, kind, widthM
   y += 2;
   doc.setFontSize(isNarrow ? 6 : 7);
   doc.text('Merci de votre confiance', center, y, { align: 'center' });
+  y += 4;
+
+  if (hasStamp) {
+    doc.setLineWidth(0.2);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 4;
+    doc.setFont(undefined, 'bold');
+    doc.setFontSize(isNarrow ? 6 : 7);
+    doc.text('Cachet & signature', center, y, { align: 'center' });
+    doc.setFont(undefined, 'normal');
+    y += 3;
+
+    if (entreprise.signature_url) {
+      const signatureData = await loadImageAsDataUrl(entreprise.signature_url);
+      const format = detectImageFormat(signatureData);
+      if (format) {
+        try {
+          const w = isNarrow ? 22 : 28;
+          const h = isNarrow ? 10 : 12;
+          doc.addImage(signatureData, format, center - w / 2, y, w, h);
+          y += h + 2;
+        } catch {
+          // image illisible par jsPDF : on continue sans signature
+        }
+      }
+    }
+
+    if (entreprise.cachet_url) {
+      const cachetData = await loadImageAsDataUrl(entreprise.cachet_url);
+      const format = detectImageFormat(cachetData);
+      if (format) {
+        try {
+          const size = isNarrow ? 14 : 18;
+          doc.addImage(cachetData, format, center - size / 2, y, size, size);
+        } catch {
+          // image illisible par jsPDF : on continue sans cachet
+        }
+      }
+    }
+  }
 
   doc.save(`${data.numero}.pdf`);
 }

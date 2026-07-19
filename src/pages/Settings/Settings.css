@@ -29,6 +29,15 @@
 .settings__logo {
   display: flex;
   justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.settings__logo-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
 
 .settings__logo-drop {
@@ -59,7 +68,8 @@
 .settings__logo-drop img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  padding: 6px;
 }
 
 .settings__logo-drop span {

@@ -27,9 +27,9 @@ export async function deleteProductPhoto(publicUrl) {
   await supabase.storage.from(PRODUCT_PHOTOS_BUCKET).remove([path]);
 }
 
-export async function uploadEntrepriseLogo(entrepriseId, file) {
+async function uploadEntrepriseAsset(entrepriseId, file, name) {
   const ext = file.name.split('.').pop();
-  const path = `${entrepriseId}/logo.${ext}`;
+  const path = `${entrepriseId}/${name}.${ext}`;
 
   const { error } = await supabase.storage.from(ENTREPRISE_LOGOS_BUCKET).upload(path, file, {
     cacheControl: '3600',
@@ -39,4 +39,16 @@ export async function uploadEntrepriseLogo(entrepriseId, file) {
 
   const { data } = supabase.storage.from(ENTREPRISE_LOGOS_BUCKET).getPublicUrl(path);
   return `${data.publicUrl}?t=${Date.now()}`;
+}
+
+export async function uploadEntrepriseLogo(entrepriseId, file) {
+  return uploadEntrepriseAsset(entrepriseId, file, 'logo');
+}
+
+export async function uploadEntrepriseCachet(entrepriseId, file) {
+  return uploadEntrepriseAsset(entrepriseId, file, 'cachet');
+}
+
+export async function uploadEntrepriseSignature(entrepriseId, file) {
+  return uploadEntrepriseAsset(entrepriseId, file, 'signature');
 }

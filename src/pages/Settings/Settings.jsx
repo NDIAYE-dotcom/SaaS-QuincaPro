@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { LuUpload, LuLoaderCircle } from 'react-icons/lu';
 import { useAuth } from '../../contexts/AuthContext';
 import { updateEntreprise } from '../../services/settingsService';
-import { uploadEntrepriseLogo } from '../../services/storageService';
+import { uploadEntrepriseLogo, uploadEntrepriseCachet, uploadEntrepriseSignature } from '../../services/storageService';
 import './Settings.css';
 
 const STATUT_LABELS = {
@@ -33,12 +33,23 @@ function toFormState(entreprise) {
   };
 }
 
+const ASSET_CONFIG = {
+  logo: { label: 'Logo', field: 'logo_url', upload: uploadEntrepriseLogo },
+  cachet: { label: 'Cachet', field: 'cachet_url', upload: uploadEntrepriseCachet },
+  signature: { label: 'Signature', field: 'signature_url', upload: uploadEntrepriseSignature },
+};
+
+function toAssetState(entreprise) {
+  return Object.fromEntries(
+    Object.entries(ASSET_CONFIG).map(([key, { field }]) => [key, { preview: entreprise?.[field] || null, file: null }]),
+  );
+}
+
 export default function Settings() {
   const { entreprise, profile, refreshProfile } = useAuth();
   const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
   const [form, setForm] = useState(() => toFormState(entreprise));
-  const [logoPreview, setLogoPreview] = useState(entreprise?.logo_url || null);
-  const [logoFile, setLogoFile] = useState(null);
+  const [assets, setAssets] = useState(() => toAssetState(entreprise));
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -47,11 +58,12 @@ export default function Settings() {
     return (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
   }
 
-  function handleLogoChange(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setLogoFile(file);
-    setLogoPreview(URL.createObjectURL(file));
+  function handleAssetChange(key) {
+    return (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      setAssets((prev) => ({ ...prev, [key]: { file, preview: URL.createObjectURL(file) } }));
+    };
   }
 
   async function handleSubmit(e) {
@@ -66,9 +78,9 @@ export default function Settings() {
 
     setSaving(true);
     try {
-      let logoUrl = entreprise?.logo_url || null;
-      if (logoFile) {
-        logoUrl = await uploadEntrepriseLogo(entreprise.id, logoFile);
+      const assetUrls = {};
+      for (const [key, { field, upload }] of Object.entries(ASSET_CONFIG)) {
+        assetUrls[field] = assets[key].file ? await upload(entreprise.id, assets[key].file) : entreprise?.[field] || null;
       }
 
       await updateEntreprise(entreprise.id, {
@@ -81,7 +93,7 @@ export default function Settings() {
         tva_numero: form.tva_numero.trim() || null,
         devise: form.devise,
         langue: form.langue,
-        logo_url: logoUrl,
+        ...assetUrls,
       });
 
       await refreshProfile();
@@ -122,23 +134,31 @@ export default function Settings() {
 
       <form className="settings__card stacked-form" onSubmit={handleSubmit}>
         <div className="settings__logo">
-          <label htmlFor="logo-input" className={`settings__logo-drop ${!isAdmin ? 'settings__logo-drop--disabled' : ''}`}>
-            {logoPreview ? (
-              <img src={logoPreview} alt="Logo" />
-            ) : (
-              <span>
-                <LuUpload /> Logo
-              </span>
-            )}
-          </label>
-          <input
-            id="logo-input"
-            type="file"
-            accept="image/*"
-            onChange={handleLogoChange}
-            disabled={!isAdmin}
-            hidden
-          />
+          {Object.entries(ASSET_CONFIG).map(([key, { label }]) => (
+            <div className="settings__logo-item" key={key}>
+              <label
+                htmlFor={`${key}-input`}
+                className={`settings__logo-drop ${!isAdmin ? 'settings__logo-drop--disabled' : ''}`}
+              >
+                {assets[key].preview ? (
+                  <img src={assets[key].preview} alt={label} />
+                ) : (
+                  <span>
+                    <LuUpload /> {label}
+                  </span>
+                )}
+              </label>
+              <input
+                id={`${key}-input`}
+                type="file"
+                accept="image/*"
+                onChange={handleAssetChange(key)}
+                disabled={!isAdmin}
+                hidden
+              />
+              <small className="field__hint">{label}</small>
+            </div>
+          ))}
         </div>
 
         <div className="form-grid">

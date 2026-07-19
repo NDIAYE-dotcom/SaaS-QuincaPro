@@ -136,6 +136,51 @@ async function drawQrCode(doc, text, x, y, size) {
   }
 }
 
+// Boîte "Cachet & signature" en bas à droite : affiche le cachet/la signature
+// de l'entreprise si configurés dans Paramètres, sinon reste vide pour un
+// tampon/paraphe manuel après impression.
+async function drawStampBox(doc, entreprise, rightEdge, y) {
+  const width = 55;
+  const height = 28;
+  const x = rightEdge - width;
+
+  doc.setFontSize(7.5);
+  doc.setTextColor(...TEXT_MUTED);
+  doc.text('CACHET & SIGNATURE', x, y - 2);
+  doc.setTextColor(0, 0, 0);
+
+  doc.setDrawColor(200, 200, 200);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(x, y, width, height, 1.5, 1.5, 'S');
+
+  if (entreprise.cachet_url) {
+    const cachetData = await loadImageAsDataUrl(entreprise.cachet_url);
+    const format = detectImageFormat(cachetData);
+    if (format) {
+      try {
+        const size = 22;
+        doc.addImage(cachetData, format, x + width - size - 3, y + (height - size) / 2, size, size);
+      } catch {
+        // image illisible par jsPDF : on continue sans cachet
+      }
+    }
+  }
+
+  if (entreprise.signature_url) {
+    const signatureData = await loadImageAsDataUrl(entreprise.signature_url);
+    const format = detectImageFormat(signatureData);
+    if (format) {
+      try {
+        const sigWidth = 28;
+        const sigHeight = 14;
+        doc.addImage(signatureData, format, x + 3, y + height - sigHeight - 3, sigWidth, sigHeight);
+      } catch {
+        // image illisible par jsPDF : on continue sans signature
+      }
+    }
+  }
+}
+
 const BRAND = [47, 155, 179];
 const TEXT_MUTED = [110, 110, 110];
 const BG_LIGHT = [240, 246, 248];
@@ -259,17 +304,20 @@ export async function generateA4Document(document, entreprise, kind) {
   }
 
   y += 4;
+  const qrY = y;
   await drawQrCode(
     doc,
     `${entreprise.nom} | ${data.numero} | ${formatMoney(data.totalTtc, data.devise)} | ${data.date}`,
     margin,
-    y,
+    qrY,
     22,
   );
   doc.setFontSize(8);
   doc.setTextColor(...TEXT_MUTED);
-  doc.text('Merci de votre confiance.', margin + 27, y + 12);
+  doc.text('Merci de votre confiance.', margin + 27, qrY + 12);
   doc.setTextColor(0, 0, 0);
+
+  await drawStampBox(doc, entreprise, pageWidth - margin, qrY);
 
   const footerY = 282;
   doc.setDrawColor(220, 220, 220);

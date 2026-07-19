@@ -3,7 +3,12 @@ import { supabase } from '../supabase/client';
 const SELECT_COLUMNS = '*, categorie:categories(id, nom, parent_id)';
 
 function sanitizeSearchTerm(search) {
-  return search.replace(/[%,()]/g, ' ').trim();
+  // "_" est aussi un joker en SQL ILIKE (caractère unique) : on l'échappe pour qu'une recherche
+  // comme "SKU_001" ne matche pas aussi "SKUX001" par exemple.
+  return search
+    .replace(/[%,()]/g, ' ')
+    .trim()
+    .replace(/_/g, '\\_');
 }
 
 export async function fetchProducts({ search = '', categorieId = null } = {}) {

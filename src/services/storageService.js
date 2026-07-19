@@ -29,13 +29,24 @@ export async function deleteProductPhoto(publicUrl) {
 
 async function uploadEntrepriseAsset(entrepriseId, file, name) {
   const ext = file.name.split('.').pop();
-  const path = `${entrepriseId}/${name}.${ext}`;
+  const filename = `${name}.${ext}`;
+  const path = `${entrepriseId}/${filename}`;
 
   const { error } = await supabase.storage.from(ENTREPRISE_LOGOS_BUCKET).upload(path, file, {
     cacheControl: '3600',
     upsert: true,
   });
   if (error) throw error;
+
+  // upsert:true n'écrase que si le chemin est identique : si l'extension change d'un envoi à
+  // l'autre (ex. logo.png -> logo.jpg), l'ancien fichier reste orphelin dans le bucket.
+  const { data: existing } = await supabase.storage.from(ENTREPRISE_LOGOS_BUCKET).list(entrepriseId);
+  const staleFiles = (existing || [])
+    .filter((f) => f.name.startsWith(`${name}.`) && f.name !== filename)
+    .map((f) => `${entrepriseId}/${f.name}`);
+  if (staleFiles.length > 0) {
+    await supabase.storage.from(ENTREPRISE_LOGOS_BUCKET).remove(staleFiles);
+  }
 
   const { data } = supabase.storage.from(ENTREPRISE_LOGOS_BUCKET).getPublicUrl(path);
   return `${data.publicUrl}?t=${Date.now()}`;

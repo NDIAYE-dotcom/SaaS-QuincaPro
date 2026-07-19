@@ -60,7 +60,7 @@ export default function AddPaymentModal({ sale, onClose, onSaved }) {
             <input
               type="number"
               min="0"
-              step="1"
+              step="0.01"
               value={montant}
               onChange={(e) => setMontant(e.target.value)}
               required

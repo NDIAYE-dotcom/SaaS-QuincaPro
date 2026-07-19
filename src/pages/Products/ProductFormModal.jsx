@@ -190,12 +190,12 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
 
             <label className="field">
               <span>Prix d'achat (FCFA)</span>
-              <input type="number" min="0" step="1" value={form.prix_achat} onChange={update('prix_achat')} />
+              <input type="number" min="0" step="0.01" value={form.prix_achat} onChange={update('prix_achat')} />
             </label>
 
             <label className="field">
               <span>Prix de vente (FCFA) *</span>
-              <input type="number" min="0" step="1" value={form.prix_vente} onChange={update('prix_vente')} required />
+              <input type="number" min="0" step="0.01" value={form.prix_vente} onChange={update('prix_vente')} required />
             </label>
 
             <label className="field">
@@ -223,7 +223,7 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
                 <input
                   type="number"
                   min="0"
-                  step="1"
+                  step="0.01"
                   value={form.stock_initial}
                   onChange={update('stock_initial')}
                 />
@@ -233,17 +233,17 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
 
             <label className="field">
               <span>Stock minimum</span>
-              <input type="number" min="0" step="1" value={form.stock_minimum} onChange={update('stock_minimum')} />
+              <input type="number" min="0" step="0.01" value={form.stock_minimum} onChange={update('stock_minimum')} />
             </label>
 
             <label className="field">
               <span>Stock critique</span>
-              <input type="number" min="0" step="1" value={form.stock_critique} onChange={update('stock_critique')} />
+              <input type="number" min="0" step="0.01" value={form.stock_critique} onChange={update('stock_critique')} />
             </label>
 
             <label className="field">
               <span>Stock maximum</span>
-              <input type="number" min="0" step="1" value={form.stock_maximum} onChange={update('stock_maximum')} />
+              <input type="number" min="0" step="0.01" value={form.stock_maximum} onChange={update('stock_maximum')} />
             </label>
           </div>
 

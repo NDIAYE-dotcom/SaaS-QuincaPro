@@ -26,6 +26,15 @@ function detectImageFormat(dataUrl) {
   return null;
 }
 
+function truncateToWidth(doc, text, maxWidth) {
+  if (doc.getTextWidth(text) <= maxWidth) return text;
+  let truncated = text;
+  while (truncated.length > 1 && doc.getTextWidth(`${truncated}…`) > maxWidth) {
+    truncated = truncated.slice(0, -1);
+  }
+  return `${truncated}…`;
+}
+
 function formatMoney(amount, devise) {
   const value = Number(amount) || 0;
   const fixed = Math.abs(value).toFixed(2);
@@ -88,7 +97,7 @@ function buildDocumentData(document, entreprise, kind) {
   };
 }
 
-async function drawLetterhead(doc, entreprise, x, y) {
+async function drawLetterhead(doc, entreprise, x, y, reservedRight = 0) {
   let logoWidth = 0;
   if (entreprise.logo_url) {
     const logoData = await loadImageAsDataUrl(entreprise.logo_url);
@@ -104,13 +113,15 @@ async function drawLetterhead(doc, entreprise, x, y) {
   }
 
   const textX = x + logoWidth;
+  const maxTextWidth = 210 - textX - 15 - reservedRight;
   doc.setFont(undefined, 'bold');
   doc.setFontSize(13);
-  doc.text(entreprise.nom || '', textX, y + 5);
+  const nameLines = doc.splitTextToSize(entreprise.nom || '', maxTextWidth);
+  doc.text(nameLines, textX, y + 5);
   doc.setFont(undefined, 'normal');
   doc.setFontSize(8.5);
 
-  let infoY = y + 10;
+  let infoY = y + 10 + (nameLines.length - 1) * 5;
   [
     entreprise.adresse,
     entreprise.telephone && `Tél : ${entreprise.telephone}`,
@@ -194,9 +205,9 @@ export async function generateA4Document(document, entreprise, kind) {
   const pageWidth = 210;
   const contentWidth = pageWidth - margin * 2;
 
-  const headerBottom = await drawLetterhead(doc, entreprise, margin, margin);
-
   const badgeWidth = 55;
+  const headerBottom = await drawLetterhead(doc, entreprise, margin, margin, badgeWidth + 5);
+
   const badgeX = pageWidth - margin - badgeWidth;
   doc.setFillColor(...BRAND);
   doc.roundedRect(badgeX, margin - 2, badgeWidth, 10, 1.5, 1.5, 'F');
@@ -228,7 +239,7 @@ export async function generateA4Document(document, entreprise, kind) {
     doc.setFont(undefined, 'bold');
     doc.setFontSize(10.5);
     doc.setTextColor(0, 0, 0);
-    doc.text(data.partnerName, margin + 4, y + 11);
+    doc.text(truncateToWidth(doc, data.partnerName, contentWidth - 8), margin + 4, y + 11);
     y += boxHeight + 8;
   }
 
@@ -304,6 +315,12 @@ export async function generateA4Document(document, entreprise, kind) {
   }
 
   y += 4;
+  // Garde-fou : si beaucoup de lignes produit ou de paiements ont poussé le contenu vers le bas,
+  // le QR code / cachet / pied de page ne doivent pas se chevaucher ni sortir de la page A4.
+  if (y + 40 > 270) {
+    doc.addPage();
+    y = margin;
+  }
   const qrY = y;
   await drawQrCode(
     doc,
@@ -341,8 +358,17 @@ export async function generateThermalDocument(document, entreprise, kind, widthM
   const logoSize = isNarrow ? 14 : 18;
   const logoBlockHeight = hasLogo ? logoSize + 3 : 0;
   const stampBlockHeight = hasStamp ? (isNarrow ? 34 : 40) : 0;
-  const estimatedHeight =
-    65 + data.lignes.length * 9 + (data.showPayment ? 16 : 0) + logoBlockHeight + stampBlockHeight;
+
+  // Les noms de produits longs peuvent s'étaler sur plusieurs lignes sur un ticket étroit :
+  // on mesure le nombre de lignes réel (avec la même taille de police que le rendu final) pour
+  // dimensionner la page en conséquence, plutôt que de supposer une seule ligne par produit.
+  const nameWidth = widthMm - margin * 2;
+  const measureDoc = new jsPDF({ unit: 'mm', format: [widthMm, 1000] });
+  measureDoc.setFontSize(isNarrow ? 6.5 : 7.5);
+  const wrappedNames = data.lignes.map((l) => measureDoc.splitTextToSize(l.nom, nameWidth));
+  const lignesHeight = wrappedNames.reduce((total, lines) => total + lines.length * 3.3 + 4.3, 0);
+
+  const estimatedHeight = 65 + lignesHeight + (data.showPayment ? 16 : 0) + logoBlockHeight + stampBlockHeight;
 
   const doc = new jsPDF({ unit: 'mm', format: [widthMm, estimatedHeight] });
   const pageWidth = widthMm;
@@ -383,7 +409,7 @@ export async function generateThermalDocument(document, entreprise, kind, widthM
   doc.text(`N° ${data.numero}  ·  ${data.date}`, center, y, { align: 'center' });
   y += 4;
   if (data.partnerName) {
-    doc.text(data.partnerName, center, y, { align: 'center' });
+    doc.text(truncateToWidth(doc, data.partnerName, pageWidth - margin * 2), center, y, { align: 'center' });
     y += 4;
   }
 
@@ -393,9 +419,11 @@ export async function generateThermalDocument(document, entreprise, kind, widthM
   y += 4;
 
   doc.setFontSize(isNarrow ? 6.5 : 7.5);
-  data.lignes.forEach((l) => {
-    doc.text(l.nom, margin, y);
-    y += 3.3;
+  data.lignes.forEach((l, i) => {
+    wrappedNames[i].forEach((line) => {
+      doc.text(line, margin, y);
+      y += 3.3;
+    });
     doc.text(`${l.quantite} x ${formatMoney(l.prixUnitaire, data.devise)}`, margin, y);
     doc.text(formatMoney(l.total, data.devise), pageWidth - margin, y, { align: 'right' });
     y += 4.3;

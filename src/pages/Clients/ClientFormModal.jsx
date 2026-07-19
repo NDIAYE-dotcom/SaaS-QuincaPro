@@ -106,7 +106,7 @@ export default function ClientFormModal({ client, onClose, onSaved }) {
 
             <label className="field">
               <span>Limite de crédit (FCFA)</span>
-              <input type="number" min="0" step="1" value={form.limite_credit} onChange={update('limite_credit')} />
+              <input type="number" min="0" step="0.01" value={form.limite_credit} onChange={update('limite_credit')} />
             </label>
           </div>
 

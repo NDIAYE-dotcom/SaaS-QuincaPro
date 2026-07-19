@@ -13,7 +13,17 @@ import {
 
 const PAIEMENT_LABELS = { impaye: 'Impayé', partiel: 'Partiel', paye: 'Payé' };
 
-export const money = (v) => `${Number(v || 0).toLocaleString('fr-FR')} FCFA`;
+export const money = (v) => {
+  const value = Number(v) || 0;
+  const fixed = Math.abs(value).toFixed(2);
+  const [intPart, decPart] = fixed.split('.');
+  // Espace normale (U+0020) plutôt que le séparateur de toLocaleString('fr-FR') : les polices
+  // standards de jsPDF (utilisées par l'export PDF des rapports) n'ont pas le glyphe de l'espace
+  // fine insécable (U+202F) et l'affichent comme un caractère invalide ("/").
+  const withSeparators = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  const decimalDisplay = decPart === '00' ? '' : `,${decPart}`;
+  return `${value < 0 ? '-' : ''}${withSeparators}${decimalDisplay} FCFA`;
+};
 export const dateFmt = (v) => new Date(v).toLocaleDateString('fr-FR');
 export const pct = (v) => `${Number(v || 0).toFixed(1)}%`;
 const sum = (rows, key) => rows.reduce((s, r) => s + Number(r[key] || 0), 0);

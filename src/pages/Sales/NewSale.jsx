@@ -239,7 +239,7 @@ export default function NewSale() {
                             <input
                               type="number"
                               min="0"
-                              step="1"
+                              step="0.01"
                               className="new-sale__cell-input"
                               value={l.prix_unitaire}
                               onChange={(e) => updateLigne(index, 'prix_unitaire', e.target.value)}
@@ -320,7 +320,7 @@ export default function NewSale() {
                 <input
                   type="number"
                   min="0"
-                  step="1"
+                  step="0.01"
                   value={montantPayeInitial}
                   onChange={(e) => setMontantPayeInitial(e.target.value)}
                 />

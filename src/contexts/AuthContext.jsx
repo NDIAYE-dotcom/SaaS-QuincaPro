@@ -17,8 +17,13 @@ export function AuthProvider({ children }) {
     try {
       const data = await fetchProfileWithEntreprise(userId);
       setProfile(data);
-    } catch {
-      setProfile(null);
+    } catch (err) {
+      // "PGRST116" (aucune ligne) : l'utilisateur n'a vraiment pas encore de profil, on l'envoie
+      // vers /finalisation. Toute autre erreur (réseau, timeout...) est transitoire : on garde le
+      // profil déjà chargé plutôt que d'éjecter un utilisateur actif vers un cul-de-sac.
+      if (err?.code === 'PGRST116') {
+        setProfile(null);
+      }
     }
   }, []);
 
@@ -32,12 +37,28 @@ export function AuthProvider({ children }) {
       if (mounted) setLoading(false);
     });
 
-    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+    const { data: listener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
       if (!mounted) return;
-      setLoading(true);
+
+      // Un rafraîchissement de token (silencieux, ~toutes les heures) ne change ni l'utilisateur
+      // ni son profil : on ne doit pas remonter toute l'appli derrière un écran de chargement,
+      // ce qui effacerait le travail en cours (ex. une vente à moitié saisie).
+      if (event === 'TOKEN_REFRESHED') {
+        setSession(newSession);
+        return;
+      }
+
+      // Un vrai changement d'identité (connexion/déconnexion) justifie l'écran de chargement.
+      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+        setLoading(true);
+        setSession(newSession);
+        await loadProfile(newSession?.user?.id);
+        if (mounted) setLoading(false);
+        return;
+      }
+
       setSession(newSession);
       await loadProfile(newSession?.user?.id);
-      if (mounted) setLoading(false);
     });
 
     return () => {

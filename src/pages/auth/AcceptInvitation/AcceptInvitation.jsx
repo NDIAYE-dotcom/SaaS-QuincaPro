@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { LuLock, LuEye, LuEyeOff, LuMail } from 'react-icons/lu';
-import { getInvitation, signUp, acceptInvitation } from '../../../services/authService';
+import { getInvitation, signUp, signIn, acceptInvitation } from '../../../services/authService';
 import { ROLE_LABELS } from '../../../constants/roles';
 import './AcceptInvitation.css';
 
@@ -39,7 +39,7 @@ export default function AcceptInvitation() {
 
     setLoading(true);
     try {
-      const { session } = await signUp({
+      const { session, user } = await signUp({
         email: invitation.email,
         password,
         metadata: { invitation_token: token },
@@ -48,9 +48,28 @@ export default function AcceptInvitation() {
       if (session) {
         await acceptInvitation(token);
         navigate('/tableau-de-bord', { replace: true });
-      } else {
-        setEmailSent(true);
+        return;
       }
+
+      // Supabase renvoie un "succès" sans session ni erreur quand l'email a déjà un compte
+      // (pour ne pas permettre de deviner les emails inscrits) : identities est alors vide.
+      // Sans ce contrôle, l'utilisateur voit "Vérifiez votre email" alors qu'aucun email n'est
+      // envoyé et que son invitation n'est jamais acceptée — une impasse silencieuse.
+      const alreadyRegistered = user && user.identities?.length === 0;
+      if (alreadyRegistered) {
+        try {
+          await signIn({ email: invitation.email, password });
+          await acceptInvitation(token);
+          navigate('/tableau-de-bord', { replace: true });
+        } catch {
+          setError(
+            `Un compte existe déjà avec l'adresse ${invitation.email}. Connectez-vous avec votre mot de passe habituel pour rejoindre ${invitation.entreprise_nom}.`,
+          );
+        }
+        return;
+      }
+
+      setEmailSent(true);
     } catch (err) {
       setError(err.message);
     } finally {

@@ -76,7 +76,7 @@ export default function ActivateSubscriptionModal({ entreprise, onClose, onSaved
                 <input
                   type="number"
                   min="1"
-                  step="1"
+                  step="0.01"
                   value={montant}
                   onChange={(e) => setMontant(e.target.value)}
                   required

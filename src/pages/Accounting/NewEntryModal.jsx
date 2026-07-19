@@ -124,7 +124,7 @@ export default function NewEntryModal({ accounts, onClose, onSaved }) {
                       <input
                         type="number"
                         min="0"
-                        step="1"
+                        step="0.01"
                         className="new-entry__cell-input"
                         value={l.debit}
                         onChange={(e) => updateLigne(index, 'debit', e.target.value)}
@@ -134,7 +134,7 @@ export default function NewEntryModal({ accounts, onClose, onSaved }) {
                       <input
                         type="number"
                         min="0"
-                        step="1"
+                        step="0.01"
                         className="new-entry__cell-input"
                         value={l.credit}
                         onChange={(e) => updateLigne(index, 'credit', e.target.value)}

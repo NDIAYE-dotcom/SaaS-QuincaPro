@@ -34,26 +34,28 @@ export default function JournalTab({ entries }) {
             </div>
           </div>
 
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Compte</th>
-                <th>Débit</th>
-                <th>Crédit</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entry.lignes.map((ligne) => (
-                <tr key={ligne.id}>
-                  <td>
-                    {ligne.compte?.numero} — {ligne.compte?.nom}
-                  </td>
-                  <td>{ligne.debit > 0 ? `${Number(ligne.debit).toLocaleString('fr-FR')} FCFA` : ''}</td>
-                  <td>{ligne.credit > 0 ? `${Number(ligne.credit).toLocaleString('fr-FR')} FCFA` : ''}</td>
+          <div className="accounting__entry-table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Compte</th>
+                  <th>Débit</th>
+                  <th>Crédit</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {entry.lignes.map((ligne) => (
+                  <tr key={ligne.id}>
+                    <td>
+                      {ligne.compte?.numero} — {ligne.compte?.nom}
+                    </td>
+                    <td>{ligne.debit > 0 ? `${Number(ligne.debit).toLocaleString('fr-FR')} FCFA` : ''}</td>
+                    <td>{ligne.credit > 0 ? `${Number(ligne.credit).toLocaleString('fr-FR')} FCFA` : ''}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       ))}
     </div>

@@ -71,6 +71,11 @@
   color: var(--text-secondary);
 }
 
+.accounting__entry-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Grand livre */
 .accounting__ledger-select {
   max-width: 340px;

@@ -6,12 +6,15 @@ import { fetchSuppliers } from '../../services/supplierService';
 import { createPurchase } from '../../services/purchasesService';
 import './NewPurchase.css';
 
+const TAUX_TVA_STANDARD = 18;
+
 export default function NewPurchase() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [fournisseurId, setFournisseurId] = useState('');
   const [statut, setStatut] = useState('recu');
+  const [typeFacture, setTypeFacture] = useState('tva');
   const [lignes, setLignes] = useState([]);
   const [productSearch, setProductSearch] = useState('');
   const [montantPayeInitial, setMontantPayeInitial] = useState('0');
@@ -42,10 +45,15 @@ export default function NewPurchase() {
         unite: produit.unite,
         quantite: '1',
         prix_unitaire: String(produit.prix_achat || 0),
-        taux_tva: String(produit.taux_tva || 0),
+        taux_tva: typeFacture === 'tva' ? String(TAUX_TVA_STANDARD) : '0',
       },
     ]);
     setProductSearch('');
+  }
+
+  function handleTypeFactureChange(value) {
+    setTypeFacture(value);
+    setLignes((prev) => prev.map((l) => ({ ...l, taux_tva: value === 'tva' ? String(TAUX_TVA_STANDARD) : '0' })));
   }
 
   function updateLigne(index, field, value) {
@@ -124,6 +132,14 @@ export default function NewPurchase() {
                 <select value={statut} onChange={(e) => setStatut(e.target.value)}>
                   <option value="recu">Reçu (met à jour le stock)</option>
                   <option value="commande">Commande (pas encore reçue)</option>
+                </select>
+              </label>
+
+              <label className="field">
+                <span>Type de facture</span>
+                <select value={typeFacture} onChange={(e) => handleTypeFactureChange(e.target.value)}>
+                  <option value="tva">Facture TVA</option>
+                  <option value="hors_taxe">Facture Hors Taxe</option>
                 </select>
               </label>
 
@@ -223,6 +239,7 @@ export default function NewPurchase() {
                               className="new-purchase__cell-input"
                               value={l.taux_tva}
                               onChange={(e) => updateLigne(index, 'taux_tva', e.target.value)}
+                              disabled={typeFacture === 'hors_taxe'}
                             />
                           </td>
                           <td>{total.toLocaleString('fr-FR')} FCFA</td>

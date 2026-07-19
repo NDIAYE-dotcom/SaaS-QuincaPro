@@ -18,8 +18,24 @@ async function loadImageAsDataUrl(url) {
   }
 }
 
+function detectImageFormat(dataUrl) {
+  const match = /^data:image\/(\w+);/i.exec(dataUrl || '');
+  const type = match?.[1]?.toUpperCase();
+  if (type === 'JPG' || type === 'JPEG') return 'JPEG';
+  if (type === 'PNG' || type === 'WEBP' || type === 'BMP') return type;
+  return null;
+}
+
 function formatMoney(amount, devise) {
-  return `${Number(amount).toLocaleString('fr-FR')} ${devise || 'FCFA'}`;
+  const value = Number(amount) || 0;
+  const fixed = Math.abs(value).toFixed(2);
+  const [intPart, decPart] = fixed.split('.');
+  // Espace normal (U+0020) au lieu du séparateur de toLocaleString('fr-FR') : les polices
+  // standards de jsPDF (WinAnsiEncoding) n'ont pas le glyphe de l'espace fine insécable (U+202F)
+  // utilisé par certains moteurs JS et l'affichent comme un caractère invalide ("/").
+  const withSeparators = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  const decimalDisplay = decPart === '00' ? '' : `,${decPart}`;
+  return `${value < 0 ? '-' : ''}${withSeparators}${decimalDisplay} ${devise || 'FCFA'}`;
 }
 
 const VENTE_LABELS = {
@@ -76,12 +92,13 @@ async function drawLetterhead(doc, entreprise, x, y) {
   let logoWidth = 0;
   if (entreprise.logo_url) {
     const logoData = await loadImageAsDataUrl(entreprise.logo_url);
-    if (logoData) {
+    const format = detectImageFormat(logoData);
+    if (logoData && format) {
       try {
-        doc.addImage(logoData, 'PNG', x, y, 22, 22);
+        doc.addImage(logoData, format, x, y, 22, 22);
         logoWidth = 26;
       } catch {
-        // format d'image non supporté par jsPDF (ex: SVG) : on continue sans logo
+        // image corrompue ou illisible par jsPDF : on continue sans logo
       }
     }
   }
@@ -119,33 +136,64 @@ async function drawQrCode(doc, text, x, y, size) {
   }
 }
 
+const BRAND = [47, 155, 179];
+const TEXT_MUTED = [110, 110, 110];
+const BG_LIGHT = [240, 246, 248];
+const ACCENT_DANGER = [195, 60, 45];
+const ACCENT_SUCCESS = [40, 140, 85];
+
 export async function generateA4Document(document, entreprise, kind) {
   const data = buildDocumentData(document, entreprise, kind);
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
   const margin = 15;
   const pageWidth = 210;
+  const contentWidth = pageWidth - margin * 2;
 
-  let y = await drawLetterhead(doc, entreprise, margin, margin);
-  y += 10;
+  const headerBottom = await drawLetterhead(doc, entreprise, margin, margin);
 
+  const badgeWidth = 55;
+  const badgeX = pageWidth - margin - badgeWidth;
+  doc.setFillColor(...BRAND);
+  doc.roundedRect(badgeX, margin - 2, badgeWidth, 10, 1.5, 1.5, 'F');
+  doc.setTextColor(255, 255, 255);
   doc.setFont(undefined, 'bold');
-  doc.setFontSize(16);
-  doc.text(data.label, margin, y);
+  doc.setFontSize(12);
+  doc.text(data.label, badgeX + badgeWidth / 2, margin + 4.8, { align: 'center' });
+  doc.setTextColor(0, 0, 0);
   doc.setFont(undefined, 'normal');
   doc.setFontSize(9);
-  doc.text(`N° ${data.numero}`, pageWidth - margin, margin + 5, { align: 'right' });
-  doc.text(`Date : ${data.date}`, pageWidth - margin, margin + 10, { align: 'right' });
+  doc.text(`N° ${data.numero}`, pageWidth - margin, margin + 15, { align: 'right' });
+  doc.text(`Date : ${data.date}`, pageWidth - margin, margin + 20, { align: 'right' });
+
+  let y = Math.max(headerBottom, margin + 25) + 6;
+
+  doc.setDrawColor(...BRAND);
+  doc.setLineWidth(0.6);
+  doc.line(margin, y, pageWidth - margin, y);
   y += 8;
 
   if (data.partnerName) {
+    const boxHeight = 14;
+    doc.setFillColor(...BG_LIGHT);
+    doc.roundedRect(margin, y, contentWidth, boxHeight, 1.5, 1.5, 'F');
     doc.setFont(undefined, 'bold');
-    doc.text(`${data.partnerLabel} :`, margin, y);
-    doc.setFont(undefined, 'normal');
-    doc.text(data.partnerName, margin + 22, y);
-    y += 8;
+    doc.setFontSize(8);
+    doc.setTextColor(...TEXT_MUTED);
+    doc.text(data.partnerLabel.toUpperCase(), margin + 4, y + 5.5);
+    doc.setFont(undefined, 'bold');
+    doc.setFontSize(10.5);
+    doc.setTextColor(0, 0, 0);
+    doc.text(data.partnerName, margin + 4, y + 11);
+    y += boxHeight + 8;
   }
 
   const hasRemise = data.lignes.some((l) => l.remise !== null);
+  const columnStyles = { 1: { halign: 'center' }, 2: { halign: 'right' } };
+  let colIndex = 3;
+  if (hasRemise) columnStyles[colIndex++] = { halign: 'right' };
+  columnStyles[colIndex++] = { halign: 'right' };
+  columnStyles[colIndex] = { halign: 'right', fontStyle: 'bold' };
+
   autoTable(doc, {
     startY: y,
     margin: { left: margin, right: margin },
@@ -158,40 +206,80 @@ export async function generateA4Document(document, entreprise, kind) {
       `${l.tva}%`,
       formatMoney(l.total, data.devise),
     ]),
-    styles: { fontSize: 9 },
-    headStyles: { fillColor: [47, 155, 179] },
+    styles: { fontSize: 9, cellPadding: 3, textColor: [40, 40, 40] },
+    headStyles: { fillColor: BRAND, textColor: 255, fontStyle: 'bold' },
+    alternateRowStyles: { fillColor: BG_LIGHT },
+    columnStyles,
   });
 
-  y = doc.lastAutoTable.finalY + 10;
+  y = doc.lastAutoTable.finalY + 8;
 
-  const rows = [
-    ['Sous-total', formatMoney(data.sousTotal, data.devise)],
-    ['TVA', formatMoney(data.totalTva, data.devise)],
-    ['Total TTC', formatMoney(data.totalTtc, data.devise)],
-  ];
-  if (data.showPayment) {
-    rows.push(['Payé', formatMoney(data.montantPaye, data.devise)]);
-    rows.push(['Reste à payer', formatMoney(data.totalTtc - data.montantPaye, data.devise)]);
-  }
+  const totalsWidth = 75;
+  const totalsX = pageWidth - margin - totalsWidth;
 
   autoTable(doc, {
     startY: y,
-    margin: { left: pageWidth - margin - 70 },
-    tableWidth: 70,
-    body: rows,
-    styles: { fontSize: 9 },
+    margin: { left: totalsX },
+    tableWidth: totalsWidth,
+    body: [
+      ['Sous-total', formatMoney(data.sousTotal, data.devise)],
+      ['TVA', formatMoney(data.totalTva, data.devise)],
+    ],
+    styles: { fontSize: 9.5, cellPadding: 2 },
+    columnStyles: { 1: { halign: 'right' } },
     theme: 'plain',
   });
 
-  y = doc.lastAutoTable.finalY + 10;
+  y = doc.lastAutoTable.finalY + 3;
 
+  doc.setFillColor(...BRAND);
+  doc.roundedRect(totalsX, y, totalsWidth, 10, 1.5, 1.5, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFont(undefined, 'bold');
+  doc.setFontSize(10.5);
+  doc.text('Total TTC', totalsX + 4, y + 6.7);
+  doc.text(formatMoney(data.totalTtc, data.devise), totalsX + totalsWidth - 4, y + 6.7, { align: 'right' });
+  doc.setTextColor(0, 0, 0);
+  y += 14;
+
+  if (data.showPayment) {
+    const reste = data.totalTtc - data.montantPaye;
+    doc.setFont(undefined, 'normal');
+    doc.setFontSize(9.5);
+    doc.text('Payé', totalsX, y);
+    doc.text(formatMoney(data.montantPaye, data.devise), totalsX + totalsWidth, y, { align: 'right' });
+    y += 6;
+    doc.setFont(undefined, 'bold');
+    doc.setTextColor(...(reste > 0 ? ACCENT_DANGER : ACCENT_SUCCESS));
+    doc.text('Reste à payer', totalsX, y);
+    doc.text(formatMoney(reste, data.devise), totalsX + totalsWidth, y, { align: 'right' });
+    doc.setTextColor(0, 0, 0);
+    doc.setFont(undefined, 'normal');
+    y += 8;
+  }
+
+  y += 4;
   await drawQrCode(
     doc,
     `${entreprise.nom} | ${data.numero} | ${formatMoney(data.totalTtc, data.devise)} | ${data.date}`,
     margin,
     y,
-    24,
+    22,
   );
+  doc.setFontSize(8);
+  doc.setTextColor(...TEXT_MUTED);
+  doc.text('Merci de votre confiance.', margin + 27, y + 12);
+  doc.setTextColor(0, 0, 0);
+
+  const footerY = 282;
+  doc.setDrawColor(220, 220, 220);
+  doc.setLineWidth(0.2);
+  doc.line(margin, footerY, pageWidth - margin, footerY);
+  doc.setFontSize(7.5);
+  doc.setTextColor(...TEXT_MUTED);
+  doc.text(entreprise.nom || '', margin, footerY + 4);
+  doc.text(data.numero, pageWidth - margin, footerY + 4, { align: 'right' });
+  doc.setTextColor(0, 0, 0);
 
   doc.save(`${data.numero}.pdf`);
 }
@@ -305,7 +393,7 @@ export async function generateReportPdf({ title, subtitle, entreprise, columns, 
     head: [columns.map((c) => c.label)],
     body: rows.map((row) => columns.map((c) => (c.format ? c.format(row[c.key]) : (row[c.key] ?? '—')))),
     styles: { fontSize: 8.5 },
-    headStyles: { fillColor: [47, 155, 179] },
+    headStyles: { fillColor: BRAND },
   });
 
   doc.save(filename);

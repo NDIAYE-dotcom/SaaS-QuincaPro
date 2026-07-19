@@ -6,6 +6,8 @@ import { fetchClients } from '../../services/clientService';
 import { createSale } from '../../services/salesService';
 import './NewSale.css';
 
+const TAUX_TVA_STANDARD = 18;
+
 export default function NewSale() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
@@ -44,11 +46,16 @@ export default function NewSale() {
         stockDisponible: produit.quantite_stock,
         quantite: '1',
         prix_unitaire: String(produit.prix_vente),
-        taux_tva: typeFacture === 'tva' ? String(produit.taux_tva) : '0',
+        taux_tva: typeFacture === 'tva' ? String(TAUX_TVA_STANDARD) : '0',
         remise_pourcentage: String(produit.remise_pourcentage || 0),
       },
     ]);
     setProductSearch('');
+  }
+
+  function handleTypeFactureChange(value) {
+    setTypeFacture(value);
+    setLignes((prev) => prev.map((l) => ({ ...l, taux_tva: value === 'tva' ? String(TAUX_TVA_STANDARD) : '0' })));
   }
 
   function updateLigne(index, field, value) {
@@ -142,7 +149,7 @@ export default function NewSale() {
 
               <label className="field">
                 <span>Type de facture</span>
-                <select value={typeFacture} onChange={(e) => setTypeFacture(e.target.value)}>
+                <select value={typeFacture} onChange={(e) => handleTypeFactureChange(e.target.value)}>
                   <option value="tva">Facture TVA</option>
                   <option value="hors_taxe">Facture Hors Taxe</option>
                 </select>

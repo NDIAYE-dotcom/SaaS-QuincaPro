@@ -198,7 +198,7 @@ export default function NewPurchase() {
                             <input
                               type="number"
                               min="0.01"
-                              step="1"
+                              step="0.01"
                               className="new-purchase__cell-input"
                               value={l.quantite}
                               onChange={(e) => updateLigne(index, 'quantite', e.target.value)}

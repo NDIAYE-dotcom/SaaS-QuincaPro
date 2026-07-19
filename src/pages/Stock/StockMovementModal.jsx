@@ -111,7 +111,7 @@ export default function StockMovementModal({ type, products, onClose, onSaved })
               <input
                 type="number"
                 min="0.01"
-                step="1"
+                step="0.01"
                 value={quantite}
                 onChange={(e) => setQuantite(e.target.value)}
                 required

@@ -18,6 +18,34 @@
   margin-left: auto;
 }
 
+.reports__presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.reports__preset-btn {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full, 999px);
+  background-color: var(--bg-surface);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 7px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color var(--transition-base),
+    border-color var(--transition-base),
+    background-color var(--transition-base);
+}
+
+.reports__preset-btn:hover {
+  color: var(--color-primary-600);
+  border-color: var(--color-primary-600);
+}
+
 .reports__note {
   font-size: 0.82rem;
   color: var(--text-secondary);

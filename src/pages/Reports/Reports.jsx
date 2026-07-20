@@ -11,9 +11,29 @@ function startOfMonth() {
   return d.toISOString().slice(0, 10);
 }
 
+function startOfYear() {
+  const d = new Date();
+  d.setMonth(0, 1);
+  return d.toISOString().slice(0, 10);
+}
+
+function monthsAgo(n) {
+  const d = new Date();
+  d.setDate(1);
+  d.setMonth(d.getMonth() - n);
+  return d.toISOString().slice(0, 10);
+}
+
 function today() {
   return new Date().toISOString().slice(0, 10);
 }
+
+const DATE_PRESETS = [
+  { label: 'Ce mois', from: startOfMonth },
+  { label: '3 mois', from: () => monthsAgo(3) },
+  { label: '6 mois', from: () => monthsAgo(6) },
+  { label: 'Cette année', from: startOfYear },
+];
 
 export default function Reports() {
   const { entreprise } = useAuth();
@@ -26,6 +46,11 @@ export default function Reports() {
   const [exporting, setExporting] = useState(false);
 
   const reportType = useMemo(() => REPORT_TYPES.find((t) => t.id === typeId), [typeId]);
+
+  function applyPreset(preset) {
+    setDateFrom(preset.from());
+    setDateTo(today());
+  }
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -107,6 +132,18 @@ export default function Reports() {
 
         {reportType.needsDateRange && (
           <>
+            <div className="reports__presets">
+              {DATE_PRESETS.map((preset) => (
+                <button
+                  key={preset.label}
+                  type="button"
+                  className="reports__preset-btn"
+                  onClick={() => applyPreset(preset)}
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
             <label className="field">
               <span>Du</span>
               <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} max={dateTo} />

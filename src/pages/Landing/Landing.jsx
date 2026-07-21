@@ -149,7 +149,7 @@ export default function Landing() {
           transition={{ duration: 0.4 }}
         >
           <div className="landing__pricing-amount">
-            5 000 <span>FCFA / mois</span>
+            5 500 <span>FCFA / mois</span>
           </div>
           <p className="landing__pricing-hint">Sans engagement. Paiement via Wave, Orange Money ou Free Money.</p>
           <ul className="landing__pricing-list">

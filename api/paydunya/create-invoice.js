@@ -4,7 +4,7 @@ import { paydunyaBaseUrl, paydunyaHeaders } from '../_paydunya.js';
 // client Realtime dans son constructeur, qui exige le WebSocket natif (Node 22+) et plante sur
 // les runtimes Node plus anciens — inutile ici, ces fonctions ne font que de l'auth + du REST.
 
-const PRIX_MENSUEL_FCFA = 5000;
+const PRIX_MENSUEL_FCFA = 5500;
 
 async function getUserFromToken(accessToken) {
   const res = await fetch(`${process.env.VITE_SUPABASE_URL}/auth/v1/user`, {

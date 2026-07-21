@@ -3,7 +3,7 @@ import { LuLoaderCircle } from 'react-icons/lu';
 import { createPaydunyaInvoice } from '../services/paydunyaService';
 import './PaydunyaCheckoutButton.css';
 
-const PRIX_MENSUEL_FCFA = 5000;
+const PRIX_MENSUEL_FCFA = 5500;
 const DUREES = [1, 3, 6, 12];
 
 export default function PaydunyaCheckoutButton() {

@@ -157,7 +157,7 @@ export default function Settings() {
       {isAdmin && (
         <div className="settings__card">
           <h2 className="settings__card-title">Renouveler l'abonnement</h2>
-          <p className="field__hint">5000 FCFA / mois. Le paiement prolonge la date d'expiration actuelle.</p>
+          <p className="field__hint">5500 FCFA / mois. Le paiement prolonge la date d'expiration actuelle.</p>
           <PaydunyaCheckoutButton />
         </div>
       )}

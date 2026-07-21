@@ -30,7 +30,7 @@ export default function SubscriptionRequired() {
       </div>
       <h1>Accès bloqué</h1>
       <p>{statusLabel}</p>
-      <p className="blocked-screen__hint">L'abonnement QuincaPro est de 5000 FCFA / mois.</p>
+      <p className="blocked-screen__hint">L'abonnement QuincaPro est de 5500 FCFA / mois.</p>
 
       {isAdmin ? (
         <PaydunyaCheckoutButton />

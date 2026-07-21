@@ -13,7 +13,7 @@ const METHODES = [
 ];
 
 export default function ActivateSubscriptionModal({ entreprise, onClose, onSaved }) {
-  const [montant, setMontant] = useState('5000');
+  const [montant, setMontant] = useState('5500');
   const [methode, setMethode] = useState('wave');
   const [dureeMois, setDureeMois] = useState('1');
   const [notes, setNotes] = useState('');

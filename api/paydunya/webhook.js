@@ -24,23 +24,21 @@ async function confirmerPaiement({ entrepriseId, montant, dureeMois, reference }
   }
 }
 
-// Le token de la facture peut arriver soit en query string ("?token=..."), soit dans le corps
-// du POST (form-urlencoded avec une clé "data" contenant du JSON) selon le type d'appel PayDunya
-// — on essaie toutes les formes plutôt que d'en supposer une seule.
+// Constaté en production (logs Vercel) : PayDunya poste le corps en notation PHP à crochets —
+// "data[invoice][token]", "data[custom_data][entreprise_id]", etc. Le parseur form-urlencoded
+// de Node ne sait pas imbriquer ces clés : chaque clé arrive à PLAT, crochets compris dans le
+// nom littéral (ex. body['data[invoice][token]']), pas comme un objet "data" imbriqué.
 function extractToken(req) {
   if (req.query?.token) return req.query.token;
 
-  let payload = req.body;
-  if (typeof payload === 'string') {
-    try {
-      payload = JSON.parse(payload);
-    } catch {
-      payload = null;
-    }
-  }
-  if (!payload) return null;
+  const body = req.body;
+  if (!body || typeof body !== 'object') return null;
 
-  let dataObj = payload.data;
+  if (body['data[invoice][token]']) return body['data[invoice][token]'];
+  if (body['data[token]']) return body['data[token]'];
+
+  // Filets de sécurité si le format venait à varier (corps déjà imbriqué, ou "data" en JSON).
+  let dataObj = body.data;
   if (typeof dataObj === 'string') {
     try {
       dataObj = JSON.parse(dataObj);
@@ -48,8 +46,7 @@ function extractToken(req) {
       dataObj = null;
     }
   }
-
-  return dataObj?.invoice?.token || dataObj?.token || payload.invoice?.token || payload.token || null;
+  return dataObj?.invoice?.token || dataObj?.token || body.invoice?.token || body.token || null;
 }
 
 export default async function handler(req, res) {

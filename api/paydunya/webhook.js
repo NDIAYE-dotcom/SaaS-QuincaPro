@@ -24,17 +24,46 @@ async function confirmerPaiement({ entrepriseId, montant, dureeMois, reference }
   }
 }
 
+// Le token de la facture peut arriver soit en query string ("?token=..."), soit dans le corps
+// du POST (form-urlencoded avec une clé "data" contenant du JSON) selon le type d'appel PayDunya
+// — on essaie toutes les formes plutôt que d'en supposer une seule.
+function extractToken(req) {
+  if (req.query?.token) return req.query.token;
+
+  let payload = req.body;
+  if (typeof payload === 'string') {
+    try {
+      payload = JSON.parse(payload);
+    } catch {
+      payload = null;
+    }
+  }
+  if (!payload) return null;
+
+  let dataObj = payload.data;
+  if (typeof dataObj === 'string') {
+    try {
+      dataObj = JSON.parse(dataObj);
+    } catch {
+      dataObj = null;
+    }
+  }
+
+  return dataObj?.invoice?.token || dataObj?.token || payload.invoice?.token || payload.token || null;
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).end();
     return;
   }
 
-  // PayDunya ajoute "?token=..." à l'URL de callback. On ignore volontairement le corps du POST
-  // (form-urlencoded, falsifiable par quiconque connaît l'URL) et on revérifie le statut du
-  // paiement directement auprès de PayDunya avec nos propres identifiants secrets — seule source
-  // qu'on peut faire confiance pour activer un abonnement.
-  const token = req.query?.token;
+  // On ignore volontairement le contenu du POST pour la DÉCISION d'activation (falsifiable par
+  // quiconque connaît l'URL) : le token ne sert qu'à savoir QUELLE facture revérifier, et on
+  // revérifie son statut directement auprès de PayDunya avec nos identifiants secrets — seule
+  // source qu'on peut faire confiance pour activer un abonnement.
+  const token = extractToken(req);
+  console.log('paydunya webhook: query =', req.query, '| body =', req.body);
   if (!token) {
     res.status(400).json({ error: 'Token manquant' });
     return;
@@ -46,6 +75,7 @@ export default async function handler(req, res) {
       headers: paydunyaHeaders(),
     });
     confirmData = await confirmRes.json();
+    console.log('paydunya webhook: confirmData =', confirmData);
   } catch {
     // Erreur réseau vers PayDunya : on répond en erreur pour que PayDunya réessaie plus tard.
     res.status(502).json({ error: 'Impossible de vérifier le paiement auprès de PayDunya' });

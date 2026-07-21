@@ -1,0 +1,10 @@
+.paydunya-checkout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.paydunya-checkout__field {
+  min-width: 220px;
+}

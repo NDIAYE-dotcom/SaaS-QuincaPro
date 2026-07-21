@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { LuUpload, LuLoaderCircle } from 'react-icons/lu';
 import { useAuth } from '../../contexts/AuthContext';
 import { updateEntreprise } from '../../services/settingsService';
 import { uploadEntrepriseLogo, uploadEntrepriseCachet, uploadEntrepriseSignature } from '../../services/storageService';
+import PaydunyaCheckoutButton from '../../components/PaydunyaCheckoutButton';
 import './Settings.css';
 
 const STATUT_LABELS = {
@@ -53,6 +55,18 @@ export default function Settings() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const paymentReturn = searchParams.get('abonnement');
+
+  useEffect(() => {
+    if (!paymentReturn) return;
+    if (paymentReturn === 'succes') refreshProfile();
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete('abonnement');
+      return next;
+    });
+  }, [paymentReturn]);
 
   function update(field) {
     return (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
@@ -129,8 +143,24 @@ export default function Settings() {
         <div className="page-error">Seul un administrateur peut modifier les paramètres de l'entreprise.</div>
       )}
 
+      {paymentReturn === 'succes' && (
+        <div className="settings__success">
+          Paiement reçu ! Si le statut ci-dessus n'affiche pas encore "Actif", patientez quelques
+          secondes puis rafraîchissez la page.
+        </div>
+      )}
+      {paymentReturn === 'annule' && <div className="page-error">Paiement annulé.</div>}
+
       {error && <div className="page-error">{error}</div>}
       {success && <div className="settings__success">Paramètres enregistrés.</div>}
+
+      {isAdmin && (
+        <div className="settings__card">
+          <h2 className="settings__card-title">Renouveler l'abonnement</h2>
+          <p className="field__hint">5000 FCFA / mois. Le paiement prolonge la date d'expiration actuelle.</p>
+          <PaydunyaCheckoutButton />
+        </div>
+      )}
 
       <form className="settings__card stacked-form" onSubmit={handleSubmit}>
         <div className="settings__logo">

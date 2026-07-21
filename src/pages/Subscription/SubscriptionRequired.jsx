@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { LuLock, LuLogOut } from 'react-icons/lu';
 import { useAuth } from '../../contexts/AuthContext';
 import { signOut } from '../../services/authService';
+import PaydunyaCheckoutButton from '../../components/PaydunyaCheckoutButton';
 import './SubscriptionRequired.css';
 
 const STATUS_LABELS = {
@@ -11,8 +12,9 @@ const STATUS_LABELS = {
 };
 
 export default function SubscriptionRequired() {
-  const { entreprise } = useAuth();
+  const { entreprise, profile } = useAuth();
   const navigate = useNavigate();
+  const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
 
   async function handleSignOut() {
     await signOut();
@@ -28,10 +30,16 @@ export default function SubscriptionRequired() {
       </div>
       <h1>Accès bloqué</h1>
       <p>{statusLabel}</p>
-      <p className="blocked-screen__hint">
-        L'abonnement QuincaPro est de 5000 FCFA / mois. Le paiement en ligne (Wave, Orange Money, Free
-        Money) sera bientôt disponible directement ici.
-      </p>
+      <p className="blocked-screen__hint">L'abonnement QuincaPro est de 5000 FCFA / mois.</p>
+
+      {isAdmin ? (
+        <PaydunyaCheckoutButton />
+      ) : (
+        <p className="blocked-screen__hint">
+          Seul l'administrateur de votre entreprise peut renouveler l'abonnement. Contactez-le.
+        </p>
+      )}
+
       <button className="blocked-screen__signout" onClick={handleSignOut}>
         <LuLogOut /> Se déconnecter
       </button>

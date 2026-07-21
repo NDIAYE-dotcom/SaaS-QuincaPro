@@ -1,7 +1,7 @@
 import { supabase } from '../supabase/client';
 
 const SALE_SELECT =
-  '*, client:clients(id, nom, telephone), lignes:lignes_vente(*, produit:produits(id, nom, unite)), paiements:paiements_vente(*)';
+  '*, client:clients(id, nom, telephone, email, adresse), lignes:lignes_vente(*, produit:produits(id, nom, unite)), paiements:paiements_vente(*)';
 
 export async function fetchSales({ statut = null, limit = 200 } = {}) {
   let query = supabase.from('ventes').select(SALE_SELECT).order('created_at', { ascending: false }).limit(limit);

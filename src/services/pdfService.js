@@ -77,6 +77,9 @@ function buildDocumentData(document, entreprise, kind) {
     label,
     partnerLabel: isVente ? 'Client' : 'Fournisseur',
     partnerName: partner?.nom || (isVente ? 'Client comptoir' : ''),
+    partnerPhone: partner?.telephone || null,
+    partnerEmail: partner?.email || null,
+    partnerAddress: partner?.adresse || null,
     numero: document.numero,
     date: new Date(document.created_at).toLocaleDateString('fr-FR'),
     lignes: document.lignes.map((l) => ({
@@ -229,7 +232,13 @@ export async function generateA4Document(document, entreprise, kind) {
   y += 8;
 
   if (data.partnerName) {
-    const boxHeight = 14;
+    const partnerDetails = [
+      data.partnerPhone && `Tél : ${data.partnerPhone}`,
+      data.partnerEmail,
+      data.partnerAddress,
+    ].filter(Boolean);
+    const boxHeight = partnerDetails.length > 0 ? 14 + partnerDetails.length * 4 + 2 : 14;
+
     doc.setFillColor(...BG_LIGHT);
     doc.roundedRect(margin, y, contentWidth, boxHeight, 1.5, 1.5, 'F');
     doc.setFont(undefined, 'bold');
@@ -240,6 +249,19 @@ export async function generateA4Document(document, entreprise, kind) {
     doc.setFontSize(10.5);
     doc.setTextColor(0, 0, 0);
     doc.text(truncateToWidth(doc, data.partnerName, contentWidth - 8), margin + 4, y + 11);
+
+    if (partnerDetails.length > 0) {
+      doc.setFont(undefined, 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(...TEXT_MUTED);
+      let detailY = y + 16;
+      partnerDetails.forEach((line) => {
+        doc.text(truncateToWidth(doc, line, contentWidth - 8), margin + 4, detailY);
+        detailY += 4;
+      });
+      doc.setTextColor(0, 0, 0);
+    }
+
     y += boxHeight + 8;
   }
 
@@ -368,7 +390,8 @@ export async function generateThermalDocument(document, entreprise, kind, widthM
   const wrappedNames = data.lignes.map((l) => measureDoc.splitTextToSize(l.nom, nameWidth));
   const lignesHeight = wrappedNames.reduce((total, lines) => total + lines.length * 3.3 + 4.3, 0);
 
-  const estimatedHeight = 65 + lignesHeight + (data.showPayment ? 16 : 0) + logoBlockHeight + stampBlockHeight;
+  const estimatedHeight =
+    65 + lignesHeight + (data.showPayment ? 16 : 0) + logoBlockHeight + stampBlockHeight + (data.partnerPhone ? 4 : 0);
 
   const doc = new jsPDF({ unit: 'mm', format: [widthMm, estimatedHeight] });
   const pageWidth = widthMm;
@@ -411,6 +434,12 @@ export async function generateThermalDocument(document, entreprise, kind, widthM
   if (data.partnerName) {
     doc.text(truncateToWidth(doc, data.partnerName, pageWidth - margin * 2), center, y, { align: 'center' });
     y += 4;
+    if (data.partnerPhone) {
+      doc.setFontSize(isNarrow ? 6 : 7);
+      doc.text(data.partnerPhone, center, y, { align: 'center' });
+      y += 3.5;
+      doc.setFontSize(isNarrow ? 6.5 : 7.5);
+    }
   }
 
   y += 1;

@@ -1,7 +1,7 @@
 import { supabase } from '../supabase/client';
 
 const PURCHASE_SELECT =
-  '*, fournisseur:fournisseurs(id, nom, telephone), lignes:lignes_achat(*, produit:produits(id, nom, unite)), paiements:paiements_achat(*)';
+  '*, fournisseur:fournisseurs(id, nom, telephone, email, adresse), lignes:lignes_achat(*, produit:produits(id, nom, unite)), paiements:paiements_achat(*)';
 
 export async function fetchPurchases({ statut = null, limit = 200 } = {}) {
   let query = supabase

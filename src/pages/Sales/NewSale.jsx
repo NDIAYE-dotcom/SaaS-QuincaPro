@@ -7,12 +7,15 @@ import { createSale } from '../../services/salesService';
 import './NewSale.css';
 
 const TAUX_TVA_STANDARD = 18;
+const CLIENT_PASSAGE = '__passage__';
 
 export default function NewSale() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [clients, setClients] = useState([]);
   const [clientId, setClientId] = useState('');
+  const [clientNomLibre, setClientNomLibre] = useState('');
+  const [clientTelephoneLibre, setClientTelephoneLibre] = useState('');
   const [statut, setStatut] = useState('facture');
   const [typeFacture, setTypeFacture] = useState('tva');
   const [lignes, setLignes] = useState([]);
@@ -100,10 +103,18 @@ export default function NewSale() {
       return;
     }
 
+    const isClientPassage = clientId === CLIENT_PASSAGE;
+    if (isClientPassage && !clientNomLibre.trim()) {
+      setError('Saisissez le nom du client de passage');
+      return;
+    }
+
     setSaving(true);
     try {
       const sale = await createSale({
-        clientId: clientId || null,
+        clientId: isClientPassage ? null : clientId || null,
+        clientNomLibre: isClientPassage ? clientNomLibre.trim() : null,
+        clientTelephoneLibre: isClientPassage ? clientTelephoneLibre.trim() : null,
         statut,
         typeFacture,
         lignes: lignes.map((l) => ({
@@ -159,6 +170,7 @@ export default function NewSale() {
                 <span>Client (optionnel)</span>
                 <select value={clientId} onChange={(e) => setClientId(e.target.value)}>
                   <option value="">Client comptoir</option>
+                  <option value={CLIENT_PASSAGE}>Client de passage (saisir le nom)</option>
                   {clients.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.nom}
@@ -166,6 +178,28 @@ export default function NewSale() {
                   ))}
                 </select>
               </label>
+
+              {clientId === CLIENT_PASSAGE && (
+                <>
+                  <label className="field">
+                    <span>Nom du client *</span>
+                    <input
+                      type="text"
+                      value={clientNomLibre}
+                      onChange={(e) => setClientNomLibre(e.target.value)}
+                      placeholder="Ex : Mamadou Diop"
+                    />
+                  </label>
+                  <label className="field">
+                    <span>Téléphone (optionnel)</span>
+                    <input
+                      type="tel"
+                      value={clientTelephoneLibre}
+                      onChange={(e) => setClientTelephoneLibre(e.target.value)}
+                    />
+                  </label>
+                </>
+              )}
             </div>
           </div>
 

@@ -77,7 +77,7 @@ export default function Sales() {
               {sales.map((sale) => (
                 <tr key={sale.id}>
                   <td className="data-table__title">{sale.numero}</td>
-                  <td>{sale.client?.nom || 'Client comptoir'}</td>
+                  <td>{sale.client?.nom || sale.client_nom_libre || 'Client comptoir'}</td>
                   <td>
                     <span className={`badge ${STATUT_BADGE[sale.statut]}`}>{STATUT_LABELS[sale.statut]}</span>
                   </td>

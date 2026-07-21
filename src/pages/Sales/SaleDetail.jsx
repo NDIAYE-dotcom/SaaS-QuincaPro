@@ -83,7 +83,7 @@ export default function SaleDetail() {
           <p>
             {STATUT_LABELS[sale.statut]}
             {sale.statut === 'facture' && ` · ${PAIEMENT_LABELS[sale.statut_paiement]}`} ·{' '}
-            {sale.client?.nom || 'Client comptoir'}
+            {sale.client?.nom || sale.client_nom_libre || 'Client comptoir'}
           </p>
         </div>
         <div className="page-header__actions">

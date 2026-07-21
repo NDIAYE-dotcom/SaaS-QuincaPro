@@ -21,7 +21,16 @@ export async function fetchSale(id) {
   return data;
 }
 
-export async function createSale({ clientId, statut, typeFacture, lignes, montantPayeInitial, notes }) {
+export async function createSale({
+  clientId,
+  statut,
+  typeFacture,
+  lignes,
+  montantPayeInitial,
+  notes,
+  clientNomLibre,
+  clientTelephoneLibre,
+}) {
   const { data, error } = await supabase.rpc('creer_vente', {
     p_client_id: clientId || null,
     p_statut: statut,
@@ -29,6 +38,8 @@ export async function createSale({ clientId, statut, typeFacture, lignes, montan
     p_lignes: lignes,
     p_montant_paye_initial: montantPayeInitial || 0,
     p_notes: notes || null,
+    p_client_nom_libre: clientNomLibre || null,
+    p_client_telephone_libre: clientTelephoneLibre || null,
   });
   if (error) throw error;
   return data;

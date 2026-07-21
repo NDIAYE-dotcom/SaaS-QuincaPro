@@ -76,8 +76,8 @@ function buildDocumentData(document, entreprise, kind) {
   return {
     label,
     partnerLabel: isVente ? 'Client' : 'Fournisseur',
-    partnerName: partner?.nom || (isVente ? 'Client comptoir' : ''),
-    partnerPhone: partner?.telephone || null,
+    partnerName: partner?.nom || (isVente && document.client_nom_libre) || (isVente ? 'Client comptoir' : ''),
+    partnerPhone: partner?.telephone || (isVente && document.client_telephone_libre) || null,
     partnerEmail: partner?.email || null,
     partnerAddress: partner?.adresse || null,
     numero: document.numero,

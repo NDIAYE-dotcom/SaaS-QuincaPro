@@ -4,11 +4,13 @@ import { LuTrash2, LuLoaderCircle, LuSearch } from 'react-icons/lu';
 import { fetchProducts } from '../../services/productService';
 import { fetchSuppliers } from '../../services/supplierService';
 import { createPurchase } from '../../services/purchasesService';
+import { useLanguage } from '../../contexts/LanguageContext';
 import './NewPurchase.css';
 
 const TAUX_TVA_STANDARD = 18;
 
 export default function NewPurchase() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
@@ -81,12 +83,12 @@ export default function NewPurchase() {
     setError('');
 
     if (lignes.length === 0) {
-      setError('Ajoutez au moins un produit');
+      setError(t('purchases.errorAddProduct'));
       return;
     }
 
     if (statut === 'recu' && (Number(montantPayeInitial) || 0) > totals.totalTtc) {
-      setError("Le montant payé ne peut pas dépasser le total de l'achat");
+      setError(t('purchases.errorAmountExceedsTotal'));
       return;
     }
 
@@ -116,8 +118,8 @@ export default function NewPurchase() {
     <div className="new-purchase">
       <div className="page-header">
         <div>
-          <h1>Nouvel achat</h1>
-          <p>Commande fournisseur ou réception directe</p>
+          <h1>{t('purchases.newPurchaseTitle')}</h1>
+          <p>{t('purchases.newPurchaseSubtitle')}</p>
         </div>
       </div>
 
@@ -128,25 +130,25 @@ export default function NewPurchase() {
           <div className="new-purchase__card">
             <div className="form-grid">
               <label className="field">
-                <span>Statut</span>
+                <span>{t('purchases.status')}</span>
                 <select value={statut} onChange={(e) => setStatut(e.target.value)}>
-                  <option value="recu">Reçu (met à jour le stock)</option>
-                  <option value="commande">Commande (pas encore reçue)</option>
+                  <option value="recu">{t('purchases.optionReceived')}</option>
+                  <option value="commande">{t('purchases.optionOrdered')}</option>
                 </select>
               </label>
 
               <label className="field">
-                <span>Type de facture</span>
+                <span>{t('purchases.invoiceType')}</span>
                 <select value={typeFacture} onChange={(e) => handleTypeFactureChange(e.target.value)}>
-                  <option value="tva">Facture TVA</option>
-                  <option value="hors_taxe">Facture Hors Taxe</option>
+                  <option value="tva">{t('purchases.optionInvoiceVat')}</option>
+                  <option value="hors_taxe">{t('purchases.optionInvoiceNoVat')}</option>
                 </select>
               </label>
 
               <label className="field">
-                <span>Fournisseur (optionnel)</span>
+                <span>{t('purchases.supplierOptional')}</span>
                 <select value={fournisseurId} onChange={(e) => setFournisseurId(e.target.value)}>
-                  <option value="">Aucun</option>
+                  <option value="">{t('purchases.none')}</option>
                   {suppliers.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.nom}
@@ -158,13 +160,13 @@ export default function NewPurchase() {
           </div>
 
           <div className="new-purchase__card">
-            <h2 className="new-purchase__card-title">Produits</h2>
+            <h2 className="new-purchase__card-title">{t('purchases.productsTitle')}</h2>
 
             <div className="new-purchase__product-search">
               <LuSearch />
               <input
                 type="text"
-                placeholder="Rechercher un produit à ajouter..."
+                placeholder={t('purchases.searchProductPlaceholder')}
                 value={productSearch}
                 onChange={(e) => setProductSearch(e.target.value)}
               />
@@ -181,7 +183,7 @@ export default function NewPurchase() {
                   >
                     <span>{p.nom}</span>
                     <span className="new-purchase__search-result-meta">
-                      Dernier prix d'achat : {Number(p.prix_achat).toLocaleString('fr-FR')} FCFA
+                      {t('purchases.lastPurchasePrice')} {Number(p.prix_achat).toLocaleString('fr-FR')} FCFA
                     </span>
                   </button>
                 ))}
@@ -189,17 +191,17 @@ export default function NewPurchase() {
             )}
 
             {lignes.length === 0 ? (
-              <p className="page-empty">Aucun produit ajouté.</p>
+              <p className="page-empty">{t('purchases.noProductsAdded')}</p>
             ) : (
               <div className="data-table-wrap">
                 <table className="data-table">
                   <thead>
                     <tr>
-                      <th>Produit</th>
-                      <th>Qté</th>
-                      <th>Prix unit.</th>
-                      <th>TVA %</th>
-                      <th>Total</th>
+                      <th>{t('purchases.columnProduct')}</th>
+                      <th>{t('purchases.columnQty')}</th>
+                      <th>{t('purchases.columnUnitPrice')}</th>
+                      <th>{t('purchases.columnVat')}</th>
+                      <th>{t('purchases.columnLineTotal')}</th>
                       <th></th>
                     </tr>
                   </thead>
@@ -248,7 +250,7 @@ export default function NewPurchase() {
                               type="button"
                               className="icon-btn icon-btn--danger"
                               onClick={() => removeLigne(index)}
-                              aria-label="Retirer"
+                              aria-label={t('purchases.remove')}
                             >
                               <LuTrash2 />
                             </button>
@@ -264,7 +266,7 @@ export default function NewPurchase() {
 
           <div className="new-purchase__card">
             <label className="field">
-              <span>Notes</span>
+              <span>{t('purchases.notes')}</span>
               <textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
             </label>
           </div>
@@ -272,25 +274,25 @@ export default function NewPurchase() {
 
         <aside className="new-purchase__summary">
           <div className="new-purchase__card">
-            <h2 className="new-purchase__card-title">Résumé</h2>
+            <h2 className="new-purchase__card-title">{t('purchases.summary')}</h2>
             <div className="new-purchase__totals">
               <div className="new-purchase__totals-row">
-                <span>Sous-total</span>
+                <span>{t('purchases.subtotal')}</span>
                 <span>{totals.sousTotal.toLocaleString('fr-FR')} FCFA</span>
               </div>
               <div className="new-purchase__totals-row">
-                <span>TVA</span>
+                <span>{t('purchases.vat')}</span>
                 <span>{totals.totalTva.toLocaleString('fr-FR')} FCFA</span>
               </div>
               <div className="new-purchase__totals-row new-purchase__totals-row--total">
-                <span>Total TTC</span>
+                <span>{t('purchases.totalTtc')}</span>
                 <span>{totals.totalTtc.toLocaleString('fr-FR')} FCFA</span>
               </div>
             </div>
 
             {statut === 'recu' && (
               <label className="field">
-                <span>Montant payé maintenant</span>
+                <span>{t('purchases.amountPaidNow')}</span>
                 <input
                   type="number"
                   min="0"
@@ -303,7 +305,11 @@ export default function NewPurchase() {
 
             <button type="submit" className="btn btn--primary new-purchase__submit" disabled={saving}>
               {saving && <LuLoaderCircle className="spin" />}
-              {saving ? 'Création...' : statut === 'commande' ? 'Créer la commande' : "Enregistrer l'achat"}
+              {saving
+                ? t('purchases.creating')
+                : statut === 'commande'
+                  ? t('purchases.createOrder')
+                  : t('purchases.savePurchase')}
             </button>
           </div>
         </aside>

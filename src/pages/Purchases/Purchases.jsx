@@ -2,17 +2,28 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { LuPlus, LuEye } from 'react-icons/lu';
 import { fetchPurchases } from '../../services/purchasesService';
+import { useLanguage } from '../../contexts/LanguageContext';
 import './Purchases.css';
 
-const STATUT_LABELS = { commande: 'Commande', recu: 'Reçu', annule: 'Annulé' };
 const STATUT_BADGE = { commande: 'badge--warning', recu: 'badge--success', annule: 'badge--danger' };
-const PAIEMENT_LABELS = { impaye: 'Impayé', partiel: 'Partiel', paye: 'Payé' };
 const PAIEMENT_BADGE = { impaye: 'badge--danger', partiel: 'badge--warning', paye: 'badge--success' };
 
 export default function Purchases() {
+  const { t } = useLanguage();
   const [purchases, setPurchases] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const STATUT_LABELS = {
+    commande: t('purchases.statutCommande'),
+    recu: t('purchases.statutRecu'),
+    annule: t('purchases.statutAnnule'),
+  };
+  const PAIEMENT_LABELS = {
+    impaye: t('common.paymentUnpaid'),
+    partiel: t('common.paymentPartial'),
+    paye: t('common.paymentPaid'),
+  };
 
   const loadPurchases = useCallback(async () => {
     setLoading(true);
@@ -35,23 +46,23 @@ export default function Purchases() {
     <div className="purchases">
       <div className="page-header">
         <div>
-          <h1>Achats</h1>
-          <p>Commandes fournisseurs, réceptions et paiements</p>
+          <h1>{t('purchases.title')}</h1>
+          <p>{t('purchases.subtitle')}</p>
         </div>
         <Link to="/achats/nouveau" className="btn btn--primary">
-          <LuPlus /> Nouvel achat
+          <LuPlus /> {t('purchases.newPurchase')}
         </Link>
       </div>
 
       {error && <div className="page-error">{error}</div>}
 
       {loading ? (
-        <p className="page-loading">Chargement...</p>
+        <p className="page-loading">{t('common.loading')}</p>
       ) : purchases.length === 0 ? (
         <div className="page-empty">
-          <p>Aucun achat pour l'instant.</p>
+          <p>{t('purchases.noPurchasesYet')}</p>
           <Link to="/achats/nouveau" className="btn btn--primary">
-            <LuPlus /> Créer votre premier achat
+            <LuPlus /> {t('purchases.createFirstPurchase')}
           </Link>
         </div>
       ) : (
@@ -59,12 +70,12 @@ export default function Purchases() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Numéro</th>
-                <th>Fournisseur</th>
-                <th>Statut</th>
-                <th>Paiement</th>
-                <th>Total TTC</th>
-                <th>Date</th>
+                <th>{t('purchases.columnNumber')}</th>
+                <th>{t('purchases.columnSupplier')}</th>
+                <th>{t('purchases.columnStatus')}</th>
+                <th>{t('purchases.columnPayment')}</th>
+                <th>{t('purchases.columnTotal')}</th>
+                <th>{t('purchases.columnDate')}</th>
                 <th></th>
               </tr>
             </thead>
@@ -86,7 +97,7 @@ export default function Purchases() {
                   <td>{Number(achat.total_ttc).toLocaleString('fr-FR')} FCFA</td>
                   <td>{new Date(achat.created_at).toLocaleDateString('fr-FR')}</td>
                   <td className="data-table__actions">
-                    <Link to={`/achats/${achat.id}`} className="icon-btn" aria-label="Voir">
+                    <Link to={`/achats/${achat.id}`} className="icon-btn" aria-label={t('purchases.view')}>
                       <LuEye />
                     </Link>
                   </td>

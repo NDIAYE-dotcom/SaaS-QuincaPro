@@ -3,25 +3,27 @@ import { useParams, Link } from 'react-router-dom';
 import { LuArrowLeft, LuBan, LuPlus } from 'react-icons/lu';
 import { fetchPurchase, cancelPurchase } from '../../services/purchasesService';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import AddPurchasePaymentModal from './AddPurchasePaymentModal';
 import PrintButton from '../../shared/PrintButton';
 import './PurchaseDetail.css';
 
-const STATUT_LABELS = { commande: 'Commande', recu: 'Reçu', annule: 'Annulé' };
-const PAIEMENT_LABELS = { impaye: 'Impayé', partiel: 'Partiel', paye: 'Payé' };
-const MOYEN_LABELS = {
-  especes: 'Espèces',
-  wave: 'Wave',
-  orange_money: 'Orange Money',
-  free_money: 'Free Money',
-  carte: 'Carte bancaire',
-  virement: 'Virement',
-  cheque: 'Chèque',
-};
-
 export default function PurchaseDetail() {
   const { id } = useParams();
   const { entreprise } = useAuth();
+  const { t } = useLanguage();
+
+  const STATUT_LABELS = {
+    commande: t('purchases.statutCommande'),
+    recu: t('purchases.statutRecu'),
+    annule: t('purchases.statutAnnule'),
+  };
+  const PAIEMENT_LABELS = {
+    impaye: t('common.paymentUnpaid'),
+    partiel: t('common.paymentPartial'),
+    paye: t('common.paymentPaid'),
+  };
+  const MOYEN_LABELS = t('common.paymentMethods');
   const [achat, setAchat] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -46,7 +48,7 @@ export default function PurchaseDetail() {
   }, [loadPurchase]);
 
   async function handleCancel() {
-    if (!window.confirm('Annuler cet achat ? Le stock sera retiré et la dette fournisseur ajustée.')) return;
+    if (!window.confirm(t('purchases.confirmCancel'))) return;
     setCanceling(true);
     try {
       await cancelPurchase(id);
@@ -67,7 +69,7 @@ export default function PurchaseDetail() {
     }
   }
 
-  if (loading) return <p className="page-loading">Chargement...</p>;
+  if (loading) return <p className="page-loading">{t('common.loading')}</p>;
   if (!achat) return error ? <div className="page-error">{error}</div> : null;
 
   const reste = achat.total_ttc - achat.montant_paye;
@@ -77,25 +79,25 @@ export default function PurchaseDetail() {
       <div className="page-header">
         <div>
           <Link to="/achats" className="purchase-detail__back">
-            <LuArrowLeft /> Retour aux achats
+            <LuArrowLeft /> {t('purchases.backToPurchases')}
           </Link>
           <h1>{achat.numero}</h1>
           <p>
             {STATUT_LABELS[achat.statut]}
             {achat.statut === 'recu' && ` · ${PAIEMENT_LABELS[achat.statut_paiement]}`} ·{' '}
-            {achat.fournisseur?.nom || 'Sans fournisseur'}
+            {achat.fournisseur?.nom || t('purchases.noSupplier')}
           </p>
         </div>
         <div className="page-header__actions">
           <PrintButton onPrint={handlePrint} />
           {achat.statut === 'recu' && reste > 0 && (
             <button className="btn btn--primary" onClick={() => setPaymentOpen(true)}>
-              <LuPlus /> Ajouter un paiement
+              <LuPlus /> {t('purchases.addPayment')}
             </button>
           )}
           {achat.statut !== 'annule' && (
             <button className="btn btn--ghost" onClick={handleCancel} disabled={canceling}>
-              <LuBan /> Annuler l'achat
+              <LuBan /> {t('purchases.cancelPurchase')}
             </button>
           )}
         </div>
@@ -107,11 +109,11 @@ export default function PurchaseDetail() {
         <table className="data-table">
           <thead>
             <tr>
-              <th>Produit</th>
-              <th>Qté</th>
-              <th>Prix unit.</th>
-              <th>TVA</th>
-              <th>Total</th>
+              <th>{t('purchases.columnProduct')}</th>
+              <th>{t('purchases.columnQty')}</th>
+              <th>{t('purchases.columnUnitPrice')}</th>
+              <th>{t('purchases.columnVat')}</th>
+              <th>{t('purchases.columnLineTotal')}</th>
             </tr>
           </thead>
           <tbody>
@@ -132,25 +134,25 @@ export default function PurchaseDetail() {
 
       <div className="purchase-detail__summary">
         <div className="purchase-detail__summary-row">
-          <span>Sous-total</span>
+          <span>{t('purchases.subtotal')}</span>
           <span>{Number(achat.sous_total).toLocaleString('fr-FR')} FCFA</span>
         </div>
         <div className="purchase-detail__summary-row">
-          <span>TVA</span>
+          <span>{t('purchases.vat')}</span>
           <span>{Number(achat.total_tva).toLocaleString('fr-FR')} FCFA</span>
         </div>
         <div className="purchase-detail__summary-row purchase-detail__summary-row--total">
-          <span>Total TTC</span>
+          <span>{t('purchases.totalTtc')}</span>
           <span>{Number(achat.total_ttc).toLocaleString('fr-FR')} FCFA</span>
         </div>
         {achat.statut === 'recu' && (
           <>
             <div className="purchase-detail__summary-row">
-              <span>Payé</span>
+              <span>{t('purchases.paid')}</span>
               <span>{Number(achat.montant_paye).toLocaleString('fr-FR')} FCFA</span>
             </div>
             <div className="purchase-detail__summary-row">
-              <span>Reste à payer</span>
+              <span>{t('purchases.remaining')}</span>
               <span>{reste.toLocaleString('fr-FR')} FCFA</span>
             </div>
           </>
@@ -159,15 +161,15 @@ export default function PurchaseDetail() {
 
       {achat.paiements.length > 0 && (
         <>
-          <h2 className="section-title">Paiements</h2>
+          <h2 className="section-title">{t('purchases.paymentsTitle')}</h2>
           <div className="data-table-wrap">
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Montant</th>
-                  <th>Moyen</th>
-                  <th>Notes</th>
+                  <th>{t('purchases.columnDate')}</th>
+                  <th>{t('purchases.columnAmount')}</th>
+                  <th>{t('purchases.columnMethod')}</th>
+                  <th>{t('purchases.columnNotes')}</th>
                 </tr>
               </thead>
               <tbody>

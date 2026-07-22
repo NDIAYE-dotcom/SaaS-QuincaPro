@@ -1,20 +1,22 @@
+import { useLanguage } from '../../contexts/LanguageContext';
 import './JournalTab.css';
 
-const ORIGINE_LABELS = {
-  manuelle: 'Manuelle',
-  vente: 'Vente',
-  achat: 'Achat',
-  paiement_vente: 'Paiement vente',
-  paiement_achat: 'Paiement achat',
-  annulation_vente: 'Annulation vente',
-  annulation_achat: 'Annulation achat',
-};
-
 export default function JournalTab({ entries }) {
+  const { t } = useLanguage();
+  const ORIGINE_LABELS = {
+    manuelle: t('accounting.originManual'),
+    vente: t('accounting.originSale'),
+    achat: t('accounting.originPurchase'),
+    paiement_vente: t('accounting.originSalePayment'),
+    paiement_achat: t('accounting.originPurchasePayment'),
+    annulation_vente: t('accounting.originSaleCancellation'),
+    annulation_achat: t('accounting.originPurchaseCancellation'),
+  };
+
   if (entries.length === 0) {
     return (
       <div className="page-empty">
-        <p>Aucune écriture pour l'instant.</p>
+        <p>{t('accounting.noEntriesYet')}</p>
       </div>
     );
   }
@@ -38,9 +40,9 @@ export default function JournalTab({ entries }) {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Compte</th>
-                  <th>Débit</th>
-                  <th>Crédit</th>
+                  <th>{t('accounting.columnAccount')}</th>
+                  <th>{t('accounting.columnDebit')}</th>
+                  <th>{t('accounting.columnCredit')}</th>
                 </tr>
               </thead>
               <tbody>

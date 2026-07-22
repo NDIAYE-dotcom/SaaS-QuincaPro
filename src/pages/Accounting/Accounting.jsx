@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { LuPlus } from 'react-icons/lu';
 import { fetchAccounts, fetchEntries, fetchBalance, fetchLedgerLines } from '../../services/accountingService';
+import { useLanguage } from '../../contexts/LanguageContext';
 import JournalTab from './JournalTab';
 import LedgerTab from './LedgerTab';
 import BalanceTab from './BalanceTab';
@@ -9,15 +10,15 @@ import ChartOfAccountsTab from './ChartOfAccountsTab';
 import NewEntryModal from './NewEntryModal';
 import './Accounting.css';
 
-const TABS = [
-  { id: 'journal', label: 'Journal' },
-  { id: 'grand-livre', label: 'Grand livre' },
-  { id: 'balance', label: 'Balance' },
-  { id: 'rapports', label: 'Rapports' },
-  { id: 'plan-comptable', label: 'Plan comptable' },
-];
-
 export default function Accounting() {
+  const { t } = useLanguage();
+  const TABS = [
+    { id: 'journal', label: t('accounting.tabJournal') },
+    { id: 'grand-livre', label: t('accounting.tabLedger') },
+    { id: 'balance', label: t('accounting.tabBalance') },
+    { id: 'rapports', label: t('accounting.tabReports') },
+    { id: 'plan-comptable', label: t('accounting.tabChart') },
+  ];
   const [activeTab, setActiveTab] = useState('journal');
   const [accounts, setAccounts] = useState([]);
   const [entries, setEntries] = useState([]);
@@ -61,12 +62,12 @@ export default function Accounting() {
     <div className="accounting">
       <div className="page-header">
         <div>
-          <h1>Comptabilité</h1>
-          <p>Journal, grand livre, balance et rapports</p>
+          <h1>{t('accounting.title')}</h1>
+          <p>{t('accounting.subtitle')}</p>
         </div>
         {activeTab === 'journal' && (
           <button className="btn btn--primary" onClick={() => setEntryModalOpen(true)}>
-            <LuPlus /> Nouvelle écriture
+            <LuPlus /> {t('accounting.newEntry')}
           </button>
         )}
       </div>
@@ -86,7 +87,7 @@ export default function Accounting() {
       {error && <div className="page-error">{error}</div>}
 
       {loading ? (
-        <p className="page-loading">Chargement...</p>
+        <p className="page-loading">{t('common.loading')}</p>
       ) : (
         <>
           {activeTab === 'journal' && <JournalTab entries={entries} />}

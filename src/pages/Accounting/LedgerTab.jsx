@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
+import { useLanguage } from '../../contexts/LanguageContext';
 import './LedgerTab.css';
 
 export default function LedgerTab({ lines, accounts }) {
+  const { t } = useLanguage();
   const [compteId, setCompteId] = useState(accounts[0]?.id || '');
 
   const compteLines = useMemo(() => {
@@ -17,7 +19,7 @@ export default function LedgerTab({ lines, accounts }) {
   return (
     <div className="accounting__ledger">
       <label className="field accounting__ledger-select">
-        <span>Compte</span>
+        <span>{t('accounting.account')}</span>
         <select value={compteId} onChange={(e) => setCompteId(e.target.value)}>
           {accounts.map((c) => (
             <option key={c.id} value={c.id}>
@@ -29,19 +31,19 @@ export default function LedgerTab({ lines, accounts }) {
 
       {compteLines.length === 0 ? (
         <div className="page-empty">
-          <p>Aucun mouvement sur ce compte.</p>
+          <p>{t('accounting.noMovementsOnAccount')}</p>
         </div>
       ) : (
         <div className="data-table-wrap">
           <table className="data-table">
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Écriture</th>
-                <th>Libellé</th>
-                <th>Débit</th>
-                <th>Crédit</th>
-                <th>Solde cumulé</th>
+                <th>{t('accounting.columnDate')}</th>
+                <th>{t('accounting.columnEntry')}</th>
+                <th>{t('accounting.columnLabel')}</th>
+                <th>{t('accounting.columnDebit')}</th>
+                <th>{t('accounting.columnCredit')}</th>
+                <th>{t('accounting.columnRunningBalance')}</th>
               </tr>
             </thead>
             <tbody>

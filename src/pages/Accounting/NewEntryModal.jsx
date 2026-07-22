@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { LuX, LuPlus, LuTrash2, LuLoaderCircle } from 'react-icons/lu';
 import { createEntry } from '../../services/accountingService';
+import { useLanguage } from '../../contexts/LanguageContext';
 import './NewEntryModal.css';
 
 function emptyLigne() {
@@ -8,6 +9,7 @@ function emptyLigne() {
 }
 
 export default function NewEntryModal({ accounts, onClose, onSaved }) {
+  const { t } = useLanguage();
   const [libelle, setLibelle] = useState('');
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [lignes, setLignes] = useState([emptyLigne(), emptyLigne()]);
@@ -37,15 +39,15 @@ export default function NewEntryModal({ accounts, onClose, onSaved }) {
     setError('');
 
     if (!libelle.trim()) {
-      setError('Le libellé est requis');
+      setError(t('accounting.errorLabelRequired'));
       return;
     }
     if (lignes.some((l) => !l.compte_id)) {
-      setError('Sélectionnez un compte pour chaque ligne');
+      setError(t('accounting.errorSelectAccountEachLine'));
       return;
     }
     if (!totals.equilibree) {
-      setError('L\'écriture doit être équilibrée (total débit = total crédit)');
+      setError(t('accounting.errorMustBalance'));
       return;
     }
 
@@ -72,8 +74,8 @@ export default function NewEntryModal({ accounts, onClose, onSaved }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal__header">
-          <h2>Nouvelle écriture</h2>
-          <button className="icon-btn" onClick={onClose} aria-label="Fermer">
+          <h2>{t('accounting.newEntryTitle')}</h2>
+          <button className="icon-btn" onClick={onClose} aria-label={t('common.close')}>
             <LuX />
           </button>
         </div>
@@ -83,12 +85,12 @@ export default function NewEntryModal({ accounts, onClose, onSaved }) {
 
           <div className="form-grid">
             <label className="field">
-              <span>Libellé *</span>
+              <span>{t('accounting.fieldLabel')}</span>
               <input type="text" value={libelle} onChange={(e) => setLibelle(e.target.value)} required />
             </label>
 
             <label className="field">
-              <span>Date</span>
+              <span>{t('accounting.fieldDate')}</span>
               <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
             </label>
           </div>
@@ -97,9 +99,9 @@ export default function NewEntryModal({ accounts, onClose, onSaved }) {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Compte</th>
-                  <th>Débit</th>
-                  <th>Crédit</th>
+                  <th>{t('accounting.columnAccount')}</th>
+                  <th>{t('accounting.columnDebit')}</th>
+                  <th>{t('accounting.columnCredit')}</th>
                   <th></th>
                 </tr>
               </thead>
@@ -112,7 +114,7 @@ export default function NewEntryModal({ accounts, onClose, onSaved }) {
                         value={l.compte_id}
                         onChange={(e) => updateLigne(index, 'compte_id', e.target.value)}
                       >
-                        <option value="">Sélectionner...</option>
+                        <option value="">{t('accounting.select')}</option>
                         {accounts.map((c) => (
                           <option key={c.id} value={c.id}>
                             {c.numero} — {c.nom}
@@ -146,7 +148,7 @@ export default function NewEntryModal({ accounts, onClose, onSaved }) {
                           type="button"
                           className="icon-btn icon-btn--danger"
                           onClick={() => removeLigne(index)}
-                          aria-label="Retirer"
+                          aria-label={t('accounting.remove')}
                         >
                           <LuTrash2 />
                         </button>
@@ -157,7 +159,7 @@ export default function NewEntryModal({ accounts, onClose, onSaved }) {
               </tbody>
               <tfoot>
                 <tr>
-                  <td className="data-table__title">Total</td>
+                  <td className="data-table__title">{t('accounting.total')}</td>
                   <td className="data-table__title">{totals.totalDebit.toLocaleString('fr-FR')} FCFA</td>
                   <td className="data-table__title">{totals.totalCredit.toLocaleString('fr-FR')} FCFA</td>
                   <td></td>
@@ -167,16 +169,16 @@ export default function NewEntryModal({ accounts, onClose, onSaved }) {
           </div>
 
           <button type="button" className="btn btn--ghost" onClick={addLigne}>
-            <LuPlus /> Ajouter une ligne
+            <LuPlus /> {t('accounting.addLine')}
           </button>
 
           <div className="modal__footer">
             <button type="button" className="btn btn--ghost" onClick={onClose}>
-              Annuler
+              {t('common.cancel')}
             </button>
             <button type="submit" className="btn btn--primary" disabled={saving}>
               {saving && <LuLoaderCircle className="spin" />}
-              {saving ? 'Enregistrement...' : 'Enregistrer'}
+              {saving ? t('common.saving') : t('common.save')}
             </button>
           </div>
         </form>

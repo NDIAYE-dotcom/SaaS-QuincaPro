@@ -1,6 +1,8 @@
+import { useLanguage } from '../../contexts/LanguageContext';
 import './ReportsTab.css';
 
 export default function ReportsTab({ balance }) {
+  const { t } = useLanguage();
   const charges = balance.filter((c) => c.nature === 'charge' && (c.total_debit > 0 || c.total_credit > 0));
   const produits = balance.filter((c) => c.nature === 'produit' && (c.total_debit > 0 || c.total_credit > 0));
   const actifs = balance.filter((c) => c.nature === 'actif' && (c.total_debit > 0 || c.total_credit > 0));
@@ -16,12 +18,12 @@ export default function ReportsTab({ balance }) {
   return (
     <div className="accounting__reports">
       <div className="accounting__report-card">
-        <h2 className="section-title">Compte de résultat</h2>
+        <h2 className="section-title">{t('accounting.incomeStatement')}</h2>
 
         <div className="accounting__report-section">
-          <h3>Charges</h3>
+          <h3>{t('accounting.expenses')}</h3>
           {charges.length === 0 ? (
-            <p className="accounting__report-empty">Aucune charge enregistrée</p>
+            <p className="accounting__report-empty">{t('accounting.noExpensesRecorded')}</p>
           ) : (
             charges.map((c) => (
               <div key={c.compte_id} className="accounting__report-row">
@@ -33,15 +35,15 @@ export default function ReportsTab({ balance }) {
             ))
           )}
           <div className="accounting__report-row accounting__report-row--total">
-            <span>Total charges</span>
+            <span>{t('accounting.totalExpenses')}</span>
             <span>{totalCharges.toLocaleString('fr-FR')} FCFA</span>
           </div>
         </div>
 
         <div className="accounting__report-section">
-          <h3>Produits</h3>
+          <h3>{t('accounting.revenue')}</h3>
           {produits.length === 0 ? (
-            <p className="accounting__report-empty">Aucun produit enregistré</p>
+            <p className="accounting__report-empty">{t('accounting.noRevenueRecorded')}</p>
           ) : (
             produits.map((c) => (
               <div key={c.compte_id} className="accounting__report-row">
@@ -53,24 +55,24 @@ export default function ReportsTab({ balance }) {
             ))
           )}
           <div className="accounting__report-row accounting__report-row--total">
-            <span>Total produits</span>
+            <span>{t('accounting.totalRevenue')}</span>
             <span>{totalProduits.toLocaleString('fr-FR')} FCFA</span>
           </div>
         </div>
 
         <div className="accounting__report-row accounting__report-row--result">
-          <span>Résultat net</span>
+          <span>{t('accounting.netResult')}</span>
           <span>{resultatNet.toLocaleString('fr-FR')} FCFA</span>
         </div>
       </div>
 
       <div className="accounting__report-card">
-        <h2 className="section-title">Bilan</h2>
+        <h2 className="section-title">{t('accounting.balanceSheet')}</h2>
 
         <div className="accounting__report-section">
-          <h3>Actif</h3>
+          <h3>{t('accounting.assets')}</h3>
           {actifs.length === 0 ? (
-            <p className="accounting__report-empty">Aucun compte d'actif mouvementé</p>
+            <p className="accounting__report-empty">{t('accounting.noAssetAccountsMoved')}</p>
           ) : (
             actifs.map((c) => (
               <div key={c.compte_id} className="accounting__report-row">
@@ -82,15 +84,15 @@ export default function ReportsTab({ balance }) {
             ))
           )}
           <div className="accounting__report-row accounting__report-row--total">
-            <span>Total actif</span>
+            <span>{t('accounting.totalAssets')}</span>
             <span>{totalActif.toLocaleString('fr-FR')} FCFA</span>
           </div>
         </div>
 
         <div className="accounting__report-section">
-          <h3>Passif</h3>
+          <h3>{t('accounting.liabilities')}</h3>
           {passifs.length === 0 ? (
-            <p className="accounting__report-empty">Aucun compte de passif mouvementé</p>
+            <p className="accounting__report-empty">{t('accounting.noLiabilityAccountsMoved')}</p>
           ) : (
             passifs.map((c) => (
               <div key={c.compte_id} className="accounting__report-row">
@@ -102,7 +104,7 @@ export default function ReportsTab({ balance }) {
             ))
           )}
           <div className="accounting__report-row accounting__report-row--total">
-            <span>Total passif</span>
+            <span>{t('accounting.totalLiabilities')}</span>
             <span>{totalPassif.toLocaleString('fr-FR')} FCFA</span>
           </div>
         </div>

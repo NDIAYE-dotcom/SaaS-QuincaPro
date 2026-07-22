@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { fetchActivityLog } from '../../services/activityLogService';
 import './ActivityLog.css';
 
 export default function ActivityLog() {
   const { profile } = useAuth();
+  const { t } = useLanguage();
   const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,19 +14,19 @@ export default function ActivityLog() {
 
   useEffect(() => {
     if (!isAdmin) return;
-    fetchActivityLog()
+    fetchActivityLog({}, t)
       .then(setItems)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [isAdmin]);
+  }, [isAdmin, t]);
 
   if (!isAdmin) {
     return (
       <div className="activity-log">
         <div className="page-header">
-          <h1>Journal d'activité</h1>
+          <h1>{t('activityLog.title')}</h1>
         </div>
-        <div className="page-error">Seul un administrateur peut consulter le journal d'activité.</div>
+        <div className="page-error">{t('activityLog.adminOnly')}</div>
       </div>
     );
   }
@@ -33,25 +35,25 @@ export default function ActivityLog() {
     <div className="activity-log">
       <div className="page-header">
         <div>
-          <h1>Journal d'activité</h1>
-          <p>Ventes, achats et mouvements de stock récents, avec l'employé à l'origine de chaque action</p>
+          <h1>{t('activityLog.title')}</h1>
+          <p>{t('activityLog.subtitle')}</p>
         </div>
       </div>
 
       {error && <div className="page-error">{error}</div>}
 
       {loading ? (
-        <p className="page-loading">Chargement...</p>
+        <p className="page-loading">{t('common.loading')}</p>
       ) : items.length === 0 ? (
-        <p className="page-empty">Aucune activité pour le moment.</p>
+        <p className="page-empty">{t('activityLog.noActivityYet')}</p>
       ) : (
         <div className="data-table-wrap">
           <table className="data-table">
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Employé</th>
-                <th>Action</th>
+                <th>{t('activityLog.columnDate')}</th>
+                <th>{t('activityLog.columnEmployee')}</th>
+                <th>{t('activityLog.columnAction')}</th>
               </tr>
             </thead>
             <tbody>

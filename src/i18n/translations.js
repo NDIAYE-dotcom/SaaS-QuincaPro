@@ -9,6 +9,7 @@ import settings from './dictionaries/settings';
 import clients from './dictionaries/clients';
 import suppliers from './dictionaries/suppliers';
 import team from './dictionaries/team';
+import activityLog from './dictionaries/activityLog';
 
 const NAMESPACES = {
   common,
@@ -22,6 +23,7 @@ const NAMESPACES = {
   clients,
   suppliers,
   team,
+  activityLog,
 };
 
 function buildLanguageDict(lang) {

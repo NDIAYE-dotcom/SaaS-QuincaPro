@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { LuPlus, LuSearch, LuPencil, LuTrash2, LuTags, LuImageOff, LuEyeOff, LuEye } from 'react-icons/lu';
+import { LuPlus, LuSearch, LuPencil, LuTrash2, LuTags, LuImageOff, LuEyeOff, LuEye, LuFileUp } from 'react-icons/lu';
 import { fetchProducts, deleteProduct, updateProduct } from '../../services/productService';
 import { fetchCategories } from '../../services/categoryService';
 import { getStockStatus } from '../../utils/stock';
 import ProductFormModal from './ProductFormModal';
 import CategoryModal from './CategoryModal';
+import ProductImportModal from './ProductImportModal';
 import './Products.css';
 
 export default function Products() {
@@ -17,6 +18,7 @@ export default function Products() {
   const [formOpen, setFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
 
   async function loadCategories() {
     try {
@@ -79,6 +81,12 @@ export default function Products() {
     loadProducts();
   }
 
+  function handleImported() {
+    setImportModalOpen(false);
+    loadCategories();
+    loadProducts();
+  }
+
   async function handleToggleActive(produit) {
     try {
       const updated = await updateProduct(produit.id, { actif: !produit.actif });
@@ -98,6 +106,9 @@ export default function Products() {
         <div className="page-header__actions">
           <button className="btn btn--ghost" onClick={() => setCategoryModalOpen(true)}>
             <LuTags /> Catégories
+          </button>
+          <button className="btn btn--ghost" onClick={() => setImportModalOpen(true)}>
+            <LuFileUp /> Importer
           </button>
           <button className="btn btn--primary" onClick={openCreateForm}>
             <LuPlus /> Nouveau produit
@@ -221,6 +232,10 @@ export default function Products() {
           onClose={() => setCategoryModalOpen(false)}
           onChanged={loadCategories}
         />
+      )}
+
+      {importModalOpen && (
+        <ProductImportModal onClose={() => setImportModalOpen(false)} onImported={handleImported} />
       )}
     </div>
   );

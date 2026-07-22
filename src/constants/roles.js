@@ -9,6 +9,19 @@ export const ROLE_LABELS = {
   consultation: 'Consultation seule',
 };
 
+export function getRoleLabels(t) {
+  return {
+    super_admin: t('team.roleSuperAdmin'),
+    admin: t('team.roleAdmin'),
+    comptable: t('team.roleAccountant'),
+    caissier: t('team.roleCashier'),
+    magasinier: t('team.roleWarehouseKeeper'),
+    vendeur: t('team.roleSalesperson'),
+    responsable_stock: t('team.roleStockManager'),
+    consultation: t('team.roleReadOnly'),
+  };
+}
+
 export const INVITABLE_ROLES = [
   'admin',
   'comptable',

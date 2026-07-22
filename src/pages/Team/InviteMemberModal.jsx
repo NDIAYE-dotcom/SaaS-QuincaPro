@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { LuX, LuLoaderCircle } from 'react-icons/lu';
 import { createInvitation } from '../../services/teamService';
-import { ROLE_LABELS, INVITABLE_ROLES } from '../../constants/roles';
+import { getRoleLabels, INVITABLE_ROLES } from '../../constants/roles';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 export default function InviteMemberModal({ onClose, onSaved }) {
+  const { t } = useLanguage();
+  const ROLE_LABELS = getRoleLabels(t);
   const [email, setEmail] = useState('');
   const [nomComplet, setNomComplet] = useState('');
   const [role, setRole] = useState('vendeur');
@@ -15,7 +18,7 @@ export default function InviteMemberModal({ onClose, onSaved }) {
     setError('');
 
     if (!email.trim() || !nomComplet.trim()) {
-      setError('Le nom et l’email sont requis');
+      setError(t('team.errorNameEmailRequired'));
       return;
     }
 
@@ -38,8 +41,8 @@ export default function InviteMemberModal({ onClose, onSaved }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal modal--sm" onClick={(e) => e.stopPropagation()}>
         <div className="modal__header">
-          <h2>Inviter un membre</h2>
-          <button className="icon-btn" onClick={onClose} aria-label="Fermer">
+          <h2>{t('team.inviteMemberTitle')}</h2>
+          <button className="icon-btn" onClick={onClose} aria-label={t('common.close')}>
             <LuX />
           </button>
         </div>
@@ -49,18 +52,18 @@ export default function InviteMemberModal({ onClose, onSaved }) {
             {error && <div className="page-error">{error}</div>}
 
             <label className="field">
-              <span>Nom complet *</span>
+              <span>{t('team.fieldFullName')}</span>
               <input type="text" value={nomComplet} onChange={(e) => setNomComplet(e.target.value)} required />
             </label>
 
             <label className="field">
-              <span>Email *</span>
+              <span>{t('team.fieldEmail')}</span>
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-              <span className="field__hint">Doit correspondre à l'adresse utilisée lors de l'inscription.</span>
+              <span className="field__hint">{t('team.emailHint')}</span>
             </label>
 
             <label className="field">
-              <span>Rôle *</span>
+              <span>{t('team.fieldRole')}</span>
               <select value={role} onChange={(e) => setRole(e.target.value)}>
                 {INVITABLE_ROLES.map((r) => (
                   <option key={r} value={r}>
@@ -73,11 +76,11 @@ export default function InviteMemberModal({ onClose, onSaved }) {
 
           <div className="modal__footer">
             <button type="button" className="btn btn--ghost" onClick={onClose}>
-              Annuler
+              {t('common.cancel')}
             </button>
             <button type="submit" className="btn btn--primary" disabled={saving}>
               {saving && <LuLoaderCircle className="spin" />}
-              {saving ? 'Création...' : "Créer l'invitation"}
+              {saving ? t('team.creatingInvitation') : t('team.createInvitation')}
             </button>
           </div>
         </form>

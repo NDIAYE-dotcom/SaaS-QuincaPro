@@ -12,6 +12,7 @@ import team from './dictionaries/team';
 import activityLog from './dictionaries/activityLog';
 import accounting from './dictionaries/accounting';
 import reports from './dictionaries/reports';
+import superAdmin from './dictionaries/superAdmin';
 
 const NAMESPACES = {
   common,
@@ -28,6 +29,7 @@ const NAMESPACES = {
   activityLog,
   accounting,
   reports,
+  superAdmin,
 };
 
 function buildLanguageDict(lang) {

@@ -1,11 +1,17 @@
 import { Fragment, useEffect, useState } from 'react';
 import { fetchPaydunyaWebhookLogs } from '../../services/superAdminService';
+import { useLanguage } from '../../contexts/LanguageContext';
 import './PaydunyaLogs.css';
 
-const STATUT_LABELS = { succes: 'Succès', echec: 'Échec', ignore: 'Ignoré' };
 const STATUT_BADGE = { succes: 'badge--success', echec: 'badge--danger', ignore: 'badge--warning' };
 
 export default function PaydunyaLogs() {
+  const { t } = useLanguage();
+  const STATUT_LABELS = {
+    succes: t('superAdmin.logSuccess'),
+    echec: t('superAdmin.logFailure'),
+    ignore: t('superAdmin.logIgnored'),
+  };
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -22,26 +28,26 @@ export default function PaydunyaLogs() {
     <div className="paydunya-logs">
       <div className="page-header">
         <div>
-          <h1>Paiements PayDunya</h1>
-          <p>Journal des appels webhook reçus, pour diagnostiquer un paiement bloqué</p>
+          <h1>{t('superAdmin.paydunyaTitle')}</h1>
+          <p>{t('superAdmin.paydunyaSubtitle')}</p>
         </div>
       </div>
 
       {error && <div className="page-error">{error}</div>}
 
       {loading ? (
-        <p className="page-loading">Chargement...</p>
+        <p className="page-loading">{t('common.loading')}</p>
       ) : logs.length === 0 ? (
-        <p className="page-empty">Aucun appel webhook enregistré pour le moment.</p>
+        <p className="page-empty">{t('superAdmin.noWebhookCallsYet')}</p>
       ) : (
         <div className="data-table-wrap">
           <table className="data-table">
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Entreprise</th>
-                <th>Statut</th>
-                <th>Message</th>
+                <th>{t('superAdmin.columnDate')}</th>
+                <th>{t('superAdmin.columnCompanyShort')}</th>
+                <th>{t('superAdmin.columnStatus')}</th>
+                <th>{t('superAdmin.columnMessage')}</th>
                 <th></th>
               </tr>
             </thead>
@@ -62,7 +68,7 @@ export default function PaydunyaLogs() {
                           className="btn btn--ghost"
                           onClick={() => setExpandedId((prev) => (prev === log.id ? null : log.id))}
                         >
-                          {expandedId === log.id ? 'Masquer' : 'Détails'}
+                          {expandedId === log.id ? t('superAdmin.hideDetails') : t('superAdmin.showDetails')}
                         </button>
                       )}
                     </td>

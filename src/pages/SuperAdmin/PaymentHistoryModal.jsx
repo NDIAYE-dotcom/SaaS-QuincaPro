@@ -1,18 +1,11 @@
 import { useEffect, useState } from 'react';
 import { LuX } from 'react-icons/lu';
 import { fetchPaymentHistory } from '../../services/superAdminService';
-
-const METHODE_LABELS = {
-  especes: 'Espèces',
-  wave: 'Wave',
-  orange_money: 'Orange Money',
-  free_money: 'Free Money',
-  carte: 'Carte bancaire',
-  virement: 'Virement',
-  cheque: 'Chèque',
-};
+import { useLanguage } from '../../contexts/LanguageContext';
 
 export default function PaymentHistoryModal({ entreprise, onClose }) {
+  const { t } = useLanguage();
+  const METHODE_LABELS = t('common.paymentMethods');
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -36,18 +29,20 @@ export default function PaymentHistoryModal({ entreprise, onClose }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal__header">
-          <h2>Historique — {entreprise.nom}</h2>
-          <button className="icon-btn" onClick={onClose} aria-label="Fermer">
+          <h2>
+            {t('superAdmin.historyTitlePrefix')} {entreprise.nom}
+          </h2>
+          <button className="icon-btn" onClick={onClose} aria-label={t('common.close')}>
             <LuX />
           </button>
         </div>
 
         <div className="modal__body">
           {error && <div className="page-error">{error}</div>}
-          {loading && <p className="page-loading">Chargement...</p>}
+          {loading && <p className="page-loading">{t('common.loading')}</p>}
 
           {!loading && payments.length === 0 && (
-            <p className="page-empty">Aucun paiement enregistré pour cette entreprise.</p>
+            <p className="page-empty">{t('superAdmin.noPaymentsRecorded')}</p>
           )}
 
           {!loading && payments.length > 0 && (
@@ -55,11 +50,11 @@ export default function PaymentHistoryModal({ entreprise, onClose }) {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>Date</th>
-                    <th>Montant</th>
-                    <th>Moyen</th>
-                    <th>Période couverte</th>
-                    <th>Notes</th>
+                    <th>{t('superAdmin.columnDate')}</th>
+                    <th>{t('superAdmin.columnAmount')}</th>
+                    <th>{t('superAdmin.columnMethod')}</th>
+                    <th>{t('superAdmin.columnPeriodCovered')}</th>
+                    <th>{t('superAdmin.columnNotes')}</th>
                   </tr>
                 </thead>
                 <tbody>

@@ -6,9 +6,11 @@ import {
   deleteAnnouncement,
 } from '../../services/superAdminService';
 import AnnouncementFormModal from './AnnouncementFormModal';
+import { useLanguage } from '../../contexts/LanguageContext';
 import './Annonces.css';
 
 export default function Annonces() {
+  const { t } = useLanguage();
   const [annonces, setAnnonces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -41,7 +43,7 @@ export default function Annonces() {
   }
 
   async function handleDelete(annonce) {
-    if (!window.confirm(`Supprimer l'annonce « ${annonce.titre} » ?`)) return;
+    if (!window.confirm(t('superAdmin.confirmDeleteAnnouncement', { title: annonce.titre }))) return;
     try {
       await deleteAnnouncement(annonce.id);
       setAnnonces((prev) => prev.filter((a) => a.id !== annonce.id));
@@ -54,20 +56,22 @@ export default function Annonces() {
     <div className="super-admin-annonces">
       <div className="page-header">
         <div>
-          <h1>Annonces</h1>
-          <p>Messages diffusés à tous les utilisateurs de QuincaPro</p>
+          <h1>{t('superAdmin.announcementsTitle')}</h1>
+          <p>{t('superAdmin.announcementsSubtitle')}</p>
         </div>
         <div className="page-header__actions">
           <button className="btn btn--primary" onClick={() => setFormOpen(true)}>
-            <LuPlus /> Nouvelle annonce
+            <LuPlus /> {t('superAdmin.newAnnouncement')}
           </button>
         </div>
       </div>
 
       {error && <div className="page-error">{error}</div>}
-      {loading && <p className="page-loading">Chargement...</p>}
+      {loading && <p className="page-loading">{t('common.loading')}</p>}
 
-      {!loading && annonces.length === 0 && <p className="page-empty">Aucune annonce publiée.</p>}
+      {!loading && annonces.length === 0 && (
+        <p className="page-empty">{t('superAdmin.noAnnouncementsPublished')}</p>
+      )}
 
       {!loading && annonces.length > 0 && (
         <div className="announcement-list">
@@ -76,7 +80,7 @@ export default function Annonces() {
               <div className="announcement-card__header">
                 <h3>{a.titre}</h3>
                 <span className={`badge ${a.actif ? 'badge--success' : 'badge--warning'}`}>
-                  {a.actif ? 'Active' : 'Masquée'}
+                  {a.actif ? t('superAdmin.active') : t('superAdmin.hidden')}
                 </span>
               </div>
               <p className="announcement-card__message">{a.message}</p>
@@ -85,12 +89,16 @@ export default function Annonces() {
                   {new Date(a.created_at).toLocaleDateString('fr-FR')}
                 </span>
                 <div className="data-table__actions">
-                  <button className="icon-btn" title={a.actif ? 'Masquer' : 'Réactiver'} onClick={() => handleToggle(a)}>
+                  <button
+                    className="icon-btn"
+                    title={a.actif ? t('superAdmin.hide') : t('superAdmin.reactivate')}
+                    onClick={() => handleToggle(a)}
+                  >
                     {a.actif ? <LuEyeOff /> : <LuEye />}
                   </button>
                   <button
                     className="icon-btn icon-btn--danger"
-                    title="Supprimer"
+                    title={t('superAdmin.delete')}
                     onClick={() => handleDelete(a)}
                   >
                     <LuTrash2 />

@@ -1,16 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { LuSearch, LuHistory, LuBan, LuRefreshCw } from 'react-icons/lu';
 import { fetchEntreprises, setSubscriptionStatus } from '../../services/superAdminService';
+import { useLanguage } from '../../contexts/LanguageContext';
 import ActivateSubscriptionModal from './ActivateSubscriptionModal';
 import PaymentHistoryModal from './PaymentHistoryModal';
 import './Entreprises.css';
-
-const STATUT_LABELS = {
-  en_attente_paiement: 'En attente de paiement',
-  actif: 'Actif',
-  expire: 'Expiré',
-  suspendu: 'Suspendu',
-};
 
 const STATUT_BADGE = {
   en_attente_paiement: 'badge--warning',
@@ -20,6 +14,13 @@ const STATUT_BADGE = {
 };
 
 export default function Entreprises() {
+  const { t } = useLanguage();
+  const STATUT_LABELS = {
+    en_attente_paiement: t('superAdmin.statutPending'),
+    actif: t('superAdmin.statutActive'),
+    expire: t('superAdmin.statutExpired'),
+    suspendu: t('superAdmin.statutSuspended'),
+  };
   const [entreprises, setEntreprises] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -47,7 +48,7 @@ export default function Entreprises() {
   }, [loadEntreprises]);
 
   async function handleSuspend(entreprise) {
-    if (!window.confirm(`Suspendre l'accès de « ${entreprise.nom} » ?`)) return;
+    if (!window.confirm(t('superAdmin.confirmSuspend', { name: entreprise.nom }))) return;
     setBusyId(entreprise.id);
     try {
       await setSubscriptionStatus(entreprise.id, 'suspendu');
@@ -63,8 +64,8 @@ export default function Entreprises() {
     <div className="super-admin-entreprises">
       <div className="page-header">
         <div>
-          <h1>Entreprises</h1>
-          <p>Gérez les abonnements des quincailleries inscrites</p>
+          <h1>{t('superAdmin.companiesTitle')}</h1>
+          <p>{t('superAdmin.companiesSubtitle')}</p>
         </div>
       </div>
 
@@ -75,17 +76,17 @@ export default function Entreprises() {
           <LuSearch />
           <input
             type="text"
-            placeholder="Rechercher une entreprise..."
+            placeholder={t('superAdmin.searchCompanyPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
       </div>
 
-      {loading && <p className="page-loading">Chargement...</p>}
+      {loading && <p className="page-loading">{t('common.loading')}</p>}
 
       {!loading && entreprises.length === 0 && (
-        <p className="page-empty">Aucune entreprise trouvée.</p>
+        <p className="page-empty">{t('superAdmin.noCompaniesFound')}</p>
       )}
 
       {!loading && entreprises.length > 0 && (
@@ -93,11 +94,11 @@ export default function Entreprises() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Entreprise</th>
-                <th>Statut</th>
-                <th>Expiration</th>
-                <th>Membres</th>
-                <th>Inscrite le</th>
+                <th>{t('superAdmin.columnCompany')}</th>
+                <th>{t('superAdmin.columnStatus')}</th>
+                <th>{t('superAdmin.columnExpiration')}</th>
+                <th>{t('superAdmin.columnMembers')}</th>
+                <th>{t('superAdmin.columnRegisteredOn')}</th>
                 <th></th>
               </tr>
             </thead>
@@ -123,7 +124,7 @@ export default function Entreprises() {
                   <td className="data-table__actions">
                     <button
                       className="icon-btn"
-                      title="Historique des paiements"
+                      title={t('superAdmin.paymentHistory')}
                       onClick={() => setViewingHistory(e)}
                     >
                       <LuHistory />
@@ -132,14 +133,14 @@ export default function Entreprises() {
                       <>
                         <button
                           className="icon-btn"
-                          title="Renouveler"
+                          title={t('superAdmin.renew')}
                           onClick={() => setActivating(e)}
                         >
                           <LuRefreshCw />
                         </button>
                         <button
                           className="icon-btn icon-btn--danger"
-                          title="Suspendre"
+                          title={t('superAdmin.suspend')}
                           disabled={busyId === e.id}
                           onClick={() => handleSuspend(e)}
                         >
@@ -148,7 +149,7 @@ export default function Entreprises() {
                       </>
                     ) : (
                       <button className="btn btn--primary" onClick={() => setActivating(e)}>
-                        Activer
+                        {t('superAdmin.activate')}
                       </button>
                     )}
                   </td>

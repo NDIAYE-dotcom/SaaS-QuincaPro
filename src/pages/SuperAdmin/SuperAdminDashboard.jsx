@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { LuBuilding2, LuCircleCheck, LuCircleAlert, LuBan, LuCoins, LuTrendingUp } from 'react-icons/lu';
 import { fetchEntrepriseStats, fetchRevenueStats } from '../../services/superAdminService';
+import { useLanguage } from '../../contexts/LanguageContext';
 import './SuperAdminDashboard.css';
 
 function formatMoney(amount) {
@@ -9,6 +10,7 @@ function formatMoney(amount) {
 }
 
 export default function SuperAdminDashboard() {
+  const { t } = useLanguage();
   const [stats, setStats] = useState(null);
   const [revenue, setRevenue] = useState(null);
   const [error, setError] = useState('');
@@ -35,12 +37,16 @@ export default function SuperAdminDashboard() {
 
   const cards = stats
     ? [
-        { label: 'Entreprises inscrites', value: stats.total, icon: LuBuilding2 },
-        { label: 'Abonnements actifs', value: stats.actif, icon: LuCircleCheck },
-        { label: 'En attente de paiement', value: stats.en_attente_paiement, icon: LuCircleAlert },
-        { label: 'Expirés / suspendus', value: stats.expire + stats.suspendu, icon: LuBan },
-        { label: 'Revenu du mois', value: formatMoney(revenue?.moisEnCours || 0), icon: LuTrendingUp },
-        { label: 'Revenu total', value: formatMoney(revenue?.total || 0), icon: LuCoins },
+        { label: t('superAdmin.statRegisteredCompanies'), value: stats.total, icon: LuBuilding2 },
+        { label: t('superAdmin.statActiveSubscriptions'), value: stats.actif, icon: LuCircleCheck },
+        { label: t('superAdmin.statAwaitingPayment'), value: stats.en_attente_paiement, icon: LuCircleAlert },
+        { label: t('superAdmin.statExpiredSuspended'), value: stats.expire + stats.suspendu, icon: LuBan },
+        {
+          label: t('superAdmin.statRevenueMonth'),
+          value: formatMoney(revenue?.moisEnCours || 0),
+          icon: LuTrendingUp,
+        },
+        { label: t('superAdmin.statRevenueTotal'), value: formatMoney(revenue?.total || 0), icon: LuCoins },
       ]
     : [];
 
@@ -48,13 +54,13 @@ export default function SuperAdminDashboard() {
     <div className="super-admin-dashboard">
       <div className="page-header">
         <div>
-          <h1>Tableau de bord Super Admin</h1>
-          <p>Vue d'ensemble des abonnements QuincaPro</p>
+          <h1>{t('superAdmin.dashboardTitle')}</h1>
+          <p>{t('superAdmin.dashboardSubtitle')}</p>
         </div>
       </div>
 
       {error && <div className="page-error">{error}</div>}
-      {loading && <p className="page-loading">Chargement...</p>}
+      {loading && <p className="page-loading">{t('common.loading')}</p>}
 
       {!loading && stats && (
         <div className="super-admin-dashboard__grid">

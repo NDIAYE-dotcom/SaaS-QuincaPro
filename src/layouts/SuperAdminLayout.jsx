@@ -12,20 +12,21 @@ import {
   LuLogOut,
 } from 'react-icons/lu';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { signOut } from '../services/authService';
 import './MainLayout.css';
 
-const NAV_ITEMS = [
-  { to: '/super-admin', label: 'Tableau de bord', icon: LuLayoutDashboard, end: true },
-  { to: '/super-admin/entreprises', label: 'Entreprises', icon: LuBuilding2 },
-  { to: '/super-admin/annonces', label: 'Annonces', icon: LuMegaphone },
-  { to: '/super-admin/paydunya', label: 'Paiements PayDunya', icon: LuReceipt },
-];
-
 export default function SuperAdminLayout() {
   const { theme, toggleTheme } = useTheme();
+  const { language, toggleLanguage, t } = useLanguage();
   const { profile } = useAuth();
+  const NAV_ITEMS = [
+    { to: '/super-admin', labelKey: 'superAdmin.navDashboard', icon: LuLayoutDashboard, end: true },
+    { to: '/super-admin/entreprises', labelKey: 'superAdmin.navCompanies', icon: LuBuilding2 },
+    { to: '/super-admin/annonces', labelKey: 'superAdmin.navAnnouncements', icon: LuMegaphone },
+    { to: '/super-admin/paydunya', labelKey: 'superAdmin.navPaydunya', icon: LuReceipt },
+  ];
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -44,7 +45,7 @@ export default function SuperAdminLayout() {
         </div>
 
         <nav className="sidebar__nav">
-          {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
+          {NAV_ITEMS.map(({ to, labelKey, icon: Icon, end }) => (
             <NavLink
               key={to}
               to={to}
@@ -53,7 +54,7 @@ export default function SuperAdminLayout() {
               onClick={() => setSidebarOpen(false)}
             >
               <Icon className="sidebar__icon" />
-              <span>{label}</span>
+              <span>{t(labelKey)}</span>
             </NavLink>
           ))}
         </nav>
@@ -66,14 +67,22 @@ export default function SuperAdminLayout() {
           <button
             className="topbar__icon-btn topbar__menu-btn"
             onClick={() => setSidebarOpen((prev) => !prev)}
-            aria-label="Ouvrir le menu"
+            aria-label={t('nav.openMenu')}
           >
             {sidebarOpen ? <LuX /> : <LuMenu />}
           </button>
 
           <div className="topbar__spacer" />
 
-          <button className="topbar__icon-btn" onClick={toggleTheme} aria-label="Basculer le thème">
+          <button
+            className="topbar__icon-btn topbar__lang-btn"
+            onClick={toggleLanguage}
+            aria-label={t('nav.toggleLanguage')}
+          >
+            {language.toUpperCase()}
+          </button>
+
+          <button className="topbar__icon-btn" onClick={toggleTheme} aria-label={t('nav.toggleTheme')}>
             {theme === 'dark' ? <LuSun /> : <LuMoon />}
           </button>
 
@@ -84,7 +93,7 @@ export default function SuperAdminLayout() {
               </span>
               <span className="user-menu__info">
                 <span className="user-menu__name">{profile?.nom_complet}</span>
-                <span className="user-menu__entreprise">Super Admin</span>
+                <span className="user-menu__entreprise">{t('superAdmin.superAdminBrand')}</span>
               </span>
             </button>
 
@@ -93,7 +102,7 @@ export default function SuperAdminLayout() {
                 <div className="user-menu__overlay" onClick={() => setUserMenuOpen(false)} />
                 <div className="user-menu__dropdown">
                   <button className="user-menu__signout" onClick={handleSignOut}>
-                    <LuLogOut /> Se déconnecter
+                    <LuLogOut /> {t('nav.signOut')}
                   </button>
                 </div>
               </>

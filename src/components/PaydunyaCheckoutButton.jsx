@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { LuLoaderCircle } from 'react-icons/lu';
 import { createPaydunyaInvoice } from '../services/paydunyaService';
+import { useLanguage } from '../contexts/LanguageContext';
 import './PaydunyaCheckoutButton.css';
 
 const PRIX_MENSUEL_FCFA = 5500;
 const DUREES = [1, 3, 6, 12];
 
 export default function PaydunyaCheckoutButton() {
+  const { t } = useLanguage();
   const [dureeMois, setDureeMois] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -28,11 +30,11 @@ export default function PaydunyaCheckoutButton() {
       {error && <div className="page-error">{error}</div>}
 
       <label className="field paydunya-checkout__field">
-        <span>Durée</span>
+        <span>{t('settings.duration')}</span>
         <select value={dureeMois} onChange={(e) => setDureeMois(Number(e.target.value))} disabled={loading}>
           {DUREES.map((d) => (
             <option key={d} value={d}>
-              {d} mois — {(PRIX_MENSUEL_FCFA * d).toLocaleString('fr-FR')} FCFA
+              {d} {t('settings.months')} — {(PRIX_MENSUEL_FCFA * d).toLocaleString('fr-FR')} FCFA
             </option>
           ))}
         </select>
@@ -40,7 +42,7 @@ export default function PaydunyaCheckoutButton() {
 
       <button type="button" className="btn btn--primary" onClick={handlePay} disabled={loading}>
         {loading && <LuLoaderCircle className="spin" />}
-        {loading ? 'Redirection...' : 'Payer avec PayDunya'}
+        {loading ? t('settings.redirecting') : t('settings.payWithPaydunya')}
       </button>
     </div>
   );

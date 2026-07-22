@@ -2,17 +2,11 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { LuUpload, LuLoaderCircle } from 'react-icons/lu';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { updateEntreprise } from '../../services/settingsService';
 import { uploadEntrepriseLogo, uploadEntrepriseCachet, uploadEntrepriseSignature } from '../../services/storageService';
 import PaydunyaCheckoutButton from '../../components/PaydunyaCheckoutButton';
 import './Settings.css';
-
-const STATUT_LABELS = {
-  en_attente_paiement: 'En attente de paiement',
-  actif: 'Actif',
-  expire: 'Expiré',
-  suspendu: 'Suspendu',
-};
 
 const STATUT_BADGE = {
   en_attente_paiement: 'badge--warning',
@@ -36,9 +30,9 @@ function toFormState(entreprise) {
 }
 
 const ASSET_CONFIG = {
-  logo: { label: 'Logo', field: 'logo_url', upload: uploadEntrepriseLogo },
-  cachet: { label: 'Cachet', field: 'cachet_url', upload: uploadEntrepriseCachet },
-  signature: { label: 'Signature', field: 'signature_url', upload: uploadEntrepriseSignature },
+  logo: { field: 'logo_url', upload: uploadEntrepriseLogo },
+  cachet: { field: 'cachet_url', upload: uploadEntrepriseCachet },
+  signature: { field: 'signature_url', upload: uploadEntrepriseSignature },
 };
 
 function toAssetState(entreprise) {
@@ -49,8 +43,17 @@ function toAssetState(entreprise) {
 
 export default function Settings() {
   const { entreprise, profile, refreshProfile } = useAuth();
+  const { t, setLanguage } = useLanguage();
   const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
   const [form, setForm] = useState(() => toFormState(entreprise));
+
+  const STATUT_LABELS = {
+    en_attente_paiement: t('settings.statutPending'),
+    actif: t('settings.statutActive'),
+    expire: t('settings.statutExpired'),
+    suspendu: t('settings.statutSuspended'),
+  };
+  const ASSET_LABELS = { logo: t('settings.logo'), cachet: t('settings.stamp'), signature: t('settings.signature') };
   const [assets, setAssets] = useState(() => toAssetState(entreprise));
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -72,6 +75,12 @@ export default function Settings() {
     return (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
   }
 
+  function handleLanguageChange(e) {
+    const value = e.target.value;
+    setForm((prev) => ({ ...prev, langue: value }));
+    setLanguage(value);
+  }
+
   function handleAssetChange(key) {
     return (e) => {
       const file = e.target.files?.[0];
@@ -86,7 +95,7 @@ export default function Settings() {
     setSuccess(false);
 
     if (!form.nom.trim()) {
-      setError("Le nom de l'entreprise est requis");
+      setError(t('settings.errorNameRequired'));
       return;
     }
 
@@ -123,58 +132,51 @@ export default function Settings() {
     <div className="settings">
       <div className="page-header">
         <div>
-          <h1>Paramètres</h1>
-          <p>Informations de votre entreprise</p>
+          <h1>{t('settings.title')}</h1>
+          <p>{t('settings.subtitle')}</p>
         </div>
         <div className="settings__subscription">
           <span className={`badge ${STATUT_BADGE[entreprise?.statut_abonnement]}`}>
-            Abonnement {STATUT_LABELS[entreprise?.statut_abonnement]}
+            {t('settings.subscriptionPrefix')} {STATUT_LABELS[entreprise?.statut_abonnement]}
           </span>
           {entreprise?.date_expiration_abonnement && (
             <span className="field__hint">
-              Valide jusqu'au{' '}
+              {t('settings.validUntil')}{' '}
               {new Date(entreprise.date_expiration_abonnement).toLocaleDateString('fr-FR')}
             </span>
           )}
         </div>
       </div>
 
-      {!isAdmin && (
-        <div className="page-error">Seul un administrateur peut modifier les paramètres de l'entreprise.</div>
-      )}
+      {!isAdmin && <div className="page-error">{t('settings.adminOnly')}</div>}
 
-      {paymentReturn === 'succes' && (
-        <div className="settings__success">
-          Paiement reçu ! Si le statut ci-dessus n'affiche pas encore "Actif", patientez quelques
-          secondes puis rafraîchissez la page.
-        </div>
-      )}
-      {paymentReturn === 'annule' && <div className="page-error">Paiement annulé.</div>}
+      {paymentReturn === 'succes' && <div className="settings__success">{t('settings.paymentReceived')}</div>}
+      {paymentReturn === 'annule' && <div className="page-error">{t('settings.paymentCancelled')}</div>}
 
       {error && <div className="page-error">{error}</div>}
-      {success && <div className="settings__success">Paramètres enregistrés.</div>}
+      {success && <div className="settings__success">{t('settings.settingsSaved')}</div>}
 
       {isAdmin && (
         <div className="settings__card">
-          <h2 className="settings__card-title">Renouveler l'abonnement</h2>
-          <p className="field__hint">5500 FCFA / mois. Le paiement prolonge la date d'expiration actuelle.</p>
+          <h2 className="settings__card-title">{t('settings.renewSubscription')}</h2>
+          <p className="field__hint">{t('settings.renewHint')}</p>
           <PaydunyaCheckoutButton />
         </div>
       )}
 
       <form className="settings__card stacked-form" onSubmit={handleSubmit}>
         <div className="settings__logo">
-          {Object.entries(ASSET_CONFIG).map(([key, { label }]) => (
+          {Object.entries(ASSET_CONFIG).map(([key]) => (
             <div className="settings__logo-item" key={key}>
               <label
                 htmlFor={`${key}-input`}
                 className={`settings__logo-drop ${!isAdmin ? 'settings__logo-drop--disabled' : ''}`}
               >
                 {assets[key].preview ? (
-                  <img src={assets[key].preview} alt={label} />
+                  <img src={assets[key].preview} alt={ASSET_LABELS[key]} />
                 ) : (
                   <span>
-                    <LuUpload /> {label}
+                    <LuUpload /> {ASSET_LABELS[key]}
                   </span>
                 )}
               </label>
@@ -186,44 +188,44 @@ export default function Settings() {
                 disabled={!isAdmin}
                 hidden
               />
-              <small className="field__hint">{label}</small>
+              <small className="field__hint">{ASSET_LABELS[key]}</small>
             </div>
           ))}
         </div>
 
         <div className="form-grid">
           <label className="field">
-            <span>Nom de l'entreprise *</span>
+            <span>{t('settings.fieldCompanyName')}</span>
             <input type="text" value={form.nom} onChange={update('nom')} required disabled={!isAdmin} />
           </label>
 
           <label className="field">
-            <span>Téléphone</span>
+            <span>{t('settings.fieldPhone')}</span>
             <input type="tel" value={form.telephone} onChange={update('telephone')} disabled={!isAdmin} />
           </label>
 
           <label className="field">
-            <span>Email</span>
+            <span>{t('settings.fieldEmail')}</span>
             <input type="email" value={form.email} onChange={update('email')} disabled={!isAdmin} />
           </label>
 
           <label className="field">
-            <span>NINEA</span>
+            <span>{t('settings.fieldNinea')}</span>
             <input type="text" value={form.ninea} onChange={update('ninea')} disabled={!isAdmin} />
           </label>
 
           <label className="field">
-            <span>RCCM</span>
+            <span>{t('settings.fieldRccm')}</span>
             <input type="text" value={form.rccm} onChange={update('rccm')} disabled={!isAdmin} />
           </label>
 
           <label className="field">
-            <span>Numéro TVA</span>
+            <span>{t('settings.fieldVatNumber')}</span>
             <input type="text" value={form.tva_numero} onChange={update('tva_numero')} disabled={!isAdmin} />
           </label>
 
           <label className="field">
-            <span>Devise</span>
+            <span>{t('settings.fieldCurrency')}</span>
             <select value={form.devise} onChange={update('devise')} disabled={!isAdmin}>
               <option value="FCFA">FCFA (XOF)</option>
               <option value="EUR">Euro (EUR)</option>
@@ -232,21 +234,16 @@ export default function Settings() {
           </label>
 
           <label className="field">
-            <span>Langue</span>
-            <select value={form.langue} onChange={update('langue')} disabled={!isAdmin}>
+            <span>{t('settings.fieldLanguage')}</span>
+            <select value={form.langue} onChange={handleLanguageChange} disabled={!isAdmin}>
               <option value="fr">Français</option>
               <option value="en">English</option>
             </select>
-            {form.langue === 'en' && (
-              <small className="field__hint">
-                La traduction anglaise de l'interface n'est pas encore disponible.
-              </small>
-            )}
           </label>
         </div>
 
         <label className="field">
-          <span>Adresse</span>
+          <span>{t('settings.fieldAddress')}</span>
           <input type="text" value={form.adresse} onChange={update('adresse')} disabled={!isAdmin} />
         </label>
 
@@ -254,7 +251,7 @@ export default function Settings() {
           <div className="modal__footer settings__footer">
             <button type="submit" className="btn btn--primary" disabled={saving}>
               {saving && <LuLoaderCircle className="spin" />}
-              {saving ? 'Enregistrement...' : 'Enregistrer'}
+              {saving ? t('common.saving') : t('common.save')}
             </button>
           </div>
         )}

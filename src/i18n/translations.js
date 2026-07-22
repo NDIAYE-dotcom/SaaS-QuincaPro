@@ -5,8 +5,9 @@ import sales from './dictionaries/sales';
 import purchases from './dictionaries/purchases';
 import products from './dictionaries/products';
 import stock from './dictionaries/stock';
+import settings from './dictionaries/settings';
 
-const NAMESPACES = { common, nav, dashboard, sales, purchases, products, stock };
+const NAMESPACES = { common, nav, dashboard, sales, purchases, products, stock, settings };
 
 function buildLanguageDict(lang) {
   return Object.fromEntries(Object.entries(NAMESPACES).map(([ns, dict]) => [ns, dict[lang]]));

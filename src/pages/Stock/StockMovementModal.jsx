@@ -1,16 +1,17 @@
 import { useMemo, useState } from 'react';
 import { LuX, LuLoaderCircle } from 'react-icons/lu';
 import { registerStockMovement } from '../../services/stockService';
+import { useLanguage } from '../../contexts/LanguageContext';
 import './StockMovementModal.css';
 
-const TYPE_OPTIONS = [
-  { value: 'entree', label: 'Entrée (réception, retour...)' },
-  { value: 'sortie', label: 'Sortie (perte, casse, usage interne...)' },
-  { value: 'correction', label: 'Correction ponctuelle' },
-  { value: 'inventaire', label: 'Inventaire (comptage complet)' },
-];
-
 export default function StockMovementModal({ type, products, onClose, onSaved }) {
+  const { t } = useLanguage();
+  const TYPE_OPTIONS = [
+    { value: 'entree', label: t('stock.optionIn') },
+    { value: 'sortie', label: t('stock.optionOut') },
+    { value: 'correction', label: t('stock.optionCorrection') },
+    { value: 'inventaire', label: t('stock.optionInventory') },
+  ];
   const [produitId, setProduitId] = useState('');
   const [movementType, setMovementType] = useState(type);
   const [quantite, setQuantite] = useState('');
@@ -31,7 +32,7 @@ export default function StockMovementModal({ type, products, onClose, onSaved })
     setError('');
 
     if (!produitId) {
-      setError('Sélectionnez un produit');
+      setError(t('stock.errorSelectProduct'));
       return;
     }
 
@@ -56,8 +57,8 @@ export default function StockMovementModal({ type, products, onClose, onSaved })
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal modal--sm" onClick={(e) => e.stopPropagation()}>
         <div className="modal__header">
-          <h2>Nouveau mouvement de stock</h2>
-          <button className="icon-btn" onClick={onClose} aria-label="Fermer">
+          <h2>{t('stock.newMovementTitle')}</h2>
+          <button className="icon-btn" onClick={onClose} aria-label={t('common.close')}>
             <LuX />
           </button>
         </div>
@@ -66,7 +67,7 @@ export default function StockMovementModal({ type, products, onClose, onSaved })
           {error && <div className="page-error">{error}</div>}
 
           <label className="field">
-            <span>Type de mouvement</span>
+            <span>{t('stock.movementType')}</span>
             <select value={movementType} onChange={(e) => setMovementType(e.target.value)}>
               {TYPE_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -77,12 +78,12 @@ export default function StockMovementModal({ type, products, onClose, onSaved })
           </label>
 
           <label className="field">
-            <span>Produit *</span>
+            <span>{t('stock.product')}</span>
             <select value={produitId} onChange={(e) => setProduitId(e.target.value)} required>
-              <option value="">Sélectionner un produit</option>
+              <option value="">{t('stock.selectProduct')}</option>
               {products.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.nom} ({p.quantite_stock} {p.unite} en stock)
+                  {p.nom} ({p.quantite_stock} {p.unite} {t('stock.inStock')})
                 </option>
               ))}
             </select>
@@ -90,7 +91,7 @@ export default function StockMovementModal({ type, products, onClose, onSaved })
 
           {usesNouvelleQuantite ? (
             <label className="field">
-              <span>Quantité comptée *</span>
+              <span>{t('stock.countedQty')}</span>
               <input
                 type="number"
                 min="0"
@@ -101,13 +102,13 @@ export default function StockMovementModal({ type, products, onClose, onSaved })
               />
               {selectedProduct && (
                 <small className="field__hint">
-                  Stock actuel : {selectedProduct.quantite_stock} {selectedProduct.unite}
+                  {t('stock.currentStock')} {selectedProduct.quantite_stock} {selectedProduct.unite}
                 </small>
               )}
             </label>
           ) : (
             <label className="field">
-              <span>Quantité *</span>
+              <span>{t('stock.qty')}</span>
               <input
                 type="number"
                 min="0.01"
@@ -118,29 +119,29 @@ export default function StockMovementModal({ type, products, onClose, onSaved })
               />
               {selectedProduct && (
                 <small className="field__hint">
-                  Stock actuel : {selectedProduct.quantite_stock} {selectedProduct.unite}
+                  {t('stock.currentStock')} {selectedProduct.quantite_stock} {selectedProduct.unite}
                 </small>
               )}
             </label>
           )}
 
           <label className="field">
-            <span>Motif</span>
+            <span>{t('stock.reason')}</span>
             <input
               type="text"
               value={motif}
               onChange={(e) => setMotif(e.target.value)}
-              placeholder="Réception fournisseur, casse, comptage mensuel..."
+              placeholder={t('stock.reasonPlaceholder')}
             />
           </label>
 
           <div className="modal__footer">
             <button type="button" className="btn btn--ghost" onClick={onClose}>
-              Annuler
+              {t('common.cancel')}
             </button>
             <button type="submit" className="btn btn--primary" disabled={saving}>
               {saving && <LuLoaderCircle className="spin" />}
-              {saving ? 'Enregistrement...' : 'Enregistrer'}
+              {saving ? t('common.saving') : t('common.save')}
             </button>
           </div>
         </form>

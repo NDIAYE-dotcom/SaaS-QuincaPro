@@ -3,15 +3,9 @@ import { LuTriangleAlert, LuArrowDownToLine, LuArrowUpFromLine, LuClipboardList 
 import { fetchProducts } from '../../services/productService';
 import { fetchStockMovements } from '../../services/stockService';
 import { getStockStatus } from '../../utils/stock';
+import { useLanguage } from '../../contexts/LanguageContext';
 import StockMovementModal from './StockMovementModal';
 import './Stock.css';
-
-const TYPE_LABELS = {
-  entree: 'Entrée',
-  sortie: 'Sortie',
-  correction: 'Correction',
-  inventaire: 'Inventaire',
-};
 
 const TYPE_BADGE = {
   entree: 'badge--success',
@@ -21,6 +15,13 @@ const TYPE_BADGE = {
 };
 
 export default function Stock() {
+  const { t } = useLanguage();
+  const TYPE_LABELS = {
+    entree: t('stock.typeIn'),
+    sortie: t('stock.typeOut'),
+    correction: t('stock.typeCorrection'),
+    inventaire: t('stock.typeInventory'),
+  };
   const [products, setProducts] = useState([]);
   const [movements, setMovements] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -65,18 +66,18 @@ export default function Stock() {
     <div className="stock">
       <div className="page-header">
         <div>
-          <h1>Stock</h1>
-          <p>Mouvements, alertes et historique de votre inventaire</p>
+          <h1>{t('stock.title')}</h1>
+          <p>{t('stock.subtitle')}</p>
         </div>
         <div className="page-header__actions">
           <button className="btn btn--ghost" onClick={() => openMovement('sortie')}>
-            <LuArrowUpFromLine /> Sortie
+            <LuArrowUpFromLine /> {t('stock.out')}
           </button>
           <button className="btn btn--ghost" onClick={() => openMovement('inventaire')}>
-            <LuClipboardList /> Inventaire
+            <LuClipboardList /> {t('stock.inventory')}
           </button>
           <button className="btn btn--primary" onClick={() => openMovement('entree')}>
-            <LuArrowDownToLine /> Entrée
+            <LuArrowDownToLine /> {t('stock.in')}
           </button>
         </div>
       </div>
@@ -86,12 +87,11 @@ export default function Stock() {
       {alerts.length > 0 && (
         <div className="stock__alerts">
           <div className="stock__alerts-header">
-            <LuTriangleAlert /> {alerts.length} produit{alerts.length > 1 ? 's' : ''} en stock faible ou en
-            rupture
+            <LuTriangleAlert /> {alerts.length} {t('stock.alertsHeader')}
           </div>
           <div className="stock__alerts-list">
             {alerts.map((p) => {
-              const status = getStockStatus(p);
+              const status = getStockStatus(p, t);
               return (
                 <div key={p.id} className="stock__alert-item">
                   <span>{p.nom}</span>
@@ -105,26 +105,26 @@ export default function Stock() {
         </div>
       )}
 
-      <h2 className="section-title">Journal des mouvements</h2>
+      <h2 className="section-title">{t('stock.movementsJournal')}</h2>
 
       {loading ? (
-        <p className="page-loading">Chargement...</p>
+        <p className="page-loading">{t('common.loading')}</p>
       ) : movements.length === 0 ? (
         <div className="page-empty">
-          <p>Aucun mouvement enregistré pour l'instant.</p>
+          <p>{t('stock.noMovementsYet')}</p>
         </div>
       ) : (
         <div className="data-table-wrap">
           <table className="data-table">
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Produit</th>
-                <th>Type</th>
-                <th>Quantité</th>
-                <th>Avant → Après</th>
-                <th>Motif</th>
-                <th>Par</th>
+                <th>{t('stock.columnDate')}</th>
+                <th>{t('stock.columnProduct')}</th>
+                <th>{t('stock.columnType')}</th>
+                <th>{t('stock.columnQty')}</th>
+                <th>{t('stock.columnBeforeAfter')}</th>
+                <th>{t('stock.columnReason')}</th>
+                <th>{t('stock.columnBy')}</th>
               </tr>
             </thead>
             <tbody>

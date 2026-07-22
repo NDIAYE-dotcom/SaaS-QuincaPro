@@ -20,6 +20,7 @@ import {
   LuHistory,
 } from 'react-icons/lu';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { signOut } from '../services/authService';
 import AnnouncementBanner from '../shared/AnnouncementBanner';
@@ -28,22 +29,23 @@ import NotificationsMenu from '../shared/NotificationsMenu';
 import './MainLayout.css';
 
 const NAV_ITEMS = [
-  { to: '/tableau-de-bord', label: 'Tableau de bord', icon: LuLayoutDashboard, end: true },
-  { to: '/produits', label: 'Produits', icon: LuPackage },
-  { to: '/stock', label: 'Stock', icon: LuWarehouse },
-  { to: '/ventes', label: 'Ventes', icon: LuShoppingCart },
-  { to: '/achats', label: 'Achats', icon: LuTruck },
-  { to: '/clients', label: 'Clients', icon: LuUsers },
-  { to: '/fournisseurs', label: 'Fournisseurs', icon: LuHandshake },
-  { to: '/comptabilite', label: 'Comptabilité', icon: LuCalculator },
-  { to: '/rapports', label: 'Rapports', icon: LuChartColumn },
-  { to: '/equipe', label: 'Équipe', icon: LuUserCog, adminOnly: true },
-  { to: '/journal-activite', label: "Journal d'activité", icon: LuHistory, adminOnly: true },
-  { to: '/parametres', label: 'Paramètres', icon: LuSettings },
+  { to: '/tableau-de-bord', labelKey: 'nav.dashboard', icon: LuLayoutDashboard, end: true },
+  { to: '/produits', labelKey: 'nav.products', icon: LuPackage },
+  { to: '/stock', labelKey: 'nav.stock', icon: LuWarehouse },
+  { to: '/ventes', labelKey: 'nav.sales', icon: LuShoppingCart },
+  { to: '/achats', labelKey: 'nav.purchases', icon: LuTruck },
+  { to: '/clients', labelKey: 'nav.clients', icon: LuUsers },
+  { to: '/fournisseurs', labelKey: 'nav.suppliers', icon: LuHandshake },
+  { to: '/comptabilite', labelKey: 'nav.accounting', icon: LuCalculator },
+  { to: '/rapports', labelKey: 'nav.reports', icon: LuChartColumn },
+  { to: '/equipe', labelKey: 'nav.team', icon: LuUserCog, adminOnly: true },
+  { to: '/journal-activite', labelKey: 'nav.activityLog', icon: LuHistory, adminOnly: true },
+  { to: '/parametres', labelKey: 'nav.settings', icon: LuSettings },
 ];
 
 export default function MainLayout() {
   const { theme, toggleTheme } = useTheme();
+  const { language, toggleLanguage, t } = useLanguage();
   const { profile, entreprise } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -66,7 +68,7 @@ export default function MainLayout() {
 
         <nav className="sidebar__nav">
           {NAV_ITEMS.filter((item) => !item.adminOnly || profile?.role === 'admin').map(
-            ({ to, label, icon: Icon, end }) => (
+            ({ to, labelKey, icon: Icon, end }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -75,7 +77,7 @@ export default function MainLayout() {
                 onClick={() => setSidebarOpen(false)}
               >
                 <Icon className="sidebar__icon" />
-                <span>{label}</span>
+                <span>{t(labelKey)}</span>
               </NavLink>
             ),
           )}
@@ -89,7 +91,7 @@ export default function MainLayout() {
           <button
             className="topbar__icon-btn topbar__menu-btn"
             onClick={() => setSidebarOpen((prev) => !prev)}
-            aria-label="Ouvrir le menu"
+            aria-label={t('nav.openMenu')}
           >
             {sidebarOpen ? <LuX /> : <LuMenu />}
           </button>
@@ -99,9 +101,17 @@ export default function MainLayout() {
           <NotificationsMenu />
 
           <button
+            className="topbar__icon-btn topbar__lang-btn"
+            onClick={toggleLanguage}
+            aria-label={t('nav.toggleLanguage')}
+          >
+            {language.toUpperCase()}
+          </button>
+
+          <button
             className="topbar__icon-btn"
             onClick={toggleTheme}
-            aria-label="Basculer le thème"
+            aria-label={t('nav.toggleTheme')}
           >
             {theme === 'dark' ? <LuSun /> : <LuMoon />}
           </button>
@@ -129,7 +139,7 @@ export default function MainLayout() {
                 <div className="user-menu__overlay" onClick={() => setUserMenuOpen(false)} />
                 <div className="user-menu__dropdown">
                   <button className="user-menu__signout" onClick={handleSignOut}>
-                    <LuLogOut /> Se déconnecter
+                    <LuLogOut /> {t('nav.signOut')}
                   </button>
                 </div>
               </>

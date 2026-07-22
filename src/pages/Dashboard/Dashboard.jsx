@@ -21,12 +21,11 @@ import {
   LuTruck,
 } from 'react-icons/lu';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { fetchDashboardData } from '../../services/dashboardService';
 import './Dashboard.css';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip);
-
-const PAIEMENT_LABELS = { impaye: 'Impayé', partiel: 'Partiel', paye: 'Payé' };
 
 function formatMoney(amount) {
   return `${Number(amount).toLocaleString('fr-FR')} FCFA`;
@@ -34,6 +33,7 @@ function formatMoney(amount) {
 
 export default function Dashboard() {
   const { entreprise } = useAuth();
+  const { t } = useLanguage();
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -45,16 +45,26 @@ export default function Dashboard() {
       .finally(() => setLoading(false));
   }, []);
 
+  const PAIEMENT_LABELS = {
+    impaye: t('dashboard.paymentUnpaid'),
+    partiel: t('dashboard.paymentPartial'),
+    paye: t('dashboard.paymentPaid'),
+  };
+
   const statCards = data
     ? [
-        { label: "Chiffre d'affaires du mois", value: formatMoney(data.caMois), icon: LuTrendingUp },
-        { label: 'Ventes du jour', value: data.ventesJour, icon: LuShoppingCart },
-        { label: 'Achats du mois', value: formatMoney(data.achatsMois), icon: LuTruck },
-        { label: 'Factures impayées', value: data.ventesImpayees, icon: LuFileWarning },
-        { label: 'Produits en rupture', value: data.produitsRupture, icon: LuPackageX },
-        { label: 'Stock faible', value: data.produitsStockFaible, icon: LuTriangleAlert },
-        { label: 'Dettes clients', value: formatMoney(data.dettesClients), icon: LuUsers },
-        { label: 'Dettes fournisseurs', value: formatMoney(data.dettesFournisseurs), icon: LuHandshake },
+        { label: t('dashboard.statRevenueMonth'), value: formatMoney(data.caMois), icon: LuTrendingUp },
+        { label: t('dashboard.statSalesToday'), value: data.ventesJour, icon: LuShoppingCart },
+        { label: t('dashboard.statPurchasesMonth'), value: formatMoney(data.achatsMois), icon: LuTruck },
+        { label: t('dashboard.statUnpaidInvoices'), value: data.ventesImpayees, icon: LuFileWarning },
+        { label: t('dashboard.statOutOfStock'), value: data.produitsRupture, icon: LuPackageX },
+        { label: t('dashboard.statLowStock'), value: data.produitsStockFaible, icon: LuTriangleAlert },
+        { label: t('dashboard.statClientDebts'), value: formatMoney(data.dettesClients), icon: LuUsers },
+        {
+          label: t('dashboard.statSupplierDebts'),
+          value: formatMoney(data.dettesFournisseurs),
+          icon: LuHandshake,
+        },
       ]
     : [];
 
@@ -91,13 +101,13 @@ export default function Dashboard() {
           <img src={entreprise.logo_url} alt={entreprise.nom} className="dashboard__logo" />
         )}
         <div>
-          <h1>{entreprise?.nom || 'Tableau de bord'}</h1>
-          <p>Vue d'ensemble de votre quincaillerie</p>
+          <h1>{entreprise?.nom || t('dashboard.title')}</h1>
+          <p>{t('dashboard.subtitle')}</p>
         </div>
       </div>
 
       {error && <div className="page-error">{error}</div>}
-      {loading && <p className="page-loading">Chargement...</p>}
+      {loading && <p className="page-loading">{t('common.loading')}</p>}
 
       {!loading && data && (
         <>
@@ -123,16 +133,16 @@ export default function Dashboard() {
 
           <div className="dashboard__row">
             <div className="dashboard__card dashboard__card--chart">
-              <h2 className="section-title">Évolution des ventes (14 derniers jours)</h2>
+              <h2 className="section-title">{t('dashboard.salesEvolution')}</h2>
               <div className="dashboard__chart-wrap">
                 <Line data={chartData} options={chartOptions} />
               </div>
             </div>
 
             <div className="dashboard__card">
-              <h2 className="section-title">Top produits (ce mois)</h2>
+              <h2 className="section-title">{t('dashboard.topProducts')}</h2>
               {data.topProduits.length === 0 ? (
-                <p className="page-empty">Aucune vente ce mois-ci.</p>
+                <p className="page-empty">{t('dashboard.noSalesThisMonth')}</p>
               ) : (
                 <ul className="dashboard__top-list">
                   {data.topProduits.map((p) => (
@@ -147,26 +157,26 @@ export default function Dashboard() {
           </div>
 
           <div className="dashboard__card">
-            <h2 className="section-title">Activités récentes</h2>
+            <h2 className="section-title">{t('dashboard.recentActivity')}</h2>
             {data.recentes.length === 0 ? (
-              <p className="page-empty">Aucune vente pour le moment.</p>
+              <p className="page-empty">{t('dashboard.noSalesYet')}</p>
             ) : (
               <div className="data-table-wrap">
                 <table className="data-table">
                   <thead>
                     <tr>
-                      <th>Facture</th>
-                      <th>Client</th>
-                      <th>Montant</th>
-                      <th>Paiement</th>
-                      <th>Date</th>
+                      <th>{t('dashboard.columnInvoice')}</th>
+                      <th>{t('dashboard.columnClient')}</th>
+                      <th>{t('dashboard.columnAmount')}</th>
+                      <th>{t('dashboard.columnPayment')}</th>
+                      <th>{t('dashboard.columnDate')}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.recentes.map((v) => (
                       <tr key={v.id}>
                         <td className="data-table__title">{v.numero}</td>
-                        <td>{v.client?.nom || 'Client comptoir'}</td>
+                        <td>{v.client?.nom || t('dashboard.walkInClient')}</td>
                         <td>{formatMoney(v.total_ttc)}</td>
                         <td>{PAIEMENT_LABELS[v.statut_paiement]}</td>
                         <td>{new Date(v.created_at).toLocaleDateString('fr-FR')}</td>

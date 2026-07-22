@@ -1,0 +1,28 @@
+export default {
+  fr: {
+    save: 'Enregistrer',
+    saving: 'Enregistrement...',
+    cancel: 'Annuler',
+    close: 'Fermer',
+    delete: 'Supprimer',
+    edit: 'Modifier',
+    add: 'Ajouter',
+    search: 'Rechercher',
+    loading: 'Chargement...',
+    yes: 'Oui',
+    no: 'Non',
+  },
+  en: {
+    save: 'Save',
+    saving: 'Saving...',
+    cancel: 'Cancel',
+    close: 'Close',
+    delete: 'Delete',
+    edit: 'Edit',
+    add: 'Add',
+    search: 'Search',
+    loading: 'Loading...',
+    yes: 'Yes',
+    no: 'No',
+  },
+};

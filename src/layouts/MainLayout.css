@@ -130,6 +130,12 @@
   display: none;
 }
 
+.topbar__lang-btn {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
 .layout__content {
   flex: 1;
   padding: 24px;

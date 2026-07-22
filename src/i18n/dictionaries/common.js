@@ -23,6 +23,10 @@ export default {
       virement: 'Virement',
       cheque: 'Chèque',
     },
+    stockOutOfStock: 'Rupture',
+    stockCritical: 'Critique',
+    stockLow: 'Stock faible',
+    stockOk: 'En stock',
   },
   en: {
     save: 'Save',
@@ -48,5 +52,9 @@ export default {
       virement: 'Bank transfer',
       cheque: 'Check',
     },
+    stockOutOfStock: 'Out of stock',
+    stockCritical: 'Critical',
+    stockLow: 'Low stock',
+    stockOk: 'In stock',
   },
 };

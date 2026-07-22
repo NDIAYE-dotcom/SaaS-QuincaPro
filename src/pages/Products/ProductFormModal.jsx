@@ -4,6 +4,7 @@ import { createProduct, updateProduct } from '../../services/productService';
 import { uploadProductPhoto, deleteProductPhoto } from '../../services/storageService';
 import { registerStockMovement } from '../../services/stockService';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import './ProductFormModal.css';
 
 const EMPTY_FORM = {
@@ -47,6 +48,7 @@ function toFormState(product) {
 
 export default function ProductFormModal({ product, categories, onClose, onSaved }) {
   const { entreprise } = useAuth();
+  const { t } = useLanguage();
   const isEditing = Boolean(product);
   const [form, setForm] = useState(() => toFormState(product));
   const [photoFile, setPhotoFile] = useState(null);
@@ -70,7 +72,7 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
     setError('');
 
     if (!form.nom.trim()) {
-      setError('Le nom du produit est requis');
+      setError(t('products.errorNameRequired'));
       return;
     }
 
@@ -128,8 +130,8 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal__header">
-          <h2>{isEditing ? 'Modifier le produit' : 'Nouveau produit'}</h2>
-          <button className="icon-btn" onClick={onClose} aria-label="Fermer">
+          <h2>{isEditing ? t('products.editProductTitle') : t('products.newProductTitle')}</h2>
+          <button className="icon-btn" onClick={onClose} aria-label={t('common.close')}>
             <LuX />
           </button>
         </div>
@@ -143,7 +145,7 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
                 <img src={photoPreview} alt="Aperçu" />
               ) : (
                 <span>
-                  <LuUpload /> Ajouter une photo
+                  <LuUpload /> {t('products.addPhoto')}
                 </span>
               )}
             </label>
@@ -152,14 +154,14 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
 
           <div className="form-grid">
             <label className="field">
-              <span>Nom du produit *</span>
+              <span>{t('products.fieldName')}</span>
               <input type="text" value={form.nom} onChange={update('nom')} required />
             </label>
 
             <label className="field">
-              <span>Catégorie</span>
+              <span>{t('products.fieldCategory')}</span>
               <select value={form.categorie_id} onChange={update('categorie_id')}>
-                <option value="">Aucune</option>
+                <option value="">{t('products.fieldNone')}</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.parent_id ? `— ${c.nom}` : c.nom}
@@ -169,42 +171,47 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
             </label>
 
             <label className="field">
-              <span>Marque</span>
+              <span>{t('products.fieldBrand')}</span>
               <input type="text" value={form.marque} onChange={update('marque')} />
             </label>
 
             <label className="field">
-              <span>Unité</span>
-              <input type="text" value={form.unite} onChange={update('unite')} placeholder="Pièce, Sac, Kg..." />
+              <span>{t('products.fieldUnit')}</span>
+              <input
+                type="text"
+                value={form.unite}
+                onChange={update('unite')}
+                placeholder={t('products.fieldUnitPlaceholder')}
+              />
             </label>
 
             <label className="field">
-              <span>SKU</span>
+              <span>{t('products.fieldSku')}</span>
               <input type="text" value={form.sku} onChange={update('sku')} />
             </label>
 
             <label className="field">
-              <span>Code-barre</span>
+              <span>{t('products.fieldBarcode')}</span>
               <input type="text" value={form.code_barre} onChange={update('code_barre')} />
             </label>
 
             <label className="field">
-              <span>Prix d'achat (FCFA)</span>
+              <span>{t('products.fieldBuyPrice')}</span>
               <input type="number" min="0" step="0.01" value={form.prix_achat} onChange={update('prix_achat')} />
             </label>
 
             <label className="field">
-              <span>Prix de vente (FCFA) *</span>
+              <span>{t('products.fieldSellPrice')}</span>
               <input type="number" min="0" step="0.01" value={form.prix_vente} onChange={update('prix_vente')} required />
             </label>
 
             <label className="field">
-              <span>TVA (%)</span>
+              <span>{t('products.fieldVat')}</span>
               <input type="number" min="0" max="100" step="0.01" value={form.taux_tva} onChange={update('taux_tva')} />
             </label>
 
             <label className="field">
-              <span>Remise (%)</span>
+              <span>{t('products.fieldDiscount')}</span>
               <input
                 type="number"
                 min="0"
@@ -216,7 +223,7 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
             </label>
 
             <label className="field">
-              <span>{isEditing ? 'Quantité en stock' : 'Stock initial'}</span>
+              <span>{isEditing ? t('products.fieldStockQty') : t('products.fieldInitialStock')}</span>
               {isEditing ? (
                 <input type="text" value={`${product.quantite_stock} ${product.unite}`} disabled />
               ) : (
@@ -228,37 +235,37 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
                   onChange={update('stock_initial')}
                 />
               )}
-              {isEditing && <small className="field__hint">Ajustez la quantité depuis le module Stock</small>}
+              {isEditing && <small className="field__hint">{t('products.fieldStockHint')}</small>}
             </label>
 
             <label className="field">
-              <span>Stock minimum</span>
+              <span>{t('products.fieldStockMinimum')}</span>
               <input type="number" min="0" step="0.01" value={form.stock_minimum} onChange={update('stock_minimum')} />
             </label>
 
             <label className="field">
-              <span>Stock critique</span>
+              <span>{t('products.fieldStockCritical')}</span>
               <input type="number" min="0" step="0.01" value={form.stock_critique} onChange={update('stock_critique')} />
             </label>
 
             <label className="field">
-              <span>Stock maximum</span>
+              <span>{t('products.fieldStockMaximum')}</span>
               <input type="number" min="0" step="0.01" value={form.stock_maximum} onChange={update('stock_maximum')} />
             </label>
           </div>
 
           <label className="field">
-            <span>Description</span>
+            <span>{t('products.fieldDescription')}</span>
             <textarea rows={3} value={form.description} onChange={update('description')} />
           </label>
 
           <div className="modal__footer">
             <button type="button" className="btn btn--ghost" onClick={onClose}>
-              Annuler
+              {t('common.cancel')}
             </button>
             <button type="submit" className="btn btn--primary" disabled={saving}>
               {saving && <LuLoaderCircle className="spin" />}
-              {saving ? 'Enregistrement...' : 'Enregistrer'}
+              {saving ? t('common.saving') : t('common.save')}
             </button>
           </div>
         </form>

@@ -1,6 +1,10 @@
-export function getStockStatus(produit) {
-  if (produit.quantite_stock <= 0) return { label: 'Rupture', className: 'badge--danger' };
-  if (produit.quantite_stock <= produit.stock_critique) return { label: 'Critique', className: 'badge--danger' };
-  if (produit.quantite_stock <= produit.stock_minimum) return { label: 'Stock faible', className: 'badge--warning' };
-  return { label: 'En stock', className: 'badge--success' };
+export function getStockStatus(produit, t) {
+  if (produit.quantite_stock <= 0) return { label: t('common.stockOutOfStock'), className: 'badge--danger' };
+  if (produit.quantite_stock <= produit.stock_critique) {
+    return { label: t('common.stockCritical'), className: 'badge--danger' };
+  }
+  if (produit.quantite_stock <= produit.stock_minimum) {
+    return { label: t('common.stockLow'), className: 'badge--warning' };
+  }
+  return { label: t('common.stockOk'), className: 'badge--success' };
 }

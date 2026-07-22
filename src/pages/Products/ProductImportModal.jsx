@@ -6,9 +6,11 @@ import {
   validateImportRow,
   importProducts,
 } from '../../services/productImportService';
+import { useLanguage } from '../../contexts/LanguageContext';
 import './ProductImportModal.css';
 
 export default function ProductImportModal({ onClose, onImported }) {
+  const { t } = useLanguage();
   const [step, setStep] = useState('upload');
   const [error, setError] = useState('');
   const [rows, setRows] = useState([]);
@@ -23,13 +25,13 @@ export default function ProductImportModal({ onClose, onImported }) {
     try {
       const records = await parseProductImportFile(file);
       if (records.length === 0) {
-        setError("Aucune ligne exploitable trouvée dans ce fichier. Vérifiez qu'il suit le modèle.");
+        setError(t('products.errorNoRows'));
         return;
       }
       setRows(records.map((record) => ({ ...validateImportRow(record) })));
       setStep('preview');
     } catch {
-      setError('Impossible de lire ce fichier. Utilisez le modèle Excel/CSV fourni.');
+      setError(t('products.errorReadFile'));
     } finally {
       e.target.value = '';
     }
@@ -65,9 +67,9 @@ export default function ProductImportModal({ onClose, onImported }) {
     <div className="modal-overlay" onClick={importing ? undefined : onClose}>
       <div className="modal modal--lg" onClick={(e) => e.stopPropagation()}>
         <div className="modal__header">
-          <h2>Importer des produits</h2>
+          <h2>{t('products.importTitle')}</h2>
           {!importing && (
-            <button className="icon-btn" onClick={onClose} aria-label="Fermer">
+            <button className="icon-btn" onClick={onClose} aria-label={t('common.close')}>
               <LuX />
             </button>
           )}
@@ -78,16 +80,13 @@ export default function ProductImportModal({ onClose, onImported }) {
 
           {step === 'upload' && (
             <>
-              <p className="field__hint">
-                Importez plusieurs produits d'un coup depuis un fichier Excel (.xlsx) ou CSV. Téléchargez le
-                modèle, remplissez-le, puis importez-le ci-dessous.
-              </p>
+              <p className="field__hint">{t('products.importIntro')}</p>
               <button type="button" className="btn btn--ghost" onClick={downloadProductImportTemplate}>
-                <LuDownload /> Télécharger le modèle Excel
+                <LuDownload /> {t('products.downloadTemplate')}
               </button>
               <label className="product-import__drop" htmlFor="import-file-input">
                 <LuUpload />
-                <span>Choisir un fichier .xlsx ou .csv</span>
+                <span>{t('products.chooseFile')}</span>
               </label>
               <input
                 id="import-file-input"
@@ -102,20 +101,19 @@ export default function ProductImportModal({ onClose, onImported }) {
           {step === 'preview' && (
             <>
               <p className="field__hint">
-                {validRows.length} produit{validRows.length > 1 ? 's' : ''} prêt{validRows.length > 1 ? 's' : ''}{' '}
-                à importer sur {rows.length} ligne{rows.length > 1 ? 's' : ''} lue{rows.length > 1 ? 's' : ''}.
+                {validRows.length} {t('products.previewReady')} {rows.length} {t('products.previewLinesRead')}
                 {rows.length - validRows.length > 0 &&
-                  ` ${rows.length - validRows.length} ligne(s) en erreur seront ignorées.`}
+                  ` ${rows.length - validRows.length} ${t('products.previewSkipped')}`}
               </p>
               <div className="data-table-wrap product-import__preview">
                 <table className="data-table">
                   <thead>
                     <tr>
-                      <th>Nom</th>
-                      <th>Catégorie</th>
-                      <th>Prix de vente</th>
-                      <th>Stock initial</th>
-                      <th>Statut</th>
+                      <th>{t('products.fieldName')}</th>
+                      <th>{t('products.fieldCategory')}</th>
+                      <th>{t('products.fieldSellPrice')}</th>
+                      <th>{t('products.columnInitialStock')}</th>
+                      <th>{t('products.columnStatus')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -127,7 +125,7 @@ export default function ProductImportModal({ onClose, onImported }) {
                         <td>{r.data.stock_initial}</td>
                         <td>
                           {r.errors.length === 0 ? (
-                            <span className="badge badge--success">Valide</span>
+                            <span className="badge badge--success">{t('products.valid')}</span>
                           ) : (
                             <span className="badge badge--danger" title={r.errors.join(', ')}>
                               {r.errors.join(', ')}
@@ -145,17 +143,16 @@ export default function ProductImportModal({ onClose, onImported }) {
           {step === 'done' && (
             <>
               <p>
-                <strong>{successCount}</strong> produit{successCount > 1 ? 's' : ''} importé
-                {successCount > 1 ? 's' : ''} avec succès.
-                {failureCount > 0 && ` ${failureCount} échec(s).`}
+                <strong>{successCount}</strong> {t('products.importedSuccessfully')}
+                {failureCount > 0 && ` ${failureCount} ${t('products.failures')}`}
               </p>
               {failureCount > 0 && (
                 <div className="data-table-wrap product-import__preview">
                   <table className="data-table">
                     <thead>
                       <tr>
-                        <th>Nom</th>
-                        <th>Erreur</th>
+                        <th>{t('products.fieldName')}</th>
+                        <th>{t('products.columnError')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -179,7 +176,7 @@ export default function ProductImportModal({ onClose, onImported }) {
           {step === 'preview' && (
             <>
               <button type="button" className="btn btn--ghost" onClick={onClose} disabled={importing}>
-                Annuler
+                {t('common.cancel')}
               </button>
               <button
                 type="button"
@@ -189,21 +186,23 @@ export default function ProductImportModal({ onClose, onImported }) {
               >
                 {importing && <LuLoaderCircle className="spin" />}
                 {importing
-                  ? `Import en cours... (${progress.done}/${progress.total})`
-                  : `Importer ${validRows.length} produit${validRows.length > 1 ? 's' : ''}`}
+                  ? `${t('products.importing')} (${progress.done}/${progress.total})`
+                  : `${t('products.importButton')} ${validRows.length} ${
+                      validRows.length > 1 ? t('products.products') : t('products.product')
+                    }`}
               </button>
             </>
           )}
 
           {step === 'upload' && (
             <button type="button" className="btn btn--ghost" onClick={onClose}>
-              Fermer
+              {t('common.close')}
             </button>
           )}
 
           {step === 'done' && (
             <button type="button" className="btn btn--primary" onClick={handleFinish}>
-              {successCount > 0 ? <LuCircleCheck /> : <LuCircleX />} Terminer
+              {successCount > 0 ? <LuCircleCheck /> : <LuCircleX />} {t('products.finish')}
             </button>
           )}
         </div>

@@ -3,12 +3,14 @@ import { LuPlus, LuSearch, LuPencil, LuTrash2, LuTags, LuImageOff, LuEyeOff, LuE
 import { fetchProducts, deleteProduct, updateProduct } from '../../services/productService';
 import { fetchCategories } from '../../services/categoryService';
 import { getStockStatus } from '../../utils/stock';
+import { useLanguage } from '../../contexts/LanguageContext';
 import ProductFormModal from './ProductFormModal';
 import CategoryModal from './CategoryModal';
 import ProductImportModal from './ProductImportModal';
 import './Products.css';
 
 export default function Products() {
+  const { t } = useLanguage();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState('');
@@ -67,7 +69,7 @@ export default function Products() {
   }
 
   async function handleDelete(produit) {
-    if (!window.confirm(`Supprimer « ${produit.nom} » ? Cette action est irréversible.`)) return;
+    if (!window.confirm(t('products.confirmDelete', { name: produit.nom }))) return;
     try {
       await deleteProduct(produit.id);
       setProducts((prev) => prev.filter((p) => p.id !== produit.id));
@@ -100,18 +102,18 @@ export default function Products() {
     <div className="products">
       <div className="page-header">
         <div>
-          <h1>Produits</h1>
-          <p>Gérez le catalogue de votre quincaillerie</p>
+          <h1>{t('products.title')}</h1>
+          <p>{t('products.subtitle')}</p>
         </div>
         <div className="page-header__actions">
           <button className="btn btn--ghost" onClick={() => setCategoryModalOpen(true)}>
-            <LuTags /> Catégories
+            <LuTags /> {t('products.categories')}
           </button>
           <button className="btn btn--ghost" onClick={() => setImportModalOpen(true)}>
-            <LuFileUp /> Importer
+            <LuFileUp /> {t('products.import')}
           </button>
           <button className="btn btn--primary" onClick={openCreateForm}>
-            <LuPlus /> Nouveau produit
+            <LuPlus /> {t('products.newProduct')}
           </button>
         </div>
       </div>
@@ -121,14 +123,14 @@ export default function Products() {
           <LuSearch />
           <input
             type="text"
-            placeholder="Rechercher par nom, SKU, code-barre..."
+            placeholder={t('products.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
         <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
-          <option value="">Toutes les catégories</option>
+          <option value="">{t('products.allCategories')}</option>
           {categories.map((c) => (
             <option key={c.id} value={c.id}>
               {c.parent_id ? `— ${c.nom}` : c.nom}
@@ -140,12 +142,12 @@ export default function Products() {
       {error && <div className="page-error">{error}</div>}
 
       {loading ? (
-        <p className="page-loading">Chargement...</p>
+        <p className="page-loading">{t('common.loading')}</p>
       ) : products.length === 0 ? (
         <div className="page-empty">
-          <p>Aucun produit pour l'instant.</p>
+          <p>{t('products.noProductsYet')}</p>
           <button className="btn btn--primary" onClick={openCreateForm}>
-            <LuPlus /> Ajouter votre premier produit
+            <LuPlus /> {t('products.addFirstProduct')}
           </button>
         </div>
       ) : (
@@ -154,17 +156,17 @@ export default function Products() {
             <thead>
               <tr>
                 <th></th>
-                <th>Produit</th>
-                <th>Catégorie</th>
-                <th>SKU</th>
-                <th>Prix vente</th>
-                <th>Stock</th>
+                <th>{t('products.columnProduct')}</th>
+                <th>{t('products.columnCategory')}</th>
+                <th>{t('products.columnSku')}</th>
+                <th>{t('products.columnSellPrice')}</th>
+                <th>{t('products.columnStock')}</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
               {products.map((produit) => {
-                const status = getStockStatus(produit);
+                const status = getStockStatus(produit, t);
                 return (
                   <tr key={produit.id}>
                     <td className="products__photo-cell">
@@ -178,7 +180,8 @@ export default function Products() {
                     </td>
                     <td>
                       <div className="data-table__title">
-                        {produit.nom} {!produit.actif && <span className="badge badge--danger">Inactif</span>}
+                        {produit.nom}{' '}
+                        {!produit.actif && <span className="badge badge--danger">{t('products.inactive')}</span>}
                       </div>
                       {produit.marque && <div className="data-table__subtitle">{produit.marque}</div>}
                     </td>
@@ -191,20 +194,20 @@ export default function Products() {
                       </span>
                     </td>
                     <td className="data-table__actions">
-                      <button className="icon-btn" onClick={() => openEditForm(produit)} aria-label="Modifier">
+                      <button className="icon-btn" onClick={() => openEditForm(produit)} aria-label={t('products.edit')}>
                         <LuPencil />
                       </button>
                       <button
                         className="icon-btn"
                         onClick={() => handleToggleActive(produit)}
-                        aria-label={produit.actif ? 'Désactiver' : 'Activer'}
+                        aria-label={produit.actif ? t('products.deactivate') : t('products.activate')}
                       >
                         {produit.actif ? <LuEyeOff /> : <LuEye />}
                       </button>
                       <button
                         className="icon-btn icon-btn--danger"
                         onClick={() => handleDelete(produit)}
-                        aria-label="Supprimer"
+                        aria-label={t('products.delete')}
                       >
                         <LuTrash2 />
                       </button>

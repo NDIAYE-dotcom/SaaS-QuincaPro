@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { LuX, LuPlus, LuTrash2 } from 'react-icons/lu';
 import { createCategory, deleteCategory } from '../../services/categoryService';
+import { useLanguage } from '../../contexts/LanguageContext';
 import './CategoryModal.css';
 
 export default function CategoryModal({ categories, onClose, onChanged }) {
+  const { t } = useLanguage();
   const [nom, setNom] = useState('');
   const [parentId, setParentId] = useState('');
   const [error, setError] = useState('');
@@ -31,10 +33,10 @@ export default function CategoryModal({ categories, onClose, onChanged }) {
   async function handleDelete(category) {
     const hasChildren = categories.some((c) => c.parent_id === category.id);
     if (hasChildren) {
-      setError('Supprimez d’abord ses sous-catégories');
+      setError(t('products.errorDeleteHasChildren'));
       return;
     }
-    if (!window.confirm(`Supprimer « ${category.nom} » ?`)) return;
+    if (!window.confirm(t('products.confirmDeleteCategory', { name: category.nom }))) return;
     setError('');
     try {
       await deleteCategory(category.id);
@@ -48,8 +50,8 @@ export default function CategoryModal({ categories, onClose, onChanged }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal modal--sm" onClick={(e) => e.stopPropagation()}>
         <div className="modal__header">
-          <h2>Catégories</h2>
-          <button className="icon-btn" onClick={onClose} aria-label="Fermer">
+          <h2>{t('products.categoriesTitle')}</h2>
+          <button className="icon-btn" onClick={onClose} aria-label={t('common.close')}>
             <LuX />
           </button>
         </div>
@@ -60,25 +62,25 @@ export default function CategoryModal({ categories, onClose, onChanged }) {
           <form className="category-form" onSubmit={handleAdd}>
             <input
               type="text"
-              placeholder="Nom de la catégorie"
+              placeholder={t('products.categoryNamePlaceholder')}
               value={nom}
               onChange={(e) => setNom(e.target.value)}
             />
             <select value={parentId} onChange={(e) => setParentId(e.target.value)}>
-              <option value="">Catégorie principale</option>
+              <option value="">{t('products.mainCategory')}</option>
               {topLevel.map((c) => (
                 <option key={c.id} value={c.id}>
-                  Sous-catégorie de « {c.nom} »
+                  {t('products.subCategoryOf', { name: c.nom })}
                 </option>
               ))}
             </select>
             <button type="submit" className="btn btn--primary" disabled={saving}>
-              <LuPlus /> Ajouter
+              <LuPlus /> {t('common.add')}
             </button>
           </form>
 
           {topLevel.length === 0 ? (
-            <p className="category-list__empty">Aucune catégorie pour l'instant.</p>
+            <p className="category-list__empty">{t('products.noCategoriesYet')}</p>
           ) : (
             <ul className="category-list">
               {topLevel.map((cat) => (
@@ -88,7 +90,7 @@ export default function CategoryModal({ categories, onClose, onChanged }) {
                     <button
                       className="icon-btn icon-btn--danger"
                       onClick={() => handleDelete(cat)}
-                      aria-label={`Supprimer ${cat.nom}`}
+                      aria-label={`${t('products.delete')} ${cat.nom}`}
                     >
                       <LuTrash2 />
                     </button>
@@ -103,7 +105,7 @@ export default function CategoryModal({ categories, onClose, onChanged }) {
                             <button
                               className="icon-btn icon-btn--danger"
                               onClick={() => handleDelete(sub)}
-                              aria-label={`Supprimer ${sub.nom}`}
+                              aria-label={`${t('products.delete')} ${sub.nom}`}
                             >
                               <LuTrash2 />
                             </button>

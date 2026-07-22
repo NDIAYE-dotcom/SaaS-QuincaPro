@@ -16,54 +16,32 @@ import {
   LuReceipt,
 } from 'react-icons/lu';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import './Landing.css';
 
 const MARQUEE_ICONS = [LuFileText, LuPenTool, LuStamp, LuReceipt];
 
-const FEATURES = [
-  {
-    icon: LuPackage,
-    title: 'Produits & Stock',
-    description: 'Catégories, photos, code-barres, seuils d\'alerte et mouvements tracés en temps réel.',
-  },
-  {
-    icon: LuShoppingCart,
-    title: 'Ventes & Achats',
-    description: 'Devis, factures TVA/HT, paiements partiels, dettes clients et fournisseurs.',
-  },
-  {
-    icon: LuCalculator,
-    title: 'Comptabilité SYSCOHADA',
-    description: 'Journal, grand livre, balance et écritures automatiques à chaque vente ou achat.',
-  },
-  {
-    icon: LuPrinter,
-    title: 'Factures professionnelles',
-    description: 'PDF A4 ou thermique 80/58mm, logo, QR code et numérotation automatique.',
-  },
-  {
-    icon: LuUserCog,
-    title: 'Équipe & rôles',
-    description: 'Invitez Caissiers, Magasiniers, Comptables... chacun avec un accès adapté.',
-  },
-  {
-    icon: LuChartColumn,
-    title: 'Rapports exportables',
-    description: 'Ventes, bénéfices, TVA, stock et plus — exportés en PDF, Excel ou CSV.',
-  },
-];
-
-const PRICING_ITEMS = [
-  'Produits, stock et ventes illimités',
-  'Comptabilité automatique',
-  'Facturation PDF & impression thermique',
-  'Équipe multi-utilisateurs avec rôles',
-  'Rapports et exports illimités',
-  'Support par email',
-];
-
 export default function Landing() {
   const { theme, toggleTheme } = useTheme();
+  const { language, toggleLanguage, t } = useLanguage();
+
+  const FEATURES = [
+    { icon: LuPackage, title: t('landing.feature1Title'), description: t('landing.feature1Description') },
+    { icon: LuShoppingCart, title: t('landing.feature2Title'), description: t('landing.feature2Description') },
+    { icon: LuCalculator, title: t('landing.feature3Title'), description: t('landing.feature3Description') },
+    { icon: LuPrinter, title: t('landing.feature4Title'), description: t('landing.feature4Description') },
+    { icon: LuUserCog, title: t('landing.feature5Title'), description: t('landing.feature5Description') },
+    { icon: LuChartColumn, title: t('landing.feature6Title'), description: t('landing.feature6Description') },
+  ];
+
+  const PRICING_ITEMS = [
+    t('landing.pricingItem1'),
+    t('landing.pricingItem2'),
+    t('landing.pricingItem3'),
+    t('landing.pricingItem4'),
+    t('landing.pricingItem5'),
+    t('landing.pricingItem6'),
+  ];
 
   return (
     <div className="landing">
@@ -78,9 +56,18 @@ export default function Landing() {
           )}
         </div>
 
-        <button className="icon-btn landing__nav-toggle" onClick={toggleTheme} aria-label="Basculer le thème">
-          {theme === 'dark' ? <LuSun /> : <LuMoon />}
-        </button>
+        <div className="landing__nav-actions">
+          <button
+            className="icon-btn landing__nav-toggle landing__nav-lang"
+            onClick={toggleLanguage}
+            aria-label={t('nav.toggleLanguage')}
+          >
+            {language.toUpperCase()}
+          </button>
+          <button className="icon-btn landing__nav-toggle" onClick={toggleTheme} aria-label={t('landing.toggleTheme')}>
+            {theme === 'dark' ? <LuSun /> : <LuMoon />}
+          </button>
+        </div>
       </header>
 
       <section className="landing__hero">
@@ -104,21 +91,21 @@ export default function Landing() {
             </motion.div>
           </div>
 
-          <h1>La gestion de votre quincaillerie, simplifiée.</h1>
-          <p>Stock, ventes et comptabilité réunis dans un outil simple, pensé pour votre commerce.</p>
+          <h1>{t('landing.heroTitle')}</h1>
+          <p>{t('landing.heroSubtitle')}</p>
           <div className="landing__hero-actions">
             <Link to="/inscription" className="btn btn--primary landing__cta">
-              Créer mon compte
+              {t('landing.createAccount')}
             </Link>
             <Link to="/connexion" className="btn btn--ghost landing__cta">
-              J'ai déjà un compte
+              {t('landing.alreadyHaveAccount')}
             </Link>
           </div>
         </motion.div>
       </section>
 
       <section className="landing__section">
-        <h2>Tout ce qu'il faut pour gérer votre commerce</h2>
+        <h2>{t('landing.featuresTitle')}</h2>
         <div className="landing__features">
           {FEATURES.map(({ icon: Icon, title, description }, index) => (
             <motion.div
@@ -140,7 +127,7 @@ export default function Landing() {
       </section>
 
       <section className="landing__section landing__section--pricing">
-        <h2>Un prix simple, sans surprise</h2>
+        <h2>{t('landing.pricingTitle')}</h2>
         <motion.div
           className="landing__pricing-card"
           initial={{ opacity: 0, y: 12 }}
@@ -149,9 +136,9 @@ export default function Landing() {
           transition={{ duration: 0.4 }}
         >
           <div className="landing__pricing-amount">
-            5 500 <span>FCFA / mois</span>
+            5 500 <span>{t('landing.pricingPerMonth')}</span>
           </div>
-          <p className="landing__pricing-hint">Sans engagement. Paiement via Wave, Orange Money ou Free Money.</p>
+          <p className="landing__pricing-hint">{t('landing.pricingHint')}</p>
           <ul className="landing__pricing-list">
             {PRICING_ITEMS.map((item) => (
               <li key={item}>
@@ -160,13 +147,15 @@ export default function Landing() {
             ))}
           </ul>
           <Link to="/inscription" className="btn btn--primary landing__cta">
-            Démarrer maintenant
+            {t('landing.startNow')}
           </Link>
         </motion.div>
       </section>
 
       <footer className="landing__footer">
-        <span>© {new Date().getFullYear()} QuincaPro — Tous droits réservés.</span>
+        <span>
+          © {new Date().getFullYear()} QuincaPro — {t('landing.footerRights')}
+        </span>
       </footer>
     </div>
   );

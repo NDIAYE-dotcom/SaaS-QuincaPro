@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { LuPlus, LuSearch, LuPencil, LuTrash2, LuPhone, LuMessageCircle, LuMail } from 'react-icons/lu';
 import { fetchClients, deleteClient } from '../../services/clientService';
+import { useLanguage } from '../../contexts/LanguageContext';
 import ClientFormModal from './ClientFormModal';
 import './Clients.css';
 
 export default function Clients() {
+  const { t } = useLanguage();
   const [clients, setClients] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -41,7 +43,7 @@ export default function Clients() {
   }
 
   async function handleDelete(client) {
-    if (!window.confirm(`Supprimer « ${client.nom} » ? Cette action est irréversible.`)) return;
+    if (!window.confirm(t('clients.confirmDelete', { name: client.nom }))) return;
     try {
       await deleteClient(client.id);
       setClients((prev) => prev.filter((c) => c.id !== client.id));
@@ -59,11 +61,11 @@ export default function Clients() {
     <div className="clients">
       <div className="page-header">
         <div>
-          <h1>Clients</h1>
-          <p>Gérez vos clients, leurs coordonnées et leur limite de crédit</p>
+          <h1>{t('clients.title')}</h1>
+          <p>{t('clients.subtitle')}</p>
         </div>
         <button className="btn btn--primary" onClick={openCreateForm}>
-          <LuPlus /> Nouveau client
+          <LuPlus /> {t('clients.newClient')}
         </button>
       </div>
 
@@ -72,7 +74,7 @@ export default function Clients() {
           <LuSearch />
           <input
             type="text"
-            placeholder="Rechercher par nom, téléphone, email..."
+            placeholder={t('clients.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -82,12 +84,12 @@ export default function Clients() {
       {error && <div className="page-error">{error}</div>}
 
       {loading ? (
-        <p className="page-loading">Chargement...</p>
+        <p className="page-loading">{t('common.loading')}</p>
       ) : clients.length === 0 ? (
         <div className="page-empty">
-          <p>Aucun client pour l'instant.</p>
+          <p>{t('clients.noClientsYet')}</p>
           <button className="btn btn--primary" onClick={openCreateForm}>
-            <LuPlus /> Ajouter votre premier client
+            <LuPlus /> {t('clients.addFirstClient')}
           </button>
         </div>
       ) : (
@@ -95,10 +97,10 @@ export default function Clients() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Client</th>
-                <th>Contact</th>
-                <th>Limite crédit</th>
-                <th>Dette</th>
+                <th>{t('clients.columnClient')}</th>
+                <th>{t('clients.columnContact')}</th>
+                <th>{t('clients.columnCreditLimit')}</th>
+                <th>{t('clients.columnDebt')}</th>
                 <th></th>
               </tr>
             </thead>
@@ -145,13 +147,13 @@ export default function Clients() {
                     )}
                   </td>
                   <td className="data-table__actions">
-                    <button className="icon-btn" onClick={() => openEditForm(client)} aria-label="Modifier">
+                    <button className="icon-btn" onClick={() => openEditForm(client)} aria-label={t('clients.edit')}>
                       <LuPencil />
                     </button>
                     <button
                       className="icon-btn icon-btn--danger"
                       onClick={() => handleDelete(client)}
-                      aria-label="Supprimer"
+                      aria-label={t('clients.delete')}
                     >
                       <LuTrash2 />
                     </button>

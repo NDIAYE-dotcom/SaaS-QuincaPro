@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { LuX, LuLoaderCircle } from 'react-icons/lu';
 import { createSupplier, updateSupplier } from '../../services/supplierService';
+import { useLanguage } from '../../contexts/LanguageContext';
 import './SupplierFormModal.css';
 
 const EMPTY_FORM = {
@@ -27,6 +28,7 @@ function toFormState(supplier) {
 }
 
 export default function SupplierFormModal({ supplier, onClose, onSaved }) {
+  const { t } = useLanguage();
   const isEditing = Boolean(supplier);
   const [form, setForm] = useState(() => toFormState(supplier));
   const [error, setError] = useState('');
@@ -41,7 +43,7 @@ export default function SupplierFormModal({ supplier, onClose, onSaved }) {
     setError('');
 
     if (!form.nom.trim()) {
-      setError('Le nom du fournisseur est requis');
+      setError(t('suppliers.errorNameRequired'));
       return;
     }
 
@@ -74,8 +76,8 @@ export default function SupplierFormModal({ supplier, onClose, onSaved }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal__header">
-          <h2>{isEditing ? 'Modifier le fournisseur' : 'Nouveau fournisseur'}</h2>
-          <button className="icon-btn" onClick={onClose} aria-label="Fermer">
+          <h2>{isEditing ? t('suppliers.editSupplierTitle') : t('suppliers.newSupplierTitle')}</h2>
+          <button className="icon-btn" onClick={onClose} aria-label={t('common.close')}>
             <LuX />
           </button>
         </div>
@@ -85,48 +87,48 @@ export default function SupplierFormModal({ supplier, onClose, onSaved }) {
 
           <div className="form-grid">
             <label className="field">
-              <span>Nom de l'entreprise *</span>
+              <span>{t('suppliers.fieldName')}</span>
               <input type="text" value={form.nom} onChange={update('nom')} required />
             </label>
 
             <label className="field">
-              <span>Personne à contacter</span>
+              <span>{t('suppliers.fieldContactName')}</span>
               <input type="text" value={form.contact_nom} onChange={update('contact_nom')} />
             </label>
 
             <label className="field">
-              <span>Téléphone</span>
+              <span>{t('suppliers.fieldPhone')}</span>
               <input type="tel" value={form.telephone} onChange={update('telephone')} placeholder="77 123 45 67" />
             </label>
 
             <label className="field">
-              <span>WhatsApp</span>
+              <span>{t('suppliers.fieldWhatsapp')}</span>
               <input type="tel" value={form.whatsapp} onChange={update('whatsapp')} placeholder="77 123 45 67" />
             </label>
 
             <label className="field">
-              <span>Email</span>
+              <span>{t('suppliers.fieldEmail')}</span>
               <input type="email" value={form.email} onChange={update('email')} />
             </label>
           </div>
 
           <label className="field">
-            <span>Adresse</span>
+            <span>{t('suppliers.fieldAddress')}</span>
             <input type="text" value={form.adresse} onChange={update('adresse')} />
           </label>
 
           <label className="field">
-            <span>Notes</span>
+            <span>{t('suppliers.fieldNotes')}</span>
             <textarea rows={3} value={form.notes} onChange={update('notes')} />
           </label>
 
           <div className="modal__footer">
             <button type="button" className="btn btn--ghost" onClick={onClose}>
-              Annuler
+              {t('common.cancel')}
             </button>
             <button type="submit" className="btn btn--primary" disabled={saving}>
               {saving && <LuLoaderCircle className="spin" />}
-              {saving ? 'Enregistrement...' : 'Enregistrer'}
+              {saving ? t('common.saving') : t('common.save')}
             </button>
           </div>
         </form>

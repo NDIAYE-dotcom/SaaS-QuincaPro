@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { LuPlus, LuSearch, LuPencil, LuTrash2, LuPhone, LuMessageCircle, LuMail } from 'react-icons/lu';
 import { fetchSuppliers, deleteSupplier } from '../../services/supplierService';
+import { useLanguage } from '../../contexts/LanguageContext';
 import SupplierFormModal from './SupplierFormModal';
 import './Suppliers.css';
 
 export default function Suppliers() {
+  const { t } = useLanguage();
   const [suppliers, setSuppliers] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -41,7 +43,7 @@ export default function Suppliers() {
   }
 
   async function handleDelete(supplier) {
-    if (!window.confirm(`Supprimer « ${supplier.nom} » ? Cette action est irréversible.`)) return;
+    if (!window.confirm(t('suppliers.confirmDelete', { name: supplier.nom }))) return;
     try {
       await deleteSupplier(supplier.id);
       setSuppliers((prev) => prev.filter((s) => s.id !== supplier.id));
@@ -59,11 +61,11 @@ export default function Suppliers() {
     <div className="suppliers">
       <div className="page-header">
         <div>
-          <h1>Fournisseurs</h1>
-          <p>Gérez vos fournisseurs et leurs contacts</p>
+          <h1>{t('suppliers.title')}</h1>
+          <p>{t('suppliers.subtitle')}</p>
         </div>
         <button className="btn btn--primary" onClick={openCreateForm}>
-          <LuPlus /> Nouveau fournisseur
+          <LuPlus /> {t('suppliers.newSupplier')}
         </button>
       </div>
 
@@ -72,7 +74,7 @@ export default function Suppliers() {
           <LuSearch />
           <input
             type="text"
-            placeholder="Rechercher par nom, téléphone, email..."
+            placeholder={t('suppliers.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -82,12 +84,12 @@ export default function Suppliers() {
       {error && <div className="page-error">{error}</div>}
 
       {loading ? (
-        <p className="page-loading">Chargement...</p>
+        <p className="page-loading">{t('common.loading')}</p>
       ) : suppliers.length === 0 ? (
         <div className="page-empty">
-          <p>Aucun fournisseur pour l'instant.</p>
+          <p>{t('suppliers.noSuppliersYet')}</p>
           <button className="btn btn--primary" onClick={openCreateForm}>
-            <LuPlus /> Ajouter votre premier fournisseur
+            <LuPlus /> {t('suppliers.addFirstSupplier')}
           </button>
         </div>
       ) : (
@@ -95,9 +97,9 @@ export default function Suppliers() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Fournisseur</th>
-                <th>Contact</th>
-                <th>Dette</th>
+                <th>{t('suppliers.columnSupplier')}</th>
+                <th>{t('suppliers.columnContact')}</th>
+                <th>{t('suppliers.columnDebt')}</th>
                 <th></th>
               </tr>
             </thead>
@@ -107,7 +109,9 @@ export default function Suppliers() {
                   <td>
                     <div className="data-table__title">{supplier.nom}</div>
                     {supplier.contact_nom && (
-                      <div className="data-table__subtitle">Contact : {supplier.contact_nom}</div>
+                      <div className="data-table__subtitle">
+                        {t('suppliers.contactPrefix')} {supplier.contact_nom}
+                      </div>
                     )}
                   </td>
                   <td>
@@ -145,13 +149,13 @@ export default function Suppliers() {
                     )}
                   </td>
                   <td className="data-table__actions">
-                    <button className="icon-btn" onClick={() => openEditForm(supplier)} aria-label="Modifier">
+                    <button className="icon-btn" onClick={() => openEditForm(supplier)} aria-label={t('suppliers.edit')}>
                       <LuPencil />
                     </button>
                     <button
                       className="icon-btn icon-btn--danger"
                       onClick={() => handleDelete(supplier)}
-                      aria-label="Supprimer"
+                      aria-label={t('suppliers.delete')}
                     >
                       <LuTrash2 />
                     </button>

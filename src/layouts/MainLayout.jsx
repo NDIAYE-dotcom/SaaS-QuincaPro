@@ -23,6 +23,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { signOut } from '../services/authService';
 import AnnouncementBanner from '../shared/AnnouncementBanner';
+import SubscriptionExpiryBanner from '../shared/SubscriptionExpiryBanner';
 import './MainLayout.css';
 
 const NAV_ITEMS = [
@@ -137,6 +138,7 @@ export default function MainLayout() {
         </header>
 
         <main className="layout__content">
+          <SubscriptionExpiryBanner />
           <AnnouncementBanner />
           <Outlet />
         </main>

@@ -1,8 +1,9 @@
 import common from './dictionaries/common';
 import nav from './dictionaries/nav';
 import dashboard from './dictionaries/dashboard';
+import sales from './dictionaries/sales';
 
-const NAMESPACES = { common, nav, dashboard };
+const NAMESPACES = { common, nav, dashboard, sales };
 
 function buildLanguageDict(lang) {
   return Object.fromEntries(Object.entries(NAMESPACES).map(([ns, dict]) => [ns, dict[lang]]));

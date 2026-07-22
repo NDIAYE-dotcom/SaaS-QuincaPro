@@ -2,22 +2,34 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { LuPlus, LuEye } from 'react-icons/lu';
 import { fetchSales } from '../../services/salesService';
+import { useLanguage } from '../../contexts/LanguageContext';
 import './Sales.css';
 
-const STATUT_LABELS = { devis: 'Devis', commande: 'Commande', facture: 'Facture', annulee: 'Annulée' };
 const STATUT_BADGE = {
   devis: 'badge--warning',
   commande: 'badge--warning',
   facture: 'badge--success',
   annulee: 'badge--danger',
 };
-const PAIEMENT_LABELS = { impaye: 'Impayé', partiel: 'Partiel', paye: 'Payé' };
 const PAIEMENT_BADGE = { impaye: 'badge--danger', partiel: 'badge--warning', paye: 'badge--success' };
 
 export default function Sales() {
+  const { t } = useLanguage();
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const STATUT_LABELS = {
+    devis: t('sales.statutDevis'),
+    commande: t('sales.statutCommande'),
+    facture: t('sales.statutFacture'),
+    annulee: t('sales.statutAnnulee'),
+  };
+  const PAIEMENT_LABELS = {
+    impaye: t('common.paymentUnpaid'),
+    partiel: t('common.paymentPartial'),
+    paye: t('common.paymentPaid'),
+  };
 
   const loadSales = useCallback(async () => {
     setLoading(true);
@@ -40,23 +52,23 @@ export default function Sales() {
     <div className="sales">
       <div className="page-header">
         <div>
-          <h1>Ventes</h1>
-          <p>Devis, factures et suivi des paiements</p>
+          <h1>{t('sales.title')}</h1>
+          <p>{t('sales.subtitle')}</p>
         </div>
         <Link to="/ventes/nouvelle" className="btn btn--primary">
-          <LuPlus /> Nouvelle vente
+          <LuPlus /> {t('sales.newSale')}
         </Link>
       </div>
 
       {error && <div className="page-error">{error}</div>}
 
       {loading ? (
-        <p className="page-loading">Chargement...</p>
+        <p className="page-loading">{t('common.loading')}</p>
       ) : sales.length === 0 ? (
         <div className="page-empty">
-          <p>Aucune vente pour l'instant.</p>
+          <p>{t('sales.noSalesYet')}</p>
           <Link to="/ventes/nouvelle" className="btn btn--primary">
-            <LuPlus /> Créer votre première vente
+            <LuPlus /> {t('sales.createFirstSale')}
           </Link>
         </div>
       ) : (
@@ -64,12 +76,12 @@ export default function Sales() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Numéro</th>
-                <th>Client</th>
-                <th>Statut</th>
-                <th>Paiement</th>
-                <th>Total TTC</th>
-                <th>Date</th>
+                <th>{t('sales.columnNumber')}</th>
+                <th>{t('sales.columnClient')}</th>
+                <th>{t('sales.columnStatus')}</th>
+                <th>{t('sales.columnPayment')}</th>
+                <th>{t('sales.columnTotal')}</th>
+                <th>{t('sales.columnDate')}</th>
                 <th></th>
               </tr>
             </thead>
@@ -77,7 +89,7 @@ export default function Sales() {
               {sales.map((sale) => (
                 <tr key={sale.id}>
                   <td className="data-table__title">{sale.numero}</td>
-                  <td>{sale.client?.nom || sale.client_nom_libre || 'Client comptoir'}</td>
+                  <td>{sale.client?.nom || sale.client_nom_libre || t('sales.walkInClient')}</td>
                   <td>
                     <span className={`badge ${STATUT_BADGE[sale.statut]}`}>{STATUT_LABELS[sale.statut]}</span>
                   </td>
@@ -91,7 +103,7 @@ export default function Sales() {
                   <td>{Number(sale.total_ttc).toLocaleString('fr-FR')} FCFA</td>
                   <td>{new Date(sale.created_at).toLocaleDateString('fr-FR')}</td>
                   <td className="data-table__actions">
-                    <Link to={`/ventes/${sale.id}`} className="icon-btn" aria-label="Voir">
+                    <Link to={`/ventes/${sale.id}`} className="icon-btn" aria-label={t('sales.view')}>
                       <LuEye />
                     </Link>
                   </td>

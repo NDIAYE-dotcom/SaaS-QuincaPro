@@ -4,12 +4,14 @@ import { LuTrash2, LuLoaderCircle, LuSearch } from 'react-icons/lu';
 import { fetchProducts } from '../../services/productService';
 import { fetchClients } from '../../services/clientService';
 import { createSale } from '../../services/salesService';
+import { useLanguage } from '../../contexts/LanguageContext';
 import './NewSale.css';
 
 const TAUX_TVA_STANDARD = 18;
 const CLIENT_PASSAGE = '__passage__';
 
 export default function NewSale() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [clients, setClients] = useState([]);
@@ -87,25 +89,25 @@ export default function NewSale() {
     setError('');
 
     if (lignes.length === 0) {
-      setError('Ajoutez au moins un produit');
+      setError(t('sales.errorAddProduct'));
       return;
     }
 
     for (const l of lignes) {
       if (statut === 'facture' && Number(l.quantite) > l.stockDisponible) {
-        setError(`Stock insuffisant pour « ${l.nom} » (disponible : ${l.stockDisponible} ${l.unite})`);
+        setError(t('sales.errorInsufficientStock', { name: l.nom, available: l.stockDisponible, unit: l.unite }));
         return;
       }
     }
 
     if (statut === 'facture' && (Number(montantPayeInitial) || 0) > totals.totalTtc) {
-      setError('Le montant payé ne peut pas dépasser le total de la vente');
+      setError(t('sales.errorAmountExceedsTotal'));
       return;
     }
 
     const isClientPassage = clientId === CLIENT_PASSAGE;
     if (isClientPassage && !clientNomLibre.trim()) {
-      setError('Saisissez le nom du client de passage');
+      setError(t('sales.errorWalkInNameRequired'));
       return;
     }
 
@@ -139,8 +141,8 @@ export default function NewSale() {
     <div className="new-sale">
       <div className="page-header">
         <div>
-          <h1>Nouvelle vente</h1>
-          <p>Créez un devis ou une facture</p>
+          <h1>{t('sales.newSaleTitle')}</h1>
+          <p>{t('sales.newSaleSubtitle')}</p>
         </div>
       </div>
 
@@ -151,26 +153,26 @@ export default function NewSale() {
           <div className="new-sale__card">
             <div className="form-grid">
               <label className="field">
-                <span>Type de document</span>
+                <span>{t('sales.documentType')}</span>
                 <select value={statut} onChange={(e) => setStatut(e.target.value)}>
-                  <option value="facture">Facture</option>
-                  <option value="devis">Devis</option>
+                  <option value="facture">{t('sales.optionInvoice')}</option>
+                  <option value="devis">{t('sales.optionQuote')}</option>
                 </select>
               </label>
 
               <label className="field">
-                <span>Type de facture</span>
+                <span>{t('sales.invoiceType')}</span>
                 <select value={typeFacture} onChange={(e) => handleTypeFactureChange(e.target.value)}>
-                  <option value="tva">Facture TVA</option>
-                  <option value="hors_taxe">Facture Hors Taxe</option>
+                  <option value="tva">{t('sales.optionInvoiceVat')}</option>
+                  <option value="hors_taxe">{t('sales.optionInvoiceNoVat')}</option>
                 </select>
               </label>
 
               <label className="field">
-                <span>Client (optionnel)</span>
+                <span>{t('sales.clientOptional')}</span>
                 <select value={clientId} onChange={(e) => setClientId(e.target.value)}>
-                  <option value="">Client comptoir</option>
-                  <option value={CLIENT_PASSAGE}>Client de passage (saisir le nom)</option>
+                  <option value="">{t('sales.walkInClient')}</option>
+                  <option value={CLIENT_PASSAGE}>{t('sales.walkInClientOption')}</option>
                   {clients.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.nom}
@@ -182,16 +184,16 @@ export default function NewSale() {
               {clientId === CLIENT_PASSAGE && (
                 <>
                   <label className="field">
-                    <span>Nom du client *</span>
+                    <span>{t('sales.walkInName')}</span>
                     <input
                       type="text"
                       value={clientNomLibre}
                       onChange={(e) => setClientNomLibre(e.target.value)}
-                      placeholder="Ex : Mamadou Diop"
+                      placeholder={t('sales.walkInNamePlaceholder')}
                     />
                   </label>
                   <label className="field">
-                    <span>Téléphone (optionnel)</span>
+                    <span>{t('sales.walkInPhone')}</span>
                     <input
                       type="tel"
                       value={clientTelephoneLibre}
@@ -204,13 +206,13 @@ export default function NewSale() {
           </div>
 
           <div className="new-sale__card">
-            <h2 className="new-sale__card-title">Produits</h2>
+            <h2 className="new-sale__card-title">{t('sales.productsTitle')}</h2>
 
             <div className="new-sale__product-search">
               <LuSearch />
               <input
                 type="text"
-                placeholder="Rechercher un produit à ajouter..."
+                placeholder={t('sales.searchProductPlaceholder')}
                 value={productSearch}
                 onChange={(e) => setProductSearch(e.target.value)}
               />
@@ -227,8 +229,8 @@ export default function NewSale() {
                   >
                     <span>{p.nom}</span>
                     <span className="new-sale__search-result-meta">
-                      {Number(p.prix_vente).toLocaleString('fr-FR')} FCFA · {p.quantite_stock} {p.unite} en
-                      stock
+                      {Number(p.prix_vente).toLocaleString('fr-FR')} FCFA · {p.quantite_stock} {p.unite}{' '}
+                      {t('sales.inStock')}
                     </span>
                   </button>
                 ))}
@@ -236,18 +238,18 @@ export default function NewSale() {
             )}
 
             {lignes.length === 0 ? (
-              <p className="page-empty">Aucun produit ajouté.</p>
+              <p className="page-empty">{t('sales.noProductsAdded')}</p>
             ) : (
               <div className="data-table-wrap">
                 <table className="data-table">
                   <thead>
                     <tr>
-                      <th>Produit</th>
-                      <th>Qté</th>
-                      <th>Prix unit.</th>
-                      <th>Remise %</th>
-                      <th>TVA %</th>
-                      <th>Total</th>
+                      <th>{t('sales.columnProduct')}</th>
+                      <th>{t('sales.columnQty')}</th>
+                      <th>{t('sales.columnUnitPrice')}</th>
+                      <th>{t('sales.columnDiscount')}</th>
+                      <th>{t('sales.columnVat')}</th>
+                      <th>{t('sales.columnLineTotal')}</th>
                       <th></th>
                     </tr>
                   </thead>
@@ -308,7 +310,7 @@ export default function NewSale() {
                               type="button"
                               className="icon-btn icon-btn--danger"
                               onClick={() => removeLigne(index)}
-                              aria-label="Retirer"
+                              aria-label={t('sales.remove')}
                             >
                               <LuTrash2 />
                             </button>
@@ -324,7 +326,7 @@ export default function NewSale() {
 
           <div className="new-sale__card">
             <label className="field">
-              <span>Notes</span>
+              <span>{t('sales.notes')}</span>
               <textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
             </label>
           </div>
@@ -332,25 +334,25 @@ export default function NewSale() {
 
         <aside className="new-sale__summary">
           <div className="new-sale__card">
-            <h2 className="new-sale__card-title">Résumé</h2>
+            <h2 className="new-sale__card-title">{t('sales.summary')}</h2>
             <div className="new-sale__totals">
               <div className="new-sale__totals-row">
-                <span>Sous-total</span>
+                <span>{t('sales.subtotal')}</span>
                 <span>{totals.sousTotal.toLocaleString('fr-FR')} FCFA</span>
               </div>
               <div className="new-sale__totals-row">
-                <span>TVA</span>
+                <span>{t('sales.vat')}</span>
                 <span>{totals.totalTva.toLocaleString('fr-FR')} FCFA</span>
               </div>
               <div className="new-sale__totals-row new-sale__totals-row--total">
-                <span>Total TTC</span>
+                <span>{t('sales.totalTtc')}</span>
                 <span>{totals.totalTtc.toLocaleString('fr-FR')} FCFA</span>
               </div>
             </div>
 
             {statut === 'facture' && (
               <label className="field">
-                <span>Montant payé maintenant</span>
+                <span>{t('sales.amountPaidNow')}</span>
                 <input
                   type="number"
                   min="0"
@@ -363,7 +365,7 @@ export default function NewSale() {
 
             <button type="submit" className="btn btn--primary new-sale__submit" disabled={saving}>
               {saving && <LuLoaderCircle className="spin" />}
-              {saving ? 'Création...' : statut === 'devis' ? 'Créer le devis' : 'Créer la facture'}
+              {saving ? t('sales.creating') : statut === 'devis' ? t('sales.createQuote') : t('sales.createInvoice')}
             </button>
           </div>
         </aside>

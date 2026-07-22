@@ -40,6 +40,7 @@ const AccountDisabled = lazy(() => import('../pages/AccountDisabled/AccountDisab
 const SuperAdminDashboard = lazy(() => import('../pages/SuperAdmin/SuperAdminDashboard'));
 const SuperAdminEntreprises = lazy(() => import('../pages/SuperAdmin/Entreprises'));
 const SuperAdminAnnonces = lazy(() => import('../pages/SuperAdmin/Annonces'));
+const SuperAdminPaydunyaLogs = lazy(() => import('../pages/SuperAdmin/PaydunyaLogs'));
 const NotFound = lazy(() => import('../pages/NotFound/NotFound'));
 
 export default function AppRoutes() {
@@ -75,6 +76,7 @@ export default function AppRoutes() {
               <Route path="/super-admin" element={<SuperAdminDashboard />} />
               <Route path="/super-admin/entreprises" element={<SuperAdminEntreprises />} />
               <Route path="/super-admin/annonces" element={<SuperAdminAnnonces />} />
+              <Route path="/super-admin/paydunya" element={<SuperAdminPaydunyaLogs />} />
             </Route>
           </Route>
 

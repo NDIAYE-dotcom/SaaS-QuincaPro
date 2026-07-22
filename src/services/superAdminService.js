@@ -81,6 +81,17 @@ export async function setSubscriptionStatus(entrepriseId, statut) {
   return data;
 }
 
+export async function fetchPaydunyaWebhookLogs({ limit = 100 } = {}) {
+  const { data, error } = await supabase
+    .from('paydunya_webhook_logs')
+    .select('*, entreprise:entreprises(nom)')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+  return data;
+}
+
 export async function fetchAnnouncements() {
   const { data, error } = await supabase
     .from('annonces')

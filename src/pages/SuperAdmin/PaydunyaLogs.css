@@ -1,0 +1,12 @@
+@import '../../shared/ui.css';
+
+.paydunya-logs__payload {
+  max-height: 260px;
+  overflow: auto;
+  background-color: var(--bg-surface-alt);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 0.78rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}

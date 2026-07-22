@@ -4,6 +4,7 @@ import {
   LuLayoutDashboard,
   LuBuilding2,
   LuMegaphone,
+  LuReceipt,
   LuMenu,
   LuX,
   LuSun,
@@ -19,6 +20,7 @@ const NAV_ITEMS = [
   { to: '/super-admin', label: 'Tableau de bord', icon: LuLayoutDashboard, end: true },
   { to: '/super-admin/entreprises', label: 'Entreprises', icon: LuBuilding2 },
   { to: '/super-admin/annonces', label: 'Annonces', icon: LuMegaphone },
+  { to: '/super-admin/paydunya', label: 'Paiements PayDunya', icon: LuReceipt },
 ];
 
 export default function SuperAdminLayout() {

@@ -1,5 +1,30 @@
 import { paydunyaBaseUrl, paydunyaHeaders } from '../_paydunya.js';
 
+// Journal en base des appels webhook (les logs Vercel sont éphémères) : ne doit jamais faire
+// échouer le webhook si l'écriture du log elle-même échoue, d'où le try/catch silencieux.
+async function logWebhook({ token, entrepriseId, statut, message, payload }) {
+  try {
+    await fetch(`${process.env.VITE_SUPABASE_URL}/rest/v1/paydunya_webhook_logs`, {
+      method: 'POST',
+      headers: {
+        apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        'Content-Type': 'application/json',
+        Prefer: 'return=minimal',
+      },
+      body: JSON.stringify({
+        token: token || null,
+        entreprise_id: entrepriseId || null,
+        statut,
+        message: message || null,
+        payload: payload ?? null,
+      }),
+    });
+  } catch (err) {
+    console.error('paydunya webhook: échec écriture du log', err);
+  }
+}
+
 // Appel REST Supabase en fetch direct (voir create-invoice.js pour le pourquoi : le SDK
 // @supabase/supabase-js instancie un client Realtime qui exige le WebSocket natif de Node 22+).
 async function confirmerPaiement({ entrepriseId, montant, dureeMois, reference }) {
@@ -62,6 +87,11 @@ export default async function handler(req, res) {
   const token = extractToken(req);
   console.log('paydunya webhook: query =', req.query, '| body =', req.body);
   if (!token) {
+    await logWebhook({
+      statut: 'echec',
+      message: 'Token manquant',
+      payload: { query: req.query, body: req.body },
+    });
     res.status(400).json({ error: 'Token manquant' });
     return;
   }
@@ -75,6 +105,7 @@ export default async function handler(req, res) {
     console.log('paydunya webhook: confirmData =', confirmData);
   } catch {
     // Erreur réseau vers PayDunya : on répond en erreur pour que PayDunya réessaie plus tard.
+    await logWebhook({ token, statut: 'echec', message: 'Impossible de vérifier le paiement auprès de PayDunya' });
     res.status(502).json({ error: 'Impossible de vérifier le paiement auprès de PayDunya' });
     return;
   }
@@ -82,6 +113,12 @@ export default async function handler(req, res) {
   if (confirmData.response_code !== '00' || confirmData.status !== 'completed') {
     // Paiement annulé, en attente, ou introuvable : rien à activer, mais on acquitte pour
     // éviter que PayDunya ne renvoie indéfiniment le même événement.
+    await logWebhook({
+      token,
+      statut: 'ignore',
+      message: `Paiement non complété (statut: ${confirmData.status || 'inconnu'})`,
+      payload: confirmData,
+    });
     res.status(200).json({ ok: true, status: confirmData.status || 'unknown' });
     return;
   }
@@ -91,6 +128,12 @@ export default async function handler(req, res) {
   const montant = Number(confirmData.invoice?.total_amount) || 0;
 
   if (!entrepriseId) {
+    await logWebhook({
+      token,
+      statut: 'echec',
+      message: "custom_data.entreprise_id manquant dans la réponse PayDunya",
+      payload: confirmData,
+    });
     res.status(400).json({ error: 'custom_data.entreprise_id manquant dans la réponse PayDunya' });
     return;
   }
@@ -99,9 +142,11 @@ export default async function handler(req, res) {
     await confirmerPaiement({ entrepriseId, montant, dureeMois, reference: token });
   } catch (err) {
     console.error('paydunya webhook: échec paydunya_confirmer_paiement', err);
+    await logWebhook({ token, entrepriseId, statut: 'echec', message: err.message, payload: confirmData });
     res.status(500).json({ error: err.message });
     return;
   }
 
+  await logWebhook({ token, entrepriseId, statut: 'succes', message: `Abonnement activé (${montant} FCFA, ${dureeMois} mois)` });
   res.status(200).json({ ok: true });
 }

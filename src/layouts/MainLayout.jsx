@@ -13,7 +13,6 @@ import {
   LuX,
   LuSun,
   LuMoon,
-  LuBell,
   LuLogOut,
   LuHandshake,
   LuUserCog,
@@ -24,6 +23,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { signOut } from '../services/authService';
 import AnnouncementBanner from '../shared/AnnouncementBanner';
 import SubscriptionExpiryBanner from '../shared/SubscriptionExpiryBanner';
+import NotificationsMenu from '../shared/NotificationsMenu';
 import './MainLayout.css';
 
 const NAV_ITEMS = [
@@ -94,9 +94,7 @@ export default function MainLayout() {
 
           <div className="topbar__spacer" />
 
-          <button className="topbar__icon-btn" aria-label="Notifications">
-            <LuBell />
-          </button>
+          <NotificationsMenu />
 
           <button
             className="topbar__icon-btn"

@@ -1,0 +1,112 @@
+.notifications-menu {
+  position: relative;
+}
+
+.notifications-menu__trigger {
+  position: relative;
+}
+
+.notifications-menu__badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background-color: var(--color-danger);
+  color: var(--color-white);
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
+.notifications-menu__dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 280px;
+  max-width: 90vw;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 10px;
+  z-index: 20;
+}
+
+.notifications-menu__title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  padding: 2px 4px 8px;
+}
+
+.notifications-menu__empty {
+  padding: 8px 4px;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+.notifications-menu__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.notifications-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 4px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
+
+.notifications-menu__item:hover {
+  background-color: var(--bg-surface-alt);
+}
+
+.notifications-menu__icon {
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+.notifications-menu__icon--danger {
+  color: var(--color-danger);
+}
+
+.notifications-menu__icon--warning {
+  color: var(--color-accent-600);
+}
+
+.notifications-menu__item-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+
+.notifications-menu__item-qty {
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+}
+
+.notifications-menu__link {
+  display: block;
+  text-align: center;
+  margin-top: 8px;
+  padding: 8px 4px;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-primary-600);
+}

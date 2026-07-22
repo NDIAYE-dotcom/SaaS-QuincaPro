@@ -11,7 +11,7 @@ import './SaleDetail.css';
 export default function SaleDetail() {
   const { id } = useParams();
   const { entreprise } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const STATUT_LABELS = {
     devis: t('sales.statutDevis'),
@@ -64,7 +64,7 @@ export default function SaleDetail() {
   async function handlePrint(format) {
     try {
       const { generateDocument } = await import('../../services/pdfService');
-      await generateDocument(sale, entreprise, 'vente', format);
+      await generateDocument(sale, entreprise, 'vente', format, language);
     } catch (err) {
       setError(err.message);
     }

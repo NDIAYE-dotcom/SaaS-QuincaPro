@@ -11,7 +11,7 @@ import './PurchaseDetail.css';
 export default function PurchaseDetail() {
   const { id } = useParams();
   const { entreprise } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const STATUT_LABELS = {
     commande: t('purchases.statutCommande'),
@@ -63,7 +63,7 @@ export default function PurchaseDetail() {
   async function handlePrint(format) {
     try {
       const { generateDocument } = await import('../../services/pdfService');
-      await generateDocument(achat, entreprise, 'achat', format);
+      await generateDocument(achat, entreprise, 'achat', format, language);
     } catch (err) {
       setError(err.message);
     }

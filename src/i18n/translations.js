@@ -13,6 +13,7 @@ import activityLog from './dictionaries/activityLog';
 import accounting from './dictionaries/accounting';
 import reports from './dictionaries/reports';
 import superAdmin from './dictionaries/superAdmin';
+import pdf from './dictionaries/pdf';
 
 const NAMESPACES = {
   common,
@@ -30,6 +31,7 @@ const NAMESPACES = {
   accounting,
   reports,
   superAdmin,
+  pdf,
 };
 
 function buildLanguageDict(lang) {

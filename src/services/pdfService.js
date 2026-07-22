@@ -1,6 +1,11 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import QRCode from 'qrcode';
+import { translate } from '../i18n/translations';
+
+function makeT(lang) {
+  return (key, vars) => translate(lang, key, vars);
+}
 
 async function loadImageAsDataUrl(url) {
   try {
@@ -47,41 +52,42 @@ function formatMoney(amount, devise) {
   return `${value < 0 ? '-' : ''}${withSeparators}${decimalDisplay} ${devise || 'FCFA'}`;
 }
 
-const VENTE_LABELS = {
-  devis: 'DEVIS',
-  facture: 'FACTURE',
-  annulee: 'FACTURE ANNULÉE',
-};
-
-const ACHAT_LABELS = {
-  commande: 'BON DE COMMANDE',
-  recu: 'FACTURE FOURNISSEUR',
-  annule: 'ACHAT ANNULÉ',
-};
-
-function buildDocumentData(document, entreprise, kind) {
+function buildDocumentData(document, entreprise, kind, lang = 'fr') {
+  const t = makeT(lang);
   const isVente = kind === 'vente';
   const partner = isVente ? document.client : document.fournisseur;
 
+  const VENTE_LABELS = {
+    devis: t('pdf.quoteLabel'),
+    facture: t('pdf.invoiceLabel'),
+    annulee: t('pdf.invoiceCancelledLabel'),
+  };
+  const ACHAT_LABELS = {
+    commande: t('pdf.purchaseOrderLabel'),
+    recu: t('pdf.supplierInvoiceLabel'),
+    annule: t('pdf.purchaseCancelledLabel'),
+  };
+
   let label;
   if (isVente) {
-    label = VENTE_LABELS[document.statut] || 'DOCUMENT';
+    label = VENTE_LABELS[document.statut] || t('pdf.documentLabel');
     if (document.statut === 'facture' && document.type_facture === 'hors_taxe') {
-      label = 'FACTURE HORS TAXE';
+      label = t('pdf.invoiceNoVatLabel');
     }
   } else {
-    label = ACHAT_LABELS[document.statut] || 'DOCUMENT';
+    label = ACHAT_LABELS[document.statut] || t('pdf.documentLabel');
   }
 
   return {
     label,
-    partnerLabel: isVente ? 'Client' : 'Fournisseur',
-    partnerName: partner?.nom || (isVente && document.client_nom_libre) || (isVente ? 'Client comptoir' : ''),
+    partnerLabel: isVente ? t('pdf.client') : t('pdf.supplier'),
+    partnerName:
+      partner?.nom || (isVente && document.client_nom_libre) || (isVente ? t('pdf.walkInClient') : ''),
     partnerPhone: partner?.telephone || (isVente && document.client_telephone_libre) || null,
     partnerEmail: partner?.email || null,
     partnerAddress: partner?.adresse || null,
     numero: document.numero,
-    date: new Date(document.created_at).toLocaleDateString('fr-FR'),
+    date: new Date(document.created_at).toLocaleDateString(lang === 'en' ? 'en-US' : 'fr-FR'),
     lignes: document.lignes.map((l) => ({
       nom: l.produit?.nom || '',
       unite: l.produit?.unite || '',
@@ -100,7 +106,8 @@ function buildDocumentData(document, entreprise, kind) {
   };
 }
 
-async function drawLetterhead(doc, entreprise, x, y, reservedRight = 0) {
+async function drawLetterhead(doc, entreprise, x, y, reservedRight = 0, lang = 'fr') {
+  const t = makeT(lang);
   let logoWidth = 0;
   if (entreprise.logo_url) {
     const logoData = await loadImageAsDataUrl(entreprise.logo_url);
@@ -127,7 +134,7 @@ async function drawLetterhead(doc, entreprise, x, y, reservedRight = 0) {
   let infoY = y + 10 + (nameLines.length - 1) * 5;
   [
     entreprise.adresse,
-    entreprise.telephone && `Tél : ${entreprise.telephone}`,
+    entreprise.telephone && `${t('pdf.phone')} : ${entreprise.telephone}`,
     entreprise.email,
     entreprise.ninea && `NINEA : ${entreprise.ninea}`,
     entreprise.rccm && `RCCM : ${entreprise.rccm}`,
@@ -153,14 +160,15 @@ async function drawQrCode(doc, text, x, y, size) {
 // Boîte "Cachet & signature" en bas à droite : affiche le cachet/la signature
 // de l'entreprise si configurés dans Paramètres, sinon reste vide pour un
 // tampon/paraphe manuel après impression.
-async function drawStampBox(doc, entreprise, rightEdge, y) {
+async function drawStampBox(doc, entreprise, rightEdge, y, lang = 'fr') {
+  const t = makeT(lang);
   const width = 55;
   const height = 28;
   const x = rightEdge - width;
 
   doc.setFontSize(7.5);
   doc.setTextColor(...TEXT_MUTED);
-  doc.text('CACHET & SIGNATURE', x, y - 2);
+  doc.text(t('pdf.stampSignature'), x, y - 2);
   doc.setTextColor(0, 0, 0);
 
   doc.setDrawColor(200, 200, 200);
@@ -201,15 +209,16 @@ const BG_LIGHT = [240, 246, 248];
 const ACCENT_DANGER = [195, 60, 45];
 const ACCENT_SUCCESS = [40, 140, 85];
 
-export async function generateA4Document(document, entreprise, kind) {
-  const data = buildDocumentData(document, entreprise, kind);
+export async function generateA4Document(document, entreprise, kind, lang = 'fr') {
+  const t = makeT(lang);
+  const data = buildDocumentData(document, entreprise, kind, lang);
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
   const margin = 15;
   const pageWidth = 210;
   const contentWidth = pageWidth - margin * 2;
 
   const badgeWidth = 55;
-  const headerBottom = await drawLetterhead(doc, entreprise, margin, margin, badgeWidth + 5);
+  const headerBottom = await drawLetterhead(doc, entreprise, margin, margin, badgeWidth + 5, lang);
 
   const badgeX = pageWidth - margin - badgeWidth;
   doc.setFillColor(...BRAND);
@@ -221,8 +230,8 @@ export async function generateA4Document(document, entreprise, kind) {
   doc.setTextColor(0, 0, 0);
   doc.setFont(undefined, 'normal');
   doc.setFontSize(9);
-  doc.text(`N° ${data.numero}`, pageWidth - margin, margin + 15, { align: 'right' });
-  doc.text(`Date : ${data.date}`, pageWidth - margin, margin + 20, { align: 'right' });
+  doc.text(`${t('pdf.number')} ${data.numero}`, pageWidth - margin, margin + 15, { align: 'right' });
+  doc.text(`${t('pdf.date')} : ${data.date}`, pageWidth - margin, margin + 20, { align: 'right' });
 
   let y = Math.max(headerBottom, margin + 25) + 6;
 
@@ -233,7 +242,7 @@ export async function generateA4Document(document, entreprise, kind) {
 
   if (data.partnerName) {
     const partnerDetails = [
-      data.partnerPhone && `Tél : ${data.partnerPhone}`,
+      data.partnerPhone && `${t('pdf.phone')} : ${data.partnerPhone}`,
       data.partnerEmail,
       data.partnerAddress,
     ].filter(Boolean);
@@ -275,7 +284,16 @@ export async function generateA4Document(document, entreprise, kind) {
   autoTable(doc, {
     startY: y,
     margin: { left: margin, right: margin },
-    head: [['Produit', 'Qté', 'Prix unit.', ...(hasRemise ? ['Remise'] : []), 'TVA', 'Total']],
+    head: [
+      [
+        t('pdf.columnProduct'),
+        t('pdf.columnQty'),
+        t('pdf.columnUnitPrice'),
+        ...(hasRemise ? [t('pdf.columnDiscount')] : []),
+        t('pdf.columnVat'),
+        t('pdf.columnTotal'),
+      ],
+    ],
     body: data.lignes.map((l) => [
       l.nom,
       `${l.quantite} ${l.unite}`,
@@ -300,8 +318,8 @@ export async function generateA4Document(document, entreprise, kind) {
     margin: { left: totalsX },
     tableWidth: totalsWidth,
     body: [
-      ['Sous-total', formatMoney(data.sousTotal, data.devise)],
-      ['TVA', formatMoney(data.totalTva, data.devise)],
+      [t('pdf.subtotal'), formatMoney(data.sousTotal, data.devise)],
+      [t('pdf.vat'), formatMoney(data.totalTva, data.devise)],
     ],
     styles: { fontSize: 9.5, cellPadding: 2 },
     columnStyles: { 1: { halign: 'right' } },
@@ -315,7 +333,7 @@ export async function generateA4Document(document, entreprise, kind) {
   doc.setTextColor(255, 255, 255);
   doc.setFont(undefined, 'bold');
   doc.setFontSize(10.5);
-  doc.text('Total TTC', totalsX + 4, y + 6.7);
+  doc.text(t('pdf.totalTtc'), totalsX + 4, y + 6.7);
   doc.text(formatMoney(data.totalTtc, data.devise), totalsX + totalsWidth - 4, y + 6.7, { align: 'right' });
   doc.setTextColor(0, 0, 0);
   y += 14;
@@ -324,12 +342,12 @@ export async function generateA4Document(document, entreprise, kind) {
     const reste = data.totalTtc - data.montantPaye;
     doc.setFont(undefined, 'normal');
     doc.setFontSize(9.5);
-    doc.text('Payé', totalsX, y);
+    doc.text(t('pdf.paid'), totalsX, y);
     doc.text(formatMoney(data.montantPaye, data.devise), totalsX + totalsWidth, y, { align: 'right' });
     y += 6;
     doc.setFont(undefined, 'bold');
     doc.setTextColor(...(reste > 0 ? ACCENT_DANGER : ACCENT_SUCCESS));
-    doc.text('Reste à payer', totalsX, y);
+    doc.text(t('pdf.remaining'), totalsX, y);
     doc.text(formatMoney(reste, data.devise), totalsX + totalsWidth, y, { align: 'right' });
     doc.setTextColor(0, 0, 0);
     doc.setFont(undefined, 'normal');
@@ -353,10 +371,10 @@ export async function generateA4Document(document, entreprise, kind) {
   );
   doc.setFontSize(8);
   doc.setTextColor(...TEXT_MUTED);
-  doc.text('Merci de votre confiance.', margin + 27, qrY + 12);
+  doc.text(t('pdf.thankYou'), margin + 27, qrY + 12);
   doc.setTextColor(0, 0, 0);
 
-  await drawStampBox(doc, entreprise, pageWidth - margin, qrY);
+  await drawStampBox(doc, entreprise, pageWidth - margin, qrY, lang);
 
   const footerY = 282;
   doc.setDrawColor(220, 220, 220);
@@ -371,8 +389,9 @@ export async function generateA4Document(document, entreprise, kind) {
   doc.save(`${data.numero}.pdf`);
 }
 
-export async function generateThermalDocument(document, entreprise, kind, widthMm = 80) {
-  const data = buildDocumentData(document, entreprise, kind);
+export async function generateThermalDocument(document, entreprise, kind, widthMm = 80, lang = 'fr') {
+  const t = makeT(lang);
+  const data = buildDocumentData(document, entreprise, kind, lang);
   const isNarrow = widthMm <= 58;
   const margin = isNarrow ? 3 : 4;
   const hasLogo = Boolean(entreprise.logo_url);
@@ -429,7 +448,7 @@ export async function generateThermalDocument(document, entreprise, kind, widthM
   y += 4;
   doc.setFont(undefined, 'normal');
   doc.setFontSize(isNarrow ? 6.5 : 7.5);
-  doc.text(`N° ${data.numero}  ·  ${data.date}`, center, y, { align: 'center' });
+  doc.text(`${t('pdf.number')} ${data.numero}  ·  ${data.date}`, center, y, { align: 'center' });
   y += 4;
   if (data.partnerName) {
     doc.text(truncateToWidth(doc, data.partnerName, pageWidth - margin * 2), center, y, { align: 'center' });
@@ -469,17 +488,17 @@ export async function generateThermalDocument(document, entreprise, kind, widthM
     y += 4;
   }
 
-  row('Sous-total', data.sousTotal);
-  row('TVA', data.totalTva);
-  row('Total TTC', data.totalTtc, true);
+  row(t('pdf.subtotal'), data.sousTotal);
+  row(t('pdf.vat'), data.totalTva);
+  row(t('pdf.totalTtc'), data.totalTtc, true);
   if (data.showPayment) {
-    row('Payé', data.montantPaye);
-    row('Reste', data.totalTtc - data.montantPaye, true);
+    row(t('pdf.paid'), data.montantPaye);
+    row(t('pdf.remainingThermal'), data.totalTtc - data.montantPaye, true);
   }
 
   y += 2;
   doc.setFontSize(isNarrow ? 6 : 7);
-  doc.text('Merci de votre confiance', center, y, { align: 'center' });
+  doc.text(t('pdf.thankYouThermal'), center, y, { align: 'center' });
   y += 4;
 
   if (hasStamp) {
@@ -488,7 +507,7 @@ export async function generateThermalDocument(document, entreprise, kind, widthM
     y += 4;
     doc.setFont(undefined, 'bold');
     doc.setFontSize(isNarrow ? 6 : 7);
-    doc.text('Cachet & signature', center, y, { align: 'center' });
+    doc.text(t('pdf.stampSignatureThermal'), center, y, { align: 'center' });
     doc.setFont(undefined, 'normal');
     y += 3;
 
@@ -524,17 +543,17 @@ export async function generateThermalDocument(document, entreprise, kind, widthM
   doc.save(`${data.numero}.pdf`);
 }
 
-export async function generateDocument(document, entreprise, kind, format) {
-  if (format === 'thermal80') return generateThermalDocument(document, entreprise, kind, 80);
-  if (format === 'thermal58') return generateThermalDocument(document, entreprise, kind, 58);
-  return generateA4Document(document, entreprise, kind);
+export async function generateDocument(document, entreprise, kind, format, lang = 'fr') {
+  if (format === 'thermal80') return generateThermalDocument(document, entreprise, kind, 80, lang);
+  if (format === 'thermal58') return generateThermalDocument(document, entreprise, kind, 58, lang);
+  return generateA4Document(document, entreprise, kind, lang);
 }
 
-export async function generateReportPdf({ title, subtitle, entreprise, columns, rows, filename }) {
+export async function generateReportPdf({ title, subtitle, entreprise, columns, rows, filename, lang = 'fr' }) {
   const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: columns.length > 5 ? 'landscape' : 'portrait' });
   const margin = 15;
 
-  let y = await drawLetterhead(doc, entreprise, margin, margin);
+  let y = await drawLetterhead(doc, entreprise, margin, margin, 0, lang);
   y += 8;
 
   doc.setFont(undefined, 'bold');

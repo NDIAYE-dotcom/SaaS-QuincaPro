@@ -31,7 +31,7 @@ function today() {
 
 export default function Reports() {
   const { entreprise } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const REPORT_TYPES = useMemo(() => getReportTypes(t), [t]);
   const DATE_PRESETS = useMemo(
     () => [
@@ -112,6 +112,7 @@ export default function Reports() {
         columns: reportType.columns,
         rows,
         filename: `${reportType.id}.pdf`,
+        lang: language,
       });
     } catch (err) {
       setError(err.message);

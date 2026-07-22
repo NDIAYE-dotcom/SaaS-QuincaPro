@@ -11,6 +11,7 @@ import suppliers from './dictionaries/suppliers';
 import team from './dictionaries/team';
 import activityLog from './dictionaries/activityLog';
 import accounting from './dictionaries/accounting';
+import reports from './dictionaries/reports';
 
 const NAMESPACES = {
   common,
@@ -26,6 +27,7 @@ const NAMESPACES = {
   team,
   activityLog,
   accounting,
+  reports,
 };
 
 function buildLanguageDict(lang) {

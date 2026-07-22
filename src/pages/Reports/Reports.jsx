@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { LuFileDown, LuFileSpreadsheet, LuFileText } from 'react-icons/lu';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { exportToCsv, exportToExcel } from '../../utils/exportUtils';
-import { REPORT_TYPES } from './reportTypes';
+import { getReportTypes } from './reportTypes';
 import './Reports.css';
 
 function startOfMonth() {
@@ -28,15 +29,19 @@ function today() {
   return new Date().toISOString().slice(0, 10);
 }
 
-const DATE_PRESETS = [
-  { label: 'Ce mois', from: startOfMonth },
-  { label: '3 mois', from: () => monthsAgo(3) },
-  { label: '6 mois', from: () => monthsAgo(6) },
-  { label: 'Cette année', from: startOfYear },
-];
-
 export default function Reports() {
   const { entreprise } = useAuth();
+  const { t } = useLanguage();
+  const REPORT_TYPES = useMemo(() => getReportTypes(t), [t]);
+  const DATE_PRESETS = useMemo(
+    () => [
+      { label: t('reports.presetMonth'), from: startOfMonth },
+      { label: t('reports.preset3Months'), from: () => monthsAgo(3) },
+      { label: t('reports.preset6Months'), from: () => monthsAgo(6) },
+      { label: t('reports.presetYear'), from: startOfYear },
+    ],
+    [t],
+  );
   const [typeId, setTypeId] = useState(REPORT_TYPES[0].id);
   const [dateFrom, setDateFrom] = useState(startOfMonth());
   const [dateTo, setDateTo] = useState(today());
@@ -45,7 +50,10 @@ export default function Reports() {
   const [error, setError] = useState('');
   const [exporting, setExporting] = useState(false);
 
-  const reportType = useMemo(() => REPORT_TYPES.find((t) => t.id === typeId), [typeId]);
+  const reportType = useMemo(() => REPORT_TYPES.find((rt) => rt.id === typeId) || REPORT_TYPES[0], [
+    REPORT_TYPES,
+    typeId,
+  ]);
 
   function applyPreset(preset) {
     setDateFrom(preset.from());
@@ -72,8 +80,11 @@ export default function Reports() {
   const summary = useMemo(() => reportType.summary(rows), [reportType, rows]);
 
   const rangeLabel = reportType.needsDateRange
-    ? `Du ${new Date(dateFrom).toLocaleDateString('fr-FR')} au ${new Date(dateTo).toLocaleDateString('fr-FR')}`
-    : 'Situation actuelle';
+    ? t('reports.rangeLabel', {
+        from: new Date(dateFrom).toLocaleDateString('fr-FR'),
+        to: new Date(dateTo).toLocaleDateString('fr-FR'),
+      })
+    : t('reports.currentSituation');
 
   async function handleExportCsv() {
     exportToCsv(`${reportType.id}.csv`, reportType.columns, rows);
@@ -95,7 +106,7 @@ export default function Reports() {
     try {
       const { generateReportPdf } = await import('../../services/pdfService');
       await generateReportPdf({
-        title: `Rapport — ${reportType.label}`,
+        title: `${t('reports.title')} — ${reportType.label}`,
         subtitle: rangeLabel,
         entreprise,
         columns: reportType.columns,
@@ -113,18 +124,18 @@ export default function Reports() {
     <div className="reports">
       <div className="page-header">
         <div>
-          <h1>Rapports</h1>
-          <p>Exportez vos données en PDF, Excel ou CSV</p>
+          <h1>{t('reports.title')}</h1>
+          <p>{t('reports.subtitle')}</p>
         </div>
       </div>
 
       <div className="reports__toolbar">
         <label className="field">
-          <span>Type de rapport</span>
+          <span>{t('reports.reportType')}</span>
           <select value={typeId} onChange={(e) => setTypeId(e.target.value)}>
-            {REPORT_TYPES.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.label}
+            {REPORT_TYPES.map((rt) => (
+              <option key={rt.id} value={rt.id}>
+                {rt.label}
               </option>
             ))}
           </select>
@@ -145,11 +156,11 @@ export default function Reports() {
               ))}
             </div>
             <label className="field">
-              <span>Du</span>
+              <span>{t('reports.from')}</span>
               <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} max={dateTo} />
             </label>
             <label className="field">
-              <span>Au</span>
+              <span>{t('reports.to')}</span>
               <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} min={dateFrom} />
             </label>
           </>
@@ -182,9 +193,9 @@ export default function Reports() {
         </div>
       )}
 
-      {loading && <p className="page-loading">Chargement...</p>}
+      {loading && <p className="page-loading">{t('common.loading')}</p>}
 
-      {!loading && rows.length === 0 && <p className="page-empty">Aucune donnée pour cette période.</p>}
+      {!loading && rows.length === 0 && <p className="page-empty">{t('reports.noDataForPeriod')}</p>}
 
       {!loading && rows.length > 0 && (
         <div className="data-table-wrap">

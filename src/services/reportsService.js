@@ -12,7 +12,7 @@ function toIsoEnd(date) {
   return d.toISOString();
 }
 
-export async function fetchVentesReport({ from, to }) {
+export async function fetchVentesReport({ from, to }, t) {
   const { data, error } = await supabase
     .from('ventes')
     .select('id, numero, created_at, total_ttc, total_tva, statut_paiement, client:clients(nom)')
@@ -25,7 +25,7 @@ export async function fetchVentesReport({ from, to }) {
   return data.map((v) => ({
     numero: v.numero,
     date: v.created_at,
-    client: v.client?.nom || 'Client comptoir',
+    client: v.client?.nom || t('reports.walkInClient'),
     total_ttc: Number(v.total_ttc),
     total_tva: Number(v.total_tva),
     statut_paiement: v.statut_paiement,
@@ -93,7 +93,7 @@ export async function fetchBeneficesReport({ from, to }) {
   });
 }
 
-export async function fetchStockReport() {
+export async function fetchStockReport(t) {
   const { data, error } = await supabase
     .from('produits')
     .select('nom, sku, quantite_stock, stock_minimum, prix_achat, prix_vente, actif')
@@ -109,14 +109,14 @@ export async function fetchStockReport() {
     valeur_stock: Number(p.quantite_stock) * Number(p.prix_achat),
     statut:
       Number(p.quantite_stock) <= 0
-        ? 'Rupture'
+        ? t('common.stockOutOfStock')
         : Number(p.quantite_stock) <= Number(p.stock_minimum)
-          ? 'Faible'
-          : 'OK',
+          ? t('common.stockLow')
+          : t('common.stockOk'),
   }));
 }
 
-export async function fetchProduitsReport() {
+export async function fetchProduitsReport(t) {
   const { data, error } = await supabase
     .from('produits')
     .select('nom, sku, unite, prix_achat, prix_vente, quantite_stock, actif, categorie:categories(nom)')
@@ -131,11 +131,11 @@ export async function fetchProduitsReport() {
     prix_achat: Number(p.prix_achat),
     prix_vente: Number(p.prix_vente),
     quantite_stock: Number(p.quantite_stock),
-    statut: p.actif ? 'Actif' : 'Inactif',
+    statut: p.actif ? t('reports.active') : t('reports.inactive'),
   }));
 }
 
-export async function fetchTvaReport({ from, to }) {
+export async function fetchTvaReport({ from, to }, t) {
   const [ventesRes, achatsRes] = await Promise.all([
     supabase
       .from('ventes')
@@ -160,13 +160,13 @@ export async function fetchTvaReport({ from, to }) {
     ...ventesRes.data.map((v) => ({
       numero: v.numero,
       date: v.created_at,
-      type: 'Vente (collectée)',
+      type: t('reports.saleCollected'),
       montant_tva: Number(v.total_tva),
     })),
     ...achatsRes.data.map((a) => ({
       numero: a.numero,
       date: a.created_at,
-      type: 'Achat (déductible)',
+      type: t('reports.purchaseDeductible'),
       montant_tva: Number(a.total_tva),
     })),
   ].sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -232,7 +232,7 @@ export async function fetchFournisseursReport({ from, to }) {
     .sort((a, b) => b.total_achats - a.total_achats);
 }
 
-export async function fetchComptabiliteReport({ from, to }) {
+export async function fetchComptabiliteReport({ from, to }, t) {
   const { data, error } = await supabase
     .from('lignes_ecriture')
     .select('debit, credit, compte:comptes_comptables(nature, nom), ecriture:ecritures_comptables!inner(date_ecriture)')
@@ -247,7 +247,7 @@ export async function fetchComptabiliteReport({ from, to }) {
 
   data.forEach((l) => {
     const nature = l.compte?.nature;
-    const nom = l.compte?.nom || 'Compte inconnu';
+    const nom = l.compte?.nom || t('reports.unknownAccount');
     const debit = Number(l.debit);
     const credit = Number(l.credit);
 
@@ -269,7 +269,7 @@ export async function fetchComptabiliteReport({ from, to }) {
   return { rows, summary: { produits, charges, resultat: produits - charges } };
 }
 
-export async function fetchDettesReport() {
+export async function fetchDettesReport(t) {
   const [clientsRes, fournisseursRes] = await Promise.all([
     supabase.from('clients').select('nom, telephone, solde_dette').gt('solde_dette', 0),
     supabase.from('fournisseurs').select('nom, telephone, solde_dette').gt('solde_dette', 0),
@@ -278,8 +278,18 @@ export async function fetchDettesReport() {
   if (fournisseursRes.error) throw fournisseursRes.error;
 
   const rows = [
-    ...clientsRes.data.map((c) => ({ type: 'Client', nom: c.nom, telephone: c.telephone || '—', montant: Number(c.solde_dette) })),
-    ...fournisseursRes.data.map((f) => ({ type: 'Fournisseur', nom: f.nom, telephone: f.telephone || '—', montant: Number(f.solde_dette) })),
+    ...clientsRes.data.map((c) => ({
+      type: t('reports.typeClient'),
+      nom: c.nom,
+      telephone: c.telephone || '—',
+      montant: Number(c.solde_dette),
+    })),
+    ...fournisseursRes.data.map((f) => ({
+      type: t('reports.typeSupplier'),
+      nom: f.nom,
+      telephone: f.telephone || '—',
+      montant: Number(f.solde_dette),
+    })),
   ].sort((a, b) => b.montant - a.montant);
 
   return rows;

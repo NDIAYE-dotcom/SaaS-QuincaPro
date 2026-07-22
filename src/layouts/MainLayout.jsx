@@ -17,6 +17,7 @@ import {
   LuHandshake,
   LuUserCog,
   LuChartColumn,
+  LuHistory,
 } from 'react-icons/lu';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -37,6 +38,7 @@ const NAV_ITEMS = [
   { to: '/comptabilite', label: 'Comptabilité', icon: LuCalculator },
   { to: '/rapports', label: 'Rapports', icon: LuChartColumn },
   { to: '/equipe', label: 'Équipe', icon: LuUserCog, adminOnly: true },
+  { to: '/journal-activite', label: "Journal d'activité", icon: LuHistory, adminOnly: true },
   { to: '/parametres', label: 'Paramètres', icon: LuSettings },
 ];
 

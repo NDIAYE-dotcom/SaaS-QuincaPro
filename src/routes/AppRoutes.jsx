@@ -28,6 +28,7 @@ const Accounting = lazy(() => import('../pages/Accounting/Accounting'));
 const Reports = lazy(() => import('../pages/Reports/Reports'));
 const Settings = lazy(() => import('../pages/Settings/Settings'));
 const Team = lazy(() => import('../pages/Team/Team'));
+const ActivityLog = lazy(() => import('../pages/ActivityLog/ActivityLog'));
 const Login = lazy(() => import('../pages/auth/Login/Login'));
 const Register = lazy(() => import('../pages/auth/Register/Register'));
 const ForgotPassword = lazy(() => import('../pages/auth/ForgotPassword/ForgotPassword'));
@@ -93,6 +94,7 @@ export default function AppRoutes() {
               <Route path="/comptabilite" element={<Accounting />} />
               <Route path="/rapports" element={<Reports />} />
               <Route path="/equipe" element={<Team />} />
+              <Route path="/journal-activite" element={<ActivityLog />} />
               <Route path="/parametres" element={<Settings />} />
             </Route>
           </Route>

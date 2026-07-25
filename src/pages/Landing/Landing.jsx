@@ -54,6 +54,8 @@ export default function Landing() {
     t('landing.pricingItem6'),
   ];
 
+  const PREMIUM_ITEMS = [t('landing.premiumItem1'), t('landing.premiumItem2'), t('landing.premiumItem3')];
+
   return (
     <div className="landing">
       <header className="landing__nav">
@@ -139,39 +141,66 @@ export default function Landing() {
 
       <section className="landing__section landing__section--pricing">
         <h2>{t('landing.pricingTitle')}</h2>
-        <motion.div
-          className="landing__pricing-card"
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.4 }}
-        >
-          <div className="landing__pricing-amount">
-            5 500 <span>{t('landing.pricingPerMonth')}</span>
-          </div>
-          <p className="landing__pricing-hint">{t('landing.pricingHint')}</p>
-          <div className="landing__payment-marquee" aria-hidden="true">
-            <motion.div
-              className="landing__payment-track"
-              animate={{ x: ['0%', '-50%'] }}
-              transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
-            >
-              {[...PAYMENT_LOGOS, ...PAYMENT_LOGOS].map((logo, index) => (
-                <img key={index} src={logo.src} alt={logo.alt} className="landing__payment-badge" />
+        <div className="landing__pricing-grid">
+          <motion.div
+            className="landing__pricing-card"
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.4 }}
+          >
+            <div className="landing__pricing-amount">
+              5 500 <span>{t('landing.pricingPerMonth')}</span>
+            </div>
+            <p className="landing__pricing-hint">{t('landing.pricingHint')}</p>
+            <div className="landing__payment-marquee" aria-hidden="true">
+              <motion.div
+                className="landing__payment-track"
+                animate={{ x: ['0%', '-50%'] }}
+                transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
+              >
+                {[...PAYMENT_LOGOS, ...PAYMENT_LOGOS].map((logo, index) => (
+                  <img key={index} src={logo.src} alt={logo.alt} className="landing__payment-badge" />
+                ))}
+              </motion.div>
+            </div>
+            <ul className="landing__pricing-list">
+              {PRICING_ITEMS.map((item) => (
+                <li key={item}>
+                  <LuCheck /> {item}
+                </li>
               ))}
-            </motion.div>
-          </div>
-          <ul className="landing__pricing-list">
-            {PRICING_ITEMS.map((item) => (
-              <li key={item}>
-                <LuCheck /> {item}
-              </li>
-            ))}
-          </ul>
-          <Link to="/inscription" className="btn btn--primary landing__cta">
-            {t('landing.startNow')}
-          </Link>
-        </motion.div>
+            </ul>
+            <Link to="/inscription" className="btn btn--primary landing__cta">
+              {t('landing.startNow')}
+            </Link>
+          </motion.div>
+
+          <motion.div
+            className="landing__pricing-card landing__pricing-card--premium"
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.4, delay: 0.08 }}
+          >
+            <span className="landing__premium-badge">{t('landing.premiumBadge')}</span>
+            <div className="landing__pricing-amount">
+              10 500 <span>{t('landing.pricingPerMonth')}</span>
+            </div>
+            <p className="landing__pricing-hint">{t('landing.premiumName')}</p>
+            <ul className="landing__pricing-list">
+              <li className="landing__pricing-list-highlight">{t('landing.premiumIncluded')}</li>
+              {PREMIUM_ITEMS.map((item) => (
+                <li key={item}>
+                  <LuCheck /> {item}
+                </li>
+              ))}
+            </ul>
+            <span className="btn btn--ghost landing__cta landing__cta--disabled">
+              {t('landing.premiumBadge')}
+            </span>
+          </motion.div>
+        </div>
       </section>
 
       <footer className="landing__footer">

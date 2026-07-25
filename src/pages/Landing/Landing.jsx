@@ -139,6 +139,11 @@ export default function Landing() {
             5 500 <span>{t('landing.pricingPerMonth')}</span>
           </div>
           <p className="landing__pricing-hint">{t('landing.pricingHint')}</p>
+          <div className="landing__payment-badges">
+            <img src="/logo-payment/wave.png" alt="Wave" className="landing__payment-badge" />
+            <img src="/logo-payment/orange-money.png" alt="Orange Money" className="landing__payment-badge" />
+            <img src="/logo-payment/free-money.png" alt="Free Money" className="landing__payment-badge" />
+          </div>
           <ul className="landing__pricing-list">
             {PRICING_ITEMS.map((item) => (
               <li key={item}>

@@ -222,7 +222,25 @@
 .landing__pricing-hint {
   color: var(--text-secondary);
   font-size: 0.85rem;
+  margin: 0 0 16px;
+}
+
+.landing__payment-badges {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   margin: 0 0 24px;
+}
+
+.landing__payment-badge {
+  height: 26px;
+  width: auto;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background-color: #fff;
+  object-fit: contain;
+  padding: 3px 6px;
 }
 
 .landing__pricing-list {

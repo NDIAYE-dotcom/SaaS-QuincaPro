@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LuMail, LuLock, LuEye, LuEyeOff } from 'react-icons/lu';
 import { signIn } from '../../../services/authService';
@@ -10,8 +10,14 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(() => new URLSearchParams(window.location.search).get('erreur') || '');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (window.location.search.includes('erreur')) {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   const from = location.state?.from?.pathname || '/tableau-de-bord';
 

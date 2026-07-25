@@ -31,7 +31,7 @@ export default {
     duration: 'Durée',
     months: 'mois',
     redirecting: 'Redirection...',
-    payWithPaydunya: 'Payer avec PayDunya',
+    payWithPaydunya: 'Finaliser votre paiement',
   },
   en: {
     title: 'Settings',
@@ -65,6 +65,6 @@ export default {
     duration: 'Duration',
     months: 'months',
     redirecting: 'Redirecting...',
-    payWithPaydunya: 'Pay with PayDunya',
+    payWithPaydunya: 'Complete your payment',
   },
 };

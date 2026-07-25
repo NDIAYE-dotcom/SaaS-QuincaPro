@@ -7,7 +7,7 @@ export default {
     superAdminBrand: 'Super Admin',
 
     dashboardTitle: 'Tableau de bord Super Admin',
-    dashboardSubtitle: "Vue d'ensemble des abonnements QuincaPro",
+    dashboardSubtitle: "Vue d'ensemble des abonnements G-Quinca",
     statRegisteredCompanies: 'Entreprises inscrites',
     statActiveSubscriptions: 'Abonnements actifs',
     statAwaitingPayment: 'En attente de paiement',
@@ -55,7 +55,7 @@ export default {
     columnNotes: 'Notes',
 
     announcementsTitle: 'Annonces',
-    announcementsSubtitle: 'Messages diffusés à tous les utilisateurs de QuincaPro',
+    announcementsSubtitle: 'Messages diffusés à tous les utilisateurs de G-Quinca',
     newAnnouncement: 'Nouvelle annonce',
     noAnnouncementsPublished: 'Aucune annonce publiée.',
     active: 'Active',
@@ -92,7 +92,7 @@ export default {
     superAdminBrand: 'Super Admin',
 
     dashboardTitle: 'Super Admin dashboard',
-    dashboardSubtitle: 'Overview of QuincaPro subscriptions',
+    dashboardSubtitle: 'Overview of G-Quinca subscriptions',
     statRegisteredCompanies: 'Registered companies',
     statActiveSubscriptions: 'Active subscriptions',
     statAwaitingPayment: 'Awaiting payment',
@@ -140,7 +140,7 @@ export default {
     columnNotes: 'Notes',
 
     announcementsTitle: 'Announcements',
-    announcementsSubtitle: 'Messages broadcast to all QuincaPro users',
+    announcementsSubtitle: 'Messages broadcast to all G-Quinca users',
     newAnnouncement: 'New announcement',
     noAnnouncementsPublished: 'No announcements published.',
     active: 'Active',

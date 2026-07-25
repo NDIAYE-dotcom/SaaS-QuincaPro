@@ -1,7 +1,7 @@
 export default {
   fr: {
     title: 'Équipe',
-    subtitle: 'Membres ayant accès à votre entreprise sur QuincaPro',
+    subtitle: 'Membres ayant accès à votre entreprise sur G-Quinca',
     adminOnly: 'Seul un administrateur peut gérer l’équipe.',
     inviteMember: 'Inviter un membre',
     invitationCreated: 'Invitation créée. Partagez ce lien avec la personne concernée :',
@@ -46,7 +46,7 @@ export default {
   },
   en: {
     title: 'Team',
-    subtitle: 'Members who have access to your company on QuincaPro',
+    subtitle: 'Members who have access to your company on G-Quinca',
     adminOnly: 'Only an administrator can manage the team.',
     inviteMember: 'Invite a member',
     invitationCreated: 'Invitation created. Share this link with the person concerned:',

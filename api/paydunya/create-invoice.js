@@ -75,9 +75,9 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         invoice: {
           total_amount: montant,
-          description: `Abonnement QuincaPro - ${profile.entreprise.nom} - ${dureeMois} mois`,
+          description: `Abonnement G-Quinca - ${profile.entreprise.nom} - ${dureeMois} mois`,
         },
-        store: { name: 'QuincaPro' },
+        store: { name: 'G-Quinca' },
         actions: {
           cancel_url: `${baseUrl}/parametres?abonnement=annule`,
           return_url: `${baseUrl}/parametres?abonnement=succes`,

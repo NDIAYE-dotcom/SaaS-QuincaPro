@@ -83,7 +83,7 @@ export default function Register() {
   return (
     <form className="auth-form" onSubmit={handleSubmit}>
       <h1>Créer votre entreprise</h1>
-      <p className="auth-form__subtitle">Démarrez avec QuincaPro en quelques minutes</p>
+      <p className="auth-form__subtitle">Démarrez avec G-Quinca en quelques minutes</p>
 
       {error && <div className="auth-form__error">{error}</div>}
 

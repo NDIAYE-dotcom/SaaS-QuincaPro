@@ -40,8 +40,8 @@ export default function SuperAdminLayout() {
     <div className="layout">
       <aside className={`sidebar ${sidebarOpen ? 'sidebar--open' : ''}`}>
         <div className="sidebar__brand">
-          <img src="/logo-icon-dark.png" alt="QuincaPro" className="sidebar__brand-mark" />
-          <span className="sidebar__brand-name">QuincaPro Admin</span>
+          <img src="/logo-icon-dark.png" alt="G-Quinca" className="sidebar__brand-mark" />
+          <span className="sidebar__brand-name">G-Quinca Admin</span>
         </div>
 
         <nav className="sidebar__nav">

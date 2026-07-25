@@ -7,8 +7,8 @@ export default function AuthLayout() {
       <aside className="auth-layout__brand">
         <div className="auth-layout__brand-content">
           <div className="auth-layout__logo">
-            <img src="/logo-icon-dark.png" alt="QuincaPro" className="auth-layout__logo-mark" />
-            <span>QuincaPro</span>
+            <img src="/logo-icon-dark.png" alt="G-Quinca" className="auth-layout__logo-mark" />
+            <span>G-Quinca</span>
           </div>
           <h2>La gestion de votre quincaillerie, simplifiée.</h2>
           <p>

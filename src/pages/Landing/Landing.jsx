@@ -63,7 +63,7 @@ export default function Landing() {
 
         <div className="landing__brand">
           {theme === 'dark' ? (
-            <img src="/logo-icon-dark.png" alt="QuincaPro" className="landing__brand-mark" />
+            <img src="/logo-icon-dark.png" alt="G-Quinca" className="landing__brand-mark" />
           ) : (
             <img src="/logo-full-light.png" alt="Gestion Quincaillerie" className="landing__brand-full" />
           )}

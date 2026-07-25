@@ -11,6 +11,7 @@ import {
   revokeInvitation,
 } from '../../services/teamService';
 import { getRoleLabels, INVITABLE_ROLES } from '../../constants/roles';
+import { SITE_URL } from '../../utils/siteUrl';
 import InviteMemberModal from './InviteMemberModal';
 import './Team.css';
 
@@ -88,7 +89,7 @@ export default function Team() {
   }
 
   function inviteLink(token) {
-    return `${window.location.origin}/invitation/${token}`;
+    return `${SITE_URL}/invitation/${token}`;
   }
 
   async function copyLink(token, id) {

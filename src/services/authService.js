@@ -1,4 +1,5 @@
 import { supabase } from '../supabase/client';
+import { SITE_URL } from '../utils/siteUrl';
 
 export async function signIn({ email, password }) {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -12,7 +13,7 @@ export async function signUp({ email, password, metadata }) {
     password,
     options: {
       data: metadata,
-      emailRedirectTo: `${window.location.origin}/`,
+      emailRedirectTo: `${SITE_URL}/`,
     },
   });
   if (error) throw error;
@@ -48,7 +49,7 @@ export async function signOut() {
 
 export async function requestPasswordReset(email) {
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/reinitialiser-mot-de-passe`,
+    redirectTo: `${SITE_URL}/reinitialiser-mot-de-passe`,
   });
   if (error) throw error;
 }

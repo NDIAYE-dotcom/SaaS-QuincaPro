@@ -21,6 +21,17 @@ import './Landing.css';
 
 const MARQUEE_ICONS = [LuFileText, LuPenTool, LuStamp, LuReceipt];
 
+const PAYMENT_LOGOS = [
+  { src: '/logo-payment/wave.png', alt: 'Wave' },
+  { src: '/logo-payment/orange-money.png', alt: 'Orange Money' },
+  { src: '/logo-payment/free-money.png', alt: 'Free Money' },
+  { src: '/logo-payment/mtn-money.png', alt: 'MTN Money' },
+  { src: '/logo-payment/moov-money.png', alt: 'Moov Money' },
+  { src: '/logo-payment/wizall-money.png', alt: 'Wizall Money' },
+  { src: '/logo-payment/visa.png', alt: 'Visa' },
+  { src: '/logo-payment/mastercard.png', alt: 'Mastercard' },
+];
+
 export default function Landing() {
   const { theme, toggleTheme } = useTheme();
   const { language, toggleLanguage, t } = useLanguage();
@@ -139,10 +150,16 @@ export default function Landing() {
             5 500 <span>{t('landing.pricingPerMonth')}</span>
           </div>
           <p className="landing__pricing-hint">{t('landing.pricingHint')}</p>
-          <div className="landing__payment-badges">
-            <img src="/logo-payment/wave.png" alt="Wave" className="landing__payment-badge" />
-            <img src="/logo-payment/orange-money.png" alt="Orange Money" className="landing__payment-badge" />
-            <img src="/logo-payment/free-money.png" alt="Free Money" className="landing__payment-badge" />
+          <div className="landing__payment-marquee" aria-hidden="true">
+            <motion.div
+              className="landing__payment-track"
+              animate={{ x: ['0%', '-50%'] }}
+              transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
+            >
+              {[...PAYMENT_LOGOS, ...PAYMENT_LOGOS].map((logo, index) => (
+                <img key={index} src={logo.src} alt={logo.alt} className="landing__payment-badge" />
+              ))}
+            </motion.div>
           </div>
           <ul className="landing__pricing-list">
             {PRICING_ITEMS.map((item) => (

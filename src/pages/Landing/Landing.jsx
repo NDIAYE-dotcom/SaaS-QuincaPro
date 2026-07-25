@@ -206,7 +206,7 @@ export default function Landing() {
 
       <footer className="landing__footer">
         <span>
-          © {new Date().getFullYear()} G-Quinca by ZS — {t('landing.footerRights')}
+          © {new Date().getFullYear()} G-Quinca by ON — {t('landing.footerRights')}
         </span>
       </footer>
     </div>

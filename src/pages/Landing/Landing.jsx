@@ -183,22 +183,23 @@ export default function Landing() {
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.4, delay: 0.08 }}
           >
-            <span className="landing__premium-badge">{t('landing.premiumBadge')}</span>
             <div className="landing__pricing-amount">
               10 500 <span>{t('landing.pricingPerMonth')}</span>
             </div>
             <p className="landing__pricing-hint">{t('landing.premiumName')}</p>
             <ul className="landing__pricing-list">
-              <li className="landing__pricing-list-highlight">{t('landing.premiumIncluded')}</li>
-              {PREMIUM_ITEMS.map((item) => (
+              {PRICING_ITEMS.map((item) => (
                 <li key={item}>
                   <LuCheck /> {item}
                 </li>
               ))}
+              {PREMIUM_ITEMS.map((item) => (
+                <li key={item} className="landing__pricing-list-new">
+                  <LuCheck /> {item}
+                </li>
+              ))}
             </ul>
-            <span className="btn btn--ghost landing__cta landing__cta--disabled">
-              {t('landing.premiumBadge')}
-            </span>
+            <span className="landing__premium-cta">{t('landing.premiumBadge')}</span>
           </motion.div>
         </div>
       </section>

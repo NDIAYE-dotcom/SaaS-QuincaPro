@@ -65,7 +65,7 @@ create table public.depenses_caisse (
   montant numeric(12, 2) not null check (montant > 0),
   annulee boolean not null default false,
   annulee_le timestamptz,
-  cree_par uuid references public.profiles (id) on delete set null,
+  cree_par uuid default auth.uid() references public.profiles (id) on delete set null,
   created_at timestamptz not null default now()
 );
 

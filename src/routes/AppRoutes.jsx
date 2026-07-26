@@ -24,6 +24,7 @@ const SaleDetail = lazy(() => import('../pages/Sales/SaleDetail'));
 const Purchases = lazy(() => import('../pages/Purchases/Purchases'));
 const NewPurchase = lazy(() => import('../pages/Purchases/NewPurchase'));
 const PurchaseDetail = lazy(() => import('../pages/Purchases/PurchaseDetail'));
+const Depenses = lazy(() => import('../pages/Depenses/Depenses'));
 const Accounting = lazy(() => import('../pages/Accounting/Accounting'));
 const Reports = lazy(() => import('../pages/Reports/Reports'));
 const Settings = lazy(() => import('../pages/Settings/Settings'));
@@ -93,6 +94,7 @@ export default function AppRoutes() {
               <Route path="/achats" element={<Purchases />} />
               <Route path="/achats/nouveau" element={<NewPurchase />} />
               <Route path="/achats/:id" element={<PurchaseDetail />} />
+              <Route path="/depenses" element={<Depenses />} />
               <Route path="/comptabilite" element={<Accounting />} />
               <Route path="/rapports" element={<Reports />} />
               <Route path="/equipe" element={<Team />} />

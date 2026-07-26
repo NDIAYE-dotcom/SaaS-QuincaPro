@@ -27,9 +27,20 @@ export async function fetchProducts({ search = '', categorieId = null } = {}) {
   return data;
 }
 
+export async function fetchProductsCount() {
+  const { count, error } = await supabase.from('produits').select('id', { count: 'exact', head: true });
+  if (error) throw error;
+  return count ?? 0;
+}
+
 export async function createProduct(payload) {
   const { data, error } = await supabase.from('produits').insert(payload).select(SELECT_COLUMNS).single();
-  if (error) throw error;
+  if (error) {
+    if (error.code === '23505') {
+      throw new Error('Ce SKU est déjà utilisé par un autre produit. Modifiez-le puis réessayez.');
+    }
+    throw error;
+  }
   return data;
 }
 

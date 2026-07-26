@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LuX, LuUpload, LuLoaderCircle } from 'react-icons/lu';
-import { createProduct, updateProduct } from '../../services/productService';
+import { createProduct, updateProduct, fetchProductsCount } from '../../services/productService';
 import { uploadProductPhoto, deleteProductPhoto } from '../../services/storageService';
 import { registerStockMovement } from '../../services/stockService';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { generateSku } from '../../utils/sku';
 import './ProductFormModal.css';
 
 const EMPTY_FORM = {
@@ -55,9 +56,30 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
   const [photoPreview, setPhotoPreview] = useState(product?.photo_url || null);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [skuTouched, setSkuTouched] = useState(isEditing);
+  const [nextSkuSeq, setNextSkuSeq] = useState(null);
+
+  useEffect(() => {
+    if (isEditing) return;
+    fetchProductsCount()
+      .then((count) => setNextSkuSeq(count + 1))
+      .catch(() => {});
+  }, [isEditing]);
+
+  useEffect(() => {
+    if (isEditing || skuTouched || nextSkuSeq == null) return;
+    const trimmedNom = form.nom.trim();
+    if (!trimmedNom) return;
+    setForm((prev) => ({ ...prev, sku: generateSku(trimmedNom, nextSkuSeq) }));
+  }, [form.nom, nextSkuSeq, skuTouched, isEditing]);
 
   function update(field) {
     return (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
+  }
+
+  function handleSkuChange(e) {
+    setSkuTouched(true);
+    setForm((prev) => ({ ...prev, sku: e.target.value }));
   }
 
   function handlePhotoChange(e) {
@@ -187,7 +209,8 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
 
             <label className="field">
               <span>{t('products.fieldSku')}</span>
-              <input type="text" value={form.sku} onChange={update('sku')} />
+              <input type="text" value={form.sku} onChange={handleSkuChange} />
+              {!isEditing && <small className="field__hint">{t('products.fieldSkuHint')}</small>}
             </label>
 
             <label className="field">

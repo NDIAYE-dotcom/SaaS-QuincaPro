@@ -14,6 +14,8 @@ export default {
     purchaseCancelledSuffix: ' (annulé)',
     movementDescription: '{{type}} de {{qty}} sur « {{product}} »',
     deletedProduct: 'produit supprimé',
+    expenseCreated: 'Dépense « {{category}} » enregistrée ({{amount}})',
+    expenseCancelledSuffix: ' (annulée)',
   },
   en: {
     title: 'Activity log',
@@ -30,5 +32,7 @@ export default {
     purchaseCancelledSuffix: ' (cancelled)',
     movementDescription: '{{type}} of {{qty}} on "{{product}}"',
     deletedProduct: 'deleted product',
+    expenseCreated: 'Expense "{{category}}" recorded ({{amount}})',
+    expenseCancelledSuffix: ' (cancelled)',
   },
 };

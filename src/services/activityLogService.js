@@ -5,7 +5,7 @@ function formatMoney(amount) {
 }
 
 export async function fetchActivityLog({ limit = 100 }, t) {
-  const [ventesRes, achatsRes, mouvementsRes] = await Promise.all([
+  const [ventesRes, achatsRes, mouvementsRes, depensesRes] = await Promise.all([
     supabase
       .from('ventes')
       .select('id, numero, statut, total_ttc, created_at, cree_par:profiles(nom_complet)')
@@ -21,9 +21,14 @@ export async function fetchActivityLog({ limit = 100 }, t) {
       .select('id, type, quantite, motif, created_at, produit:produits(nom), cree_par:profiles(nom_complet)')
       .order('created_at', { ascending: false })
       .limit(limit),
+    supabase
+      .from('depenses_caisse')
+      .select('id, categorie, montant, annulee, created_at, cree_par:profiles(nom_complet)')
+      .order('created_at', { ascending: false })
+      .limit(limit),
   ]);
 
-  const firstError = [ventesRes, achatsRes, mouvementsRes].find((r) => r.error);
+  const firstError = [ventesRes, achatsRes, mouvementsRes, depensesRes].find((r) => r.error);
   if (firstError) throw firstError.error;
 
   const MOUVEMENT_LABELS = {
@@ -60,6 +65,14 @@ export async function fetchActivityLog({ limit = 100 }, t) {
           qty: m.quantite,
           product: m.produit?.nom || t('activityLog.deletedProduct'),
         }) + (m.motif ? ` — ${m.motif}` : ''),
+    })),
+    ...depensesRes.data.map((d) => ({
+      id: `depense-${d.id}`,
+      date: d.created_at,
+      utilisateur: d.cree_par?.nom_complet || t('activityLog.system'),
+      description:
+        t('activityLog.expenseCreated', { category: d.categorie, amount: formatMoney(d.montant) }) +
+        (d.annulee ? t('activityLog.expenseCancelledSuffix') : ''),
     })),
   ];
 

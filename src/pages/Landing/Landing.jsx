@@ -27,7 +27,7 @@ const MARQUEE_ICONS = [LuFileText, LuPenTool, LuStamp, LuReceipt];
 
 const CONTACT_WHATSAPP_DISPLAY = '+221 77 176 25 46 / 77 960 58 25';
 const CONTACT_WHATSAPP_LINK = 'https://wa.me/221771762546';
-const CONTACT_EMAIL = 'G-quinca@gmail.com';
+const CONTACT_EMAIL = 'ousmanendiaye.sn19@gmail.com';
 
 const PAYMENT_LOGOS = [
   { src: '/logo-payment/wave.png', alt: 'Wave' },

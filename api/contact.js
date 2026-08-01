@@ -1,4 +1,4 @@
-const CONTACT_DESTINATION_EMAIL = 'G-quinca@gmail.com';
+const CONTACT_DESTINATION_EMAIL = 'ousmanendiaye.sn19@gmail.com';
 const CONTACT_SENDER_EMAIL = 'no-reply@g-quinca.com';
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
